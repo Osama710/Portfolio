@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    @apply bg-void text-ink;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(124, 92, 255, 0.14), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(34, 211, 238, 0.1), transparent 40%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: rgba(124, 92, 255, 0.4);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid #a594ff;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #08080c;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #26263a;
+    border-radius: 999px;
+    border: 2px solid #08080c;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #38385a;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply relative rounded-2xl border border-white/10 bg-white/[0.035] shadow-glass backdrop-blur-xl;
+  }
+
+  .glass-panel-hover {
+    @apply transition-all duration-300 hover:border-white/20 hover:bg-white/[0.055];
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.25em] text-violet-soft;
+  }
+
+  .noise-layer {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .grid-mask {
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      #000 40%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      #000 40%,
+      transparent 100%
+    );
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-white via-white to-violet-soft bg-clip-text text-transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

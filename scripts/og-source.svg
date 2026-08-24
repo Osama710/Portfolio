@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B0B12"/>
+      <stop offset="100%" stop-color="#08080C"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 80) scale(520)">
+      <stop offset="0%" stop-color="#7C5CFF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#7C5CFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 560) scale(480)">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="700" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#A594FF"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7C5CFF"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <g opacity="0.05">
+    <path d="M0 105 H1200 M0 210 H1200 M0 315 H1200 M0 420 H1200 M0 525 H1200" stroke="#ffffff" stroke-width="1"/>
+    <path d="M150 0 V630 M300 0 V630 M450 0 V630 M600 0 V630 M750 0 V630 M900 0 V630 M1050 0 V630" stroke="#ffffff" stroke-width="1"/>
+  </g>
+
+  <rect x="90" y="88" width="72" height="72" rx="18" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.12"/>
+  <text x="126" y="135" font-family="Arial, sans-serif" font-size="26" font-weight="700" text-anchor="middle" fill="#A594FF">MO</text>
+
+  <text x="90" y="290" font-family="Arial, sans-serif" font-size="66" font-weight="700" fill="url(#textGrad)">Muhammad Osama</text>
+  <text x="90" y="350" font-family="Arial, sans-serif" font-size="34" font-weight="500" fill="#9AA0AC">Full Stack Software Engineer</text>
+
+  <rect x="90" y="410" width="1" height="1" fill="none"/>
+  <line x1="90" y1="410" x2="1110" y2="410" stroke="#ffffff" stroke-opacity="0.1"/>
+
+  <g font-family="Arial, sans-serif">
+    <text x="90" y="465" font-size="22" fill="#5B6270">FOCUS</text>
+    <text x="90" y="500" font-size="26" font-weight="500" fill="#F5F5F7">Fintech · E-commerce · Next.js · Node.js</text>
+
+    <text x="620" y="465" font-size="22" fill="#5B6270">BASED IN</text>
+    <text x="620" y="500" font-size="26" font-weight="500" fill="#F5F5F7">Karachi, Pakistan — Open to Relocation</text>
+  </g>
+
+  <circle cx="1080" cy="450" r="5" fill="#34D399"/>
+</svg>
