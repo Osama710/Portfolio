@@ -1,4 +1,6 @@
 import { Backdrop } from "@/components/ui/backdrop";
+import { ScanlineOverlay } from "@/components/ui/scanline-overlay";
+import { ConsoleBezel } from "@/components/ui/console-bezel";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SiteChrome } from "@/components/layout/site-chrome";
@@ -14,17 +16,21 @@ export default function Home() {
   return (
     <SiteChrome>
       <Backdrop />
-      <Navbar />
-      <main id="main-content">
-        <Hero />
-        <About />
-        <Skills />
-        <Experience />
-        <Projects />
-        <Education />
-        <Contact />
-      </main>
-      <Footer />
+      <ScanlineOverlay />
+      <ConsoleBezel />
+      <div className="relative z-10">
+        <Navbar />
+        <main id="main-content">
+          <Hero />
+          <About />
+          <Skills />
+          <Experience />
+          <Projects />
+          <Education />
+          <Contact />
+        </main>
+        <Footer />
+      </div>
     </SiteChrome>
   );
 }

@@ -1,68 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 
-interface BootSequenceProps {
-  onComplete?: () => void;
-}
+const BOOT_DURATION_MS = 1100;
 
-export function BootSequence({ onComplete }: BootSequenceProps) {
+export function BootSequence() {
   const shouldReduceMotion = useReducedMotion();
-  const [active, setActive] = useState(!shouldReduceMotion);
+  const [showBoot, setShowBoot] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const finishedRef = useRef(false);
 
-  useEffect(() => {
-    if (shouldReduceMotion) {
-      onComplete?.();
+  const dismiss = useCallback((instant = false) => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+
+    if (instant) {
+      setShowBoot(false);
       return;
     }
 
-    let finished = false;
+    setIsFadingOut(true);
+    window.setTimeout(() => setShowBoot(false), 220);
+  }, []);
 
-    function finish() {
-      if (finished) return;
-      finished = true;
-      setActive(false);
-      onComplete?.();
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+
+    finishedRef.current = false;
+    setIsFadingOut(false);
+    setShowBoot(true);
+
+    const timer = window.setTimeout(() => dismiss(false), BOOT_DURATION_MS);
+
+    function skip() {
+      dismiss(true);
     }
 
-    const timer = window.setTimeout(finish, 1200);
-
-    function handleSkip() {
-      finish();
-    }
-
-    window.addEventListener("click", handleSkip, { passive: true });
-    window.addEventListener("keydown", handleSkip, { passive: true });
-    window.addEventListener("scroll", handleSkip, { passive: true });
-    window.addEventListener("wheel", handleSkip, { passive: true });
-    window.addEventListener("touchstart", handleSkip, { passive: true });
+    window.addEventListener("click", skip, { passive: true });
+    window.addEventListener("keydown", skip, { passive: true });
+    window.addEventListener("scroll", skip, { passive: true });
+    window.addEventListener("wheel", skip, { passive: true });
+    window.addEventListener("touchstart", skip, { passive: true });
 
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener("click", handleSkip);
-      window.removeEventListener("keydown", handleSkip);
-      window.removeEventListener("scroll", handleSkip);
-      window.removeEventListener("wheel", handleSkip);
-      window.removeEventListener("touchstart", handleSkip);
+      window.removeEventListener("click", skip);
+      window.removeEventListener("keydown", skip);
+      window.removeEventListener("scroll", skip);
+      window.removeEventListener("wheel", skip);
+      window.removeEventListener("touchstart", skip);
     };
-  }, [onComplete, shouldReduceMotion]);
+  }, [dismiss, shouldReduceMotion]);
 
-  if (!active) return null;
+  if (shouldReduceMotion || !showBoot) return null;
 
   return (
-    <motion.div
-      className="boot-sequence fixed inset-0 z-[200] flex cursor-pointer items-center justify-center"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 0 }}
-      transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+    <div
+      className={`boot-sequence fixed inset-0 z-[200] flex cursor-pointer items-center justify-center ${isFadingOut ? "boot-sequence-out" : ""}`}
+      onClick={() => dismiss(true)}
+      onKeyDown={() => dismiss(true)}
+      role="presentation"
       aria-hidden="true"
     >
-      <div className="boot-sequence-flash absolute inset-0" />
-      <div className="boot-sequence-scan absolute inset-0" />
-      <p className="relative z-10 font-mono text-[0.65rem] uppercase tracking-[0.35em] text-phosphor/40">
+      <div className="boot-sequence-flash absolute inset-0" aria-hidden="true" />
+      <div className="boot-sequence-scan absolute inset-0" aria-hidden="true" />
+      <div className="boot-sequence-noise absolute inset-0" aria-hidden="true" />
+      <p className="boot-sequence-label relative z-10 font-mono text-[0.65rem] uppercase tracking-[0.35em] text-phosphor/50">
         OSAMA.SYS — initializing
       </p>
-    </motion.div>
+    </div>
   );
 }

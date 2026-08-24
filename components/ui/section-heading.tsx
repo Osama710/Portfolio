@@ -21,26 +21,31 @@ export function SectionHeading({
   return (
     <ScrollReveal
       className={cn(
-        "max-w-2xl",
+        "max-w-3xl",
         align === "center" && "mx-auto text-center",
         className,
       )}
     >
       {channel ? (
-        <p className="channel-tag mb-3">
+        <p
+          className={cn(
+            "channel-tag mb-3",
+            align === "center" && "justify-center",
+          )}
+        >
           <span className="h-px w-4 bg-phosphor/40" aria-hidden="true" />
           {channel}
         </p>
       ) : null}
-      <span className="eyebrow">
+      <span
+        className={cn("eyebrow", align === "center" && "justify-center")}
+      >
         <span className="h-px w-6 bg-phosphor/50" aria-hidden="true" />
         {eyebrow}
       </span>
-      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-        {title}
-      </h2>
+      <h2 className="section-display mt-5">{title}</h2>
       {description ? (
-        <p className="mt-4 text-balance text-base leading-relaxed text-ink-muted">
+        <p className="mt-5 text-balance text-base leading-relaxed text-ink-muted sm:text-lg">
           {description}
         </p>
       ) : null}

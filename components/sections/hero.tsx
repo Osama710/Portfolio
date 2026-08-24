@@ -76,17 +76,17 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 text-balance font-display text-5xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-[3.75rem]"
+            className="hero-display mt-6"
           >
-            {profile.name},{" "}
-            <span className="text-gradient">{profile.title}</span>
+            {profile.name}
+            <span className="hero-display-accent mt-1">{profile.title}</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 max-w-xl text-balance text-lg leading-relaxed text-ink-muted"
+            className="hero-lead mt-7"
           >
             {profile.tagline}
           </motion.p>
@@ -156,6 +156,17 @@ export function Hero() {
           style={{ perspective: 1200 }}
           className="relative mx-auto w-full max-w-md"
         >
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="broadcast-label absolute -top-11 left-0 z-10 sm:-top-12"
+            aria-hidden="true"
+          >
+            <span className="broadcast-label-live" />
+            {channelMarker(heroChannel)}
+          </motion.div>
+
           <div className="animate-float">
           <motion.div
             ref={cardRef}
@@ -170,7 +181,7 @@ export function Hero() {
               <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
               <span className="ml-3 font-mono text-[0.7rem] text-phosphor/50">
-                CH 01 · LIVE FEED
+                raptr_wallet — production
               </span>
             </div>
 
