@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { projects } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
@@ -21,10 +22,13 @@ function initialsOf(name: string) {
 }
 
 export function Projects() {
+  const projectsChannel = getChannelById("projects");
+
   return (
     <section id="projects" className="relative py-28 sm:py-32">
       <div className="container">
         <SectionHeading
+          channel={channelMarker(projectsChannel)}
           eyebrow="Projects"
           title="Products shipped in production, not just prototypes."
           description="A selection of the platforms Osama has built and maintained — spanning fintech, gaming, healthcare, and more."

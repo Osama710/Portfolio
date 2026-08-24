@@ -1,5 +1,6 @@
 import { Briefcase, GraduationCap, MapPin, Sparkles } from "lucide-react";
 import { profile } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -27,11 +28,14 @@ const facts = [
 ];
 
 export function About() {
+  const aboutChannel = getChannelById("about");
+
   return (
     <section id="about" className="relative py-28 sm:py-32">
       <div className="container">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <SectionHeading
+            channel={channelMarker(aboutChannel)}
             eyebrow="About"
             title="Five years of turning product requirements into shipped software."
             description="A quick look at how Osama got here — and what he's focused on now."

@@ -6,6 +6,7 @@ interface SectionHeadingProps {
   title: string;
   description?: string;
   align?: "left" | "center";
+  channel?: string;
   className?: string;
 }
 
@@ -14,6 +15,7 @@ export function SectionHeading({
   title,
   description,
   align = "left",
+  channel,
   className,
 }: SectionHeadingProps) {
   return (
@@ -24,8 +26,14 @@ export function SectionHeading({
         className,
       )}
     >
+      {channel ? (
+        <p className="channel-tag mb-3">
+          <span className="h-px w-4 bg-phosphor/40" aria-hidden="true" />
+          {channel}
+        </p>
+      ) : null}
       <span className="eyebrow">
-        <span className="h-px w-6 bg-violet-soft/70" aria-hidden="true" />
+        <span className="h-px w-6 bg-phosphor/50" aria-hidden="true" />
         {eyebrow}
       </span>
       <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">

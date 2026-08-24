@@ -1,5 +1,6 @@
 import { Github, Linkedin, Mail } from "lucide-react";
 import { navLinks, profile, socialLinks } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 
 const iconMap = {
   github: Github,
@@ -9,20 +10,30 @@ const iconMap = {
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const contactChannel = getChannelById("contact");
 
   return (
-    <footer className="border-t border-white/10">
+    <footer className="border-t border-phosphor/10">
       <div className="container flex flex-col gap-8 py-12 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-sm">
           <a
             href="#hero"
-            className="font-display text-lg font-semibold tracking-tight text-ink"
+            className="inline-flex flex-col"
           >
-            {profile.name}
+            <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-phosphor/60">
+              OSAMA.SYS
+            </span>
+            <span className="font-display text-lg font-semibold tracking-tight text-ink">
+              {profile.name}
+            </span>
           </a>
           <p className="mt-3 text-sm leading-relaxed text-ink-muted">
             {profile.title} based in {profile.location} — {profile.relocation}
             .
+          </p>
+          <p className="channel-tag mt-4">
+            <span className="h-px w-4 bg-phosphor/40" aria-hidden="true" />
+            Off air — end of broadcast
           </p>
         </div>
 
@@ -77,7 +88,9 @@ export function Footer() {
         <p>
           © {year} {profile.name}. All rights reserved.
         </p>
-        <p className="font-mono">Built with Next.js &amp; Tailwind CSS</p>
+        <p className="font-mono uppercase tracking-[0.14em]">
+          {channelMarker(contactChannel)} · Built with Next.js
+        </p>
       </div>
     </footer>
   );

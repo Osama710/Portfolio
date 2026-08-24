@@ -1,13 +1,17 @@
 import { Award, GraduationCap } from "lucide-react";
 import { certifications, education } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
 export function Education() {
+  const educationChannel = getChannelById("education");
+
   return (
     <section id="education" className="relative py-28 sm:py-32">
       <div className="container">
         <SectionHeading
+          channel={channelMarker(educationChannel)}
           eyebrow="Education & Achievements"
           title="Foundations and a few milestones along the way."
           align="center"

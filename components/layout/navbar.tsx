@@ -19,9 +19,13 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sections = navLinks
-      .map((link) => document.querySelector<HTMLElement>(link.href))
-      .filter((el): el is HTMLElement => Boolean(el));
+    const hero = document.querySelector<HTMLElement>("#hero");
+    const sections = [
+      hero,
+      ...navLinks
+        .map((link) => document.querySelector<HTMLElement>(link.href))
+        .filter((el): el is HTMLElement => Boolean(el)),
+    ].filter((el): el is HTMLElement => Boolean(el));
 
     if (sections.length === 0) return;
 
@@ -52,29 +56,37 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled || menuOpen
-          ? "border-b border-white/10 bg-void/80 backdrop-blur-xl"
+          ? "border-b border-phosphor/10 bg-void/85 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent",
       )}
     >
       <nav className="container flex h-16 items-center justify-between sm:h-20">
         <a
           href="#hero"
-          className="group flex items-center gap-2.5 font-display text-sm font-semibold tracking-tight"
+          className="group flex items-center gap-2.5"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 font-mono text-xs text-violet-soft transition-transform group-hover:scale-105">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-phosphor/20 bg-phosphor/[0.04] font-mono text-[0.65rem] font-medium uppercase tracking-wider text-phosphor-soft transition-transform group-hover:scale-105">
             {profile.initials}
           </span>
-          <span className="hidden text-ink sm:inline">{profile.name}</span>
+          <span className="hidden flex-col sm:flex">
+            <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-phosphor/60">
+              OSAMA.SYS
+            </span>
+            <span className="font-display text-xs font-medium tracking-tight text-ink-muted">
+              {profile.name}
+            </span>
+          </span>
         </a>
 
-        <div className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1 md:flex">
+        <div className="hidden items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
-                activeSection === link.href && "bg-white/[0.08] text-ink",
+                "rounded-lg px-4 py-2 text-sm font-medium text-ink-muted transition-colors hover:text-ink",
+                activeSection === link.href &&
+                  "bg-phosphor/[0.08] text-ink",
               )}
             >
               {link.label}
@@ -86,7 +98,7 @@ export function Navbar() {
           <a
             href={profile.resumeFile}
             download
-            className="hidden items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-void transition-transform hover:scale-[1.03] sm:inline-flex"
+            className="hidden items-center gap-2 rounded-lg border border-phosphor/25 bg-phosphor/[0.08] px-4 py-2 text-sm font-semibold text-phosphor-soft transition-transform hover:scale-[1.03] sm:inline-flex"
           >
             <Download className="h-4 w-4" aria-hidden="true" />
             Resume
@@ -94,7 +106,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-ink md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-ink md:hidden"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
@@ -134,7 +146,7 @@ export function Navbar() {
                 href={profile.resumeFile}
                 download
                 onClick={() => setMenuOpen(false)}
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-void"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl border border-phosphor/25 bg-phosphor/[0.08] px-4 py-3 text-sm font-semibold text-phosphor-soft"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
                 Download Resume

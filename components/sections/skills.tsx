@@ -1,5 +1,6 @@
 import { Cloud, Code2, Database, Layout, Server, Sparkles } from "lucide-react";
 import { skillCategories } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -13,10 +14,13 @@ const iconMap = {
 };
 
 export function Skills() {
+  const skillsChannel = getChannelById("skills");
+
   return (
     <section id="skills" className="relative py-28 sm:py-32">
       <div className="container">
         <SectionHeading
+          channel={channelMarker(skillsChannel)}
           eyebrow="Skills"
           title="A full-stack toolkit, sharpened on production fintech."
           description="Every tool here has shipped in a real product — from wallet APIs to admin dashboards."

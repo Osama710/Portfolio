@@ -35,6 +35,14 @@ const config: Config = {
         mint: {
           DEFAULT: "#34D399",
         },
+        phosphor: {
+          DEFAULT: "#39FF14",
+          soft: "#6BFF5A",
+          dim: "#1F8A12",
+        },
+        crt: {
+          amber: "#FFB000",
+        },
         ink: {
           DEFAULT: "#F5F5F7",
           muted: "#9AA0AC",
@@ -80,8 +88,24 @@ const config: Config = {
         marquee: "marquee 34s linear infinite",
         "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
         draw: "draw 1.8s ease forwards",
+        "crt-flicker": "crt-flicker 1.2s steps(8) forwards",
+        "boot-scan": "boot-scan 1.1s ease-out forwards",
       },
       keyframes: {
+        "crt-flicker": {
+          "0%, 100%": { opacity: "1" },
+          "12%": { opacity: "0.92" },
+          "24%": { opacity: "0.45" },
+          "36%": { opacity: "0.88" },
+          "48%": { opacity: "0.35" },
+          "60%": { opacity: "0.95" },
+          "72%": { opacity: "0.55" },
+          "84%": { opacity: "0.15" },
+        },
+        "boot-scan": {
+          from: { transform: "translateY(-100%)" },
+          to: { transform: "translateY(100vh)" },
+        },
         float: {
           "0%,100%": { transform: "translateY(0px) rotate(0deg)" },
           "50%": { transform: "translateY(-14px) rotate(1deg)" },

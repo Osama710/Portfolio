@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { ArrowRight, Download, Github, Linkedin, MapPin } from "lucide-react";
 import { heroStats, profile } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { StatusDot } from "@/components/ui/status-dot";
 
@@ -19,6 +20,7 @@ const SPARK_POINTS =
 export function Hero() {
   const cardRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const heroChannel = getChannelById("hero");
 
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -48,6 +50,16 @@ export function Hero() {
       <div className="container grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
         {/* Copy column */}
         <div>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="channel-tag mb-4"
+          >
+            <span className="h-px w-4 bg-phosphor/40" aria-hidden="true" />
+            {channelMarker(heroChannel)}
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +99,7 @@ export function Hero() {
           >
             <a
               href="#projects"
-              className="group inline-flex items-center gap-2 rounded-full bg-violet px-6 py-3.5 text-sm font-semibold text-white shadow-glow-violet transition-transform hover:scale-[1.03]"
+              className="group inline-flex items-center gap-2 rounded-full bg-phosphor px-6 py-3.5 text-sm font-semibold text-void shadow-[0_0_40px_-5px_rgba(57,255,20,0.35)] transition-transform hover:scale-[1.03]"
             >
               View Projects
               <ArrowRight
@@ -157,8 +169,8 @@ export function Hero() {
               <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-              <span className="ml-3 font-mono text-[0.7rem] text-ink-faint">
-                raptr_wallet — production
+              <span className="ml-3 font-mono text-[0.7rem] text-phosphor/50">
+                CH 01 · LIVE FEED
               </span>
             </div>
 

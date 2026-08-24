@@ -1,14 +1,18 @@
 import { experience } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { StatusDot } from "@/components/ui/status-dot";
 import { TechPill } from "@/components/ui/tech-pill";
 
 export function Experience() {
+  const experienceChannel = getChannelById("experience");
+
   return (
     <section id="experience" className="relative py-28 sm:py-32">
       <div className="container">
         <SectionHeading
+          channel={channelMarker(experienceChannel)}
           eyebrow="Experience"
           title="Where the work happened, in order."
           description="Five roles across fintech, agency, and freelance work — each one building on the last."

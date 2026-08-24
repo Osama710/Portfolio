@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Github, Linkedin, Mail, Phone, Send } from "lucide-react";
 import { profile } from "@/lib/data";
+import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -37,6 +38,7 @@ export function Contact() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const contactChannel = getChannelById("contact");
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,6 +53,7 @@ export function Contact() {
     <section id="contact" className="relative py-28 sm:py-32">
       <div className="container">
         <SectionHeading
+          channel={channelMarker(contactChannel)}
           eyebrow="Contact"
           title="Let's build something reliable together."
           description="Open to full-time roles, relocation opportunities, and select freelance work. Reach out directly or send a note below."
@@ -149,7 +152,7 @@ export function Contact() {
 
               <button
                 type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet px-6 py-3.5 text-sm font-semibold text-white shadow-glow-violet transition-transform hover:scale-[1.01] sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-phosphor px-6 py-3.5 text-sm font-semibold text-void shadow-[0_0_40px_-5px_rgba(57,255,20,0.35)] transition-transform hover:scale-[1.01] sm:w-auto"
               >
                 <Send className="h-4 w-4" aria-hidden="true" />
                 Send Message
