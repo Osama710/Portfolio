@@ -10,7 +10,7 @@ export function TechPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-[0.7rem] text-ink-muted transition-colors",
+        "inline-flex items-center rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[0.7rem] font-medium text-ink-muted",
         className,
       )}
     >

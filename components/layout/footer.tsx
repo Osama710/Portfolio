@@ -4,13 +4,13 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-white/10 bg-surface">
-      <div className="mx-auto flex max-w-3xl flex-col gap-2 px-5 py-4 font-mono text-[0.62rem] text-ink-faint sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>
+    <footer className="border-t border-white/[0.06] bg-surface/50">
+      <div className="site-container flex flex-col items-center justify-between gap-4 py-10 sm:flex-row">
+        <p className="text-sm text-ink-muted">
           © {year} {profile.name}
         </p>
-        <p>
-          Built with Next.js · {profile.location}
+        <p className="bg-gradient-brand bg-clip-text text-sm font-medium text-transparent">
+          Built with Next.js · Fintech × Gaming
         </p>
       </div>
     </footer>

@@ -12,43 +12,25 @@ const config: Config = {
       center: true,
       padding: "1.25rem",
       screens: {
-        "2xl": "1200px",
+        "2xl": "1280px",
       },
     },
     extend: {
       colors: {
-        void: "#08080C",
-        surface: "#0E0E16",
-        "surface-2": "#15151F",
-        border: "rgba(255,255,255,0.09)",
-        "editor-blue": {
-          DEFAULT: "#4B8BF5",
-          soft: "#5B8DEF",
-          dim: "#3B6FD4",
-        },
-        "editor-orange": {
-          DEFAULT: "#FF9347",
-          soft: "#FFA94D",
-          dim: "#E67A2E",
-        },
-        violet: {
-          DEFAULT: "#7C5CFF",
-          soft: "#A594FF",
-          dim: "#5A42C4",
-        },
-        cyan: {
-          DEFAULT: "#22D3EE",
-        },
-        magenta: {
-          DEFAULT: "#FF4FD8",
-        },
-        mint: {
-          DEFAULT: "#34D399",
-        },
+        void: "#050508",
+        surface: "#0B0B12",
+        "surface-2": "#12121C",
         ink: {
-          DEFAULT: "#F5F5F7",
-          muted: "#9AA0AC",
-          faint: "#5B6270",
+          DEFAULT: "#F4F4F8",
+          muted: "#9898A8",
+          faint: "#5C5C6E",
+        },
+        accent: {
+          violet: "#8B5CF6",
+          cyan: "#22D3EE",
+          coral: "#FB7185",
+          lime: "#BEF264",
+          blue: "#3B82F6",
         },
       },
       fontFamily: {
@@ -67,16 +49,42 @@ const config: Config = {
           "monospace",
         ],
       },
+      backgroundImage: {
+        "gradient-brand":
+          "linear-gradient(135deg, #8B5CF6 0%, #22D3EE 50%, #FB7185 100%)",
+        "gradient-brand-soft":
+          "linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(34,211,238,0.1) 50%, rgba(251,113,133,0.12) 100%)",
+        "gradient-text":
+          "linear-gradient(135deg, #F4F4F8 0%, #C4B5FD 40%, #22D3EE 70%, #FB7185 100%)",
+      },
       boxShadow: {
-        glass: "0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)",
+        glow: "0 0 60px -12px rgba(139, 92, 246, 0.45)",
+        "glow-cyan": "0 0 50px -10px rgba(34, 211, 238, 0.4)",
+        "glow-coral": "0 0 50px -10px rgba(251, 113, 133, 0.35)",
+        card: "0 24px 48px -12px rgba(0, 0, 0, 0.55)",
       },
       animation: {
-        "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
+        float: "float 8s ease-in-out infinite",
+        "pulse-soft": "pulse-soft 4s ease-in-out infinite",
+        "gradient-flow": "gradient-flow 6s ease infinite",
+        marquee: "marquee 40s linear infinite",
       },
       keyframes: {
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(16px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-14px)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: "0.5", transform: "scale(1)" },
+          "50%": { opacity: "0.85", transform: "scale(1.05)" },
+        },
+        "gradient-flow": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
         },
       },
     },

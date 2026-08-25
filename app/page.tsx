@@ -1,5 +1,4 @@
-import { EditorShell } from "@/components/layout/editor-shell";
-import { Footer } from "@/components/layout/footer";
+import { SiteLayout } from "@/components/layout/site-layout";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
 import { Skills } from "@/components/sections/skills";
@@ -10,7 +9,7 @@ import { Contact } from "@/components/sections/contact";
 
 export default function Home() {
   return (
-    <EditorShell>
+    <SiteLayout>
       <Hero />
       <About />
       <Skills />
@@ -18,7 +17,6 @@ export default function Home() {
       <Projects />
       <Education />
       <Contact />
-      <Footer />
-    </EditorShell>
+    </SiteLayout>
   );
 }
