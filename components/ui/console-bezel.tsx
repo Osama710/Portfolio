@@ -1,6 +1,6 @@
 /**
  * Step 2 — Console bezel framing.
- * Fixed decorative overlay (z-15): above content, below channel/boot chrome.
+ * Fixed decorative overlay (z-15): above content, below boot chrome.
  * Corner brackets + edge tick marks; restrained, not a thick TV frame.
  */
 export function ConsoleBezel() {

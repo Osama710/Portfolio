@@ -1,9 +1,16 @@
+"use client";
+
+import { useRef } from "react";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { projects } from "@/lib/data";
 import { channelMarker, getChannelById } from "@/lib/channels";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
+import { cn } from "@/lib/utils";
+import type { ProjectItem } from "@/types";
 
 const gradients = [
   "from-phosphor/25 via-phosphor/5 to-transparent",
@@ -19,6 +26,84 @@ function initialsOf(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+function projectScreenshot(project: ProjectItem) {
+  return project.screenshot ?? project.image;
+}
+
+function CrtMonitorScreen({
+  project,
+  index,
+}: {
+  project: ProjectItem;
+  index: number;
+}) {
+  const screenRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+  const isInView = useInView(screenRef, { once: true, amount: 0.45 });
+  const screenshot = projectScreenshot(project);
+
+  return (
+    <div className="crt-monitor px-4 pt-4">
+      <div className="crt-monitor-bezel">
+        <div className="crt-monitor-bezel-notch" aria-hidden="true" />
+        <div
+          ref={screenRef}
+          className={cn(
+            "crt-monitor-screen",
+            !reducedMotion &&
+              (isInView ? "crt-monitor-screen-on" : "crt-monitor-screen-off"),
+          )}
+        >
+          {screenshot ? (
+            <Image
+              src={screenshot}
+              alt=""
+              fill
+              className="object-cover object-top"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          ) : (
+            <div
+              className={cn(
+                "absolute inset-0 flex items-center justify-center bg-gradient-to-br",
+                gradients[index % gradients.length],
+              )}
+            >
+              <span className="font-display text-3xl font-bold tracking-tight text-white/90">
+                {initialsOf(project.name)}
+              </span>
+            </div>
+          )}
+          <div className="crt-monitor-scanlines" aria-hidden="true" />
+          <div className="crt-monitor-vignette" aria-hidden="true" />
+          {!reducedMotion ? (
+            <motion.div
+              className="crt-monitor-sweep"
+              aria-hidden="true"
+              initial={{ x: "-120%" }}
+              animate={
+                isInView
+                  ? { x: ["-120%", "120%"] }
+                  : { x: "-120%" }
+              }
+              transition={{
+                duration: 1.1,
+                ease: "easeInOut",
+                delay: 0.15,
+              }}
+            />
+          ) : null}
+        </div>
+        <span className="crt-monitor-led" aria-hidden="true" />
+      </div>
+
+      <span className="absolute right-7 top-7 rounded-full border border-white/15 bg-void/70 px-2.5 py-1 font-mono text-[0.65rem] text-ink-muted">
+        {project.tag}
+      </span>
+    </div>
+  );
 }
 
 export function Projects() {
@@ -38,17 +123,8 @@ export function Projects() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, index) => (
             <ScrollReveal key={project.name} delay={(index % 3) * 0.08}>
-              <article className="glass-panel glass-panel-hover group flex h-full flex-col overflow-hidden">
-                <div
-                  className={`relative flex h-32 items-center justify-center bg-gradient-to-br ${gradients[index % gradients.length]}`}
-                >
-                  <span className="font-display text-3xl font-bold tracking-tight text-white/90">
-                    {initialsOf(project.name)}
-                  </span>
-                  <span className="absolute right-4 top-4 rounded-full border border-white/15 bg-void/40 px-2.5 py-1 font-mono text-[0.65rem] text-ink-muted backdrop-blur">
-                    {project.tag}
-                  </span>
-                </div>
+              <article className="project-monitor-card group flex h-full flex-col overflow-hidden">
+                <CrtMonitorScreen project={project} index={index} />
 
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-center justify-between gap-3">

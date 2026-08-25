@@ -56,7 +56,7 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         scrolled || menuOpen
-          ? "border-b border-phosphor/10 bg-void/85 backdrop-blur-xl"
+          ? "border-b border-phosphor/10 bg-void/90 backdrop-blur-md"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -126,7 +126,7 @@ export function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-t border-white/10 bg-void/95 backdrop-blur-xl md:hidden"
+            className="overflow-hidden border-t border-white/10 bg-void/95 backdrop-blur-md md:hidden"
           >
             <div className="container flex flex-col gap-1 py-4">
               {navLinks.map((link) => (

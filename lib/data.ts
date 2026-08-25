@@ -43,7 +43,7 @@ export const socialLinks: SocialLink[] = [
 export const heroStats: StatItem[] = [
   { label: "Years of experience", value: "5", suffix: "+" },
   { label: "Raptr Wallet users", value: "75,000", suffix: "+" },
-  { label: "Shipped projects", value: "8" },
+  { label: "Shipped projects", value: "9" },
 ];
 
 export const experience: ExperienceItem[] = [
@@ -140,6 +140,7 @@ export const projects: ProjectItem[] = [
       "Marketing site for the Raptr Wallet fintech app — the product Osama leads engineering on, now serving 75,000+ users with KYC, payments, and secure transactions.",
     tech: ["Next.js", "TypeScript"],
     tag: "Fintech",
+    screenshot: "/projects/raptr-wallet.png",
   },
   {
     name: "Raptr Store",
@@ -149,6 +150,7 @@ export const projects: ProjectItem[] = [
       "Primary e-commerce marketplace for gaming commodities, built and maintained as core/lead engineer.",
     tech: ["Next.js", "Node.js", "MongoDB", "MySQL"],
     tag: "E-commerce",
+    screenshot: "/projects/raptr-store.png",
   },
   {
     name: "Raptr.gg",
@@ -158,6 +160,7 @@ export const projects: ProjectItem[] = [
       "Platform for user registration, wallet creation, and esports tournament participation.",
     tech: ["Next.js", "Tailwind CSS", "Redux", "Node.js", "Express"],
     tag: "Esports",
+    screenshot: "/projects/raptr-gg.png",
   },
   {
     name: "Raptr Games",
@@ -166,6 +169,7 @@ export const projects: ProjectItem[] = [
     description: "Corporate site showcasing the full Raptr product suite.",
     tech: ["Next.js"],
     tag: "Corporate",
+    screenshot: "/projects/raptr-games.png",
   },
   {
     name: "Meri Sehat",
@@ -174,6 +178,7 @@ export const projects: ProjectItem[] = [
     description: "Healthcare web app and doctor's panel.",
     tech: ["React.js"],
     tag: "Healthcare",
+    screenshot: "/projects/meri-sehat.png",
   },
   {
     name: "The Groves",
@@ -192,6 +197,7 @@ export const projects: ProjectItem[] = [
       "Architecture firm website with a client portal for managing clients and projects.",
     tech: ["Next.js", "PHP", "Laravel"],
     tag: "Client Portal",
+    screenshot: "/projects/prosper-architect.png",
   },
   {
     name: "Ana Batla",
@@ -200,6 +206,15 @@ export const projects: ProjectItem[] = [
     description: "Static company website showcasing products and services.",
     tech: ["Next.js", "Node.js", "Fastify"],
     tag: "Corporate",
+    screenshot: "/projects/ana-batla.png",
+  },
+  {
+    name: "Eats Official",
+    description:
+      "Pakistan's first comprehensive food encyclopedia — the ultimate destination for food lovers, industry professionals, and culinary explorers.",
+    tech: ["Next.js"],
+    tag: "Food",
+    screenshot: "/projects/eats-official.png",
   },
 ];
 

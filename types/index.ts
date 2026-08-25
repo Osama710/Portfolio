@@ -28,6 +28,8 @@ export interface ProjectItem {
   description: string;
   tech: string[];
   tag: string;
+  image?: string;
+  screenshot?: string;
 }
 
 export interface SkillCategory {

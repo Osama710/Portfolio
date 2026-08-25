@@ -50,7 +50,7 @@
 
 @layer components {
   .glass-panel {
-    @apply relative rounded-2xl border border-white/10 bg-white/[0.035] shadow-glass backdrop-blur-xl;
+    @apply relative rounded-2xl border border-white/10 bg-white/[0.05] shadow-glass backdrop-blur-sm;
   }
 
   .glass-panel-hover {
@@ -209,6 +209,16 @@
    * Horizontal lines only; kept faint so body text (#F5F5F7 on #08080C) stays WCAG AAA.
    */
   .crt-scanlines {
+    contain: strict;
+    transform: translateZ(0);
+    overflow: hidden;
+    opacity: 0.38;
+  }
+
+  .crt-scanlines::before {
+    content: "";
+    position: absolute;
+    inset: -3px 0 0 0;
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0px,
@@ -217,7 +227,7 @@
       rgba(0, 0, 0, 0.28) 3px
     );
     background-size: 100% 3px;
-    opacity: 0.38;
+    will-change: transform;
     animation: crt-scanline-drift 12s linear infinite;
   }
 
@@ -240,6 +250,8 @@
     --bezel-arm: 36px;
     --bezel-line: rgba(57, 255, 20, 0.55);
     --bezel-line-faint: rgba(255, 176, 0, 0.35);
+    contain: paint;
+    transform: translateZ(0);
   }
 
   .console-bezel-corner {
@@ -370,55 +382,135 @@
     animation: boot-label-pulse 0.9s ease-in-out infinite alternate;
   }
 
-  /* Channel control cluster */
-  .channel-control-panel {
-    @apply rounded-xl border border-white/10 bg-void/90 px-3 py-2.5 shadow-glass backdrop-blur-xl;
-    border-color: rgba(57, 255, 20, 0.12);
+  /* Experience — circuit trace path */
+  .circuit-trace-rail {
+    contain: layout paint;
   }
 
-  .channel-control-body {
-    @apply flex flex-col gap-1.5;
+  .circuit-trace-fill {
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.25);
   }
 
-  .channel-control-label {
-    @apply font-mono text-[0.68rem] uppercase tracking-[0.16em] text-ink;
+  .circuit-node {
+    contain: layout style;
   }
 
-  .channel-control-status {
-    @apply flex items-center gap-2;
+  /* Projects — CRT monitor cards */
+  .project-monitor-card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.03] transition-colors duration-300;
   }
 
-  .channel-signal-dot {
-    @apply h-1.5 w-1.5 rounded-full bg-phosphor/80;
+  .project-monitor-card:hover {
+    @apply border-phosphor/20 bg-white/[0.045];
   }
 
-  .channel-signal-dot-live {
-    animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  .crt-monitor {
+    @apply relative;
   }
 
-  .channel-control-buttons {
-    @apply mt-1 flex items-center justify-between gap-2 border-t border-white/5 pt-2;
+  .crt-monitor-bezel {
+    @apply relative rounded-t-xl border-2 border-white/15 bg-[#12121a] p-2.5 pb-3;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 6px 20px rgba(0, 0, 0, 0.35);
   }
 
-  .channel-control-btn {
-    @apply inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/[0.03] text-ink-muted transition-colors hover:border-phosphor/30 hover:text-phosphor-soft;
+  .crt-monitor-bezel-notch {
+    @apply absolute left-1/2 top-0 h-1.5 w-10 -translate-x-1/2 rounded-b-md bg-[#0a0a10];
   }
 
-  .channel-control-toggle {
-    @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-phosphor/70;
+  .crt-monitor-screen {
+    @apply relative aspect-[16/10] overflow-hidden rounded-md border border-black/80 bg-[#050508];
   }
 
-  .channel-control-collapsed .channel-control-panel {
-    @apply p-2;
+  .crt-monitor-scanlines {
+    @apply pointer-events-none absolute inset-0 z-[2];
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(0, 0, 0, 0.22) 2px,
+      rgba(0, 0, 0, 0.22) 3px
+    );
+    background-size: 100% 3px;
+    mix-blend-mode: multiply;
+  }
+
+  .crt-monitor-vignette {
+    @apply pointer-events-none absolute inset-0 z-[3];
+    background: radial-gradient(
+      ellipse 90% 80% at 50% 45%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+
+  .crt-monitor-sweep {
+    @apply pointer-events-none absolute inset-y-0 z-[4] w-1/3;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(57, 255, 20, 0.12),
+      transparent
+    );
+  }
+
+  .crt-monitor-led {
+    @apply absolute bottom-1 right-3 h-1 w-1 rounded-full bg-phosphor/50;
+    box-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
+  }
+
+  .crt-monitor-screen-off {
+    opacity: 0.88;
+  }
+
+  .crt-monitor-screen-on {
+    animation: crt-monitor-power-on 0.35s ease-out forwards;
+  }
+
+  .group:hover .crt-monitor-screen-on {
+    animation: crt-monitor-flicker 0.55s ease-in-out;
   }
 }
 
 @keyframes crt-scanline-drift {
   from {
-    background-position: 0 0;
+    transform: translateY(0);
   }
   to {
-    background-position: 0 3px;
+    transform: translateY(3px);
+  }
+}
+
+@keyframes crt-monitor-power-on {
+  0% {
+    opacity: 0.35;
+    filter: brightness(1.4);
+  }
+  40% {
+    opacity: 0.7;
+    filter: brightness(1.1);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+@keyframes crt-monitor-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  75% {
+    opacity: 0.88;
   }
 }
 
@@ -518,6 +610,21 @@
   .crt-scanlines {
     opacity: 0.2;
     animation: none !important;
+  }
+
+  .crt-scanlines::before {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .crt-monitor-screen-on,
+  .group:hover .crt-monitor-screen-on {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .crt-monitor-sweep {
+    display: none !important;
   }
 
   .boot-sequence,
