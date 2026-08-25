@@ -1,17 +1,17 @@
 import { cn } from "@/lib/utils";
 
 interface StatusDotProps {
-  color?: "mint" | "phosphor" | "amber";
+  color?: "mint" | "blue" | "orange";
   className?: string;
 }
 
 const colorMap: Record<NonNullable<StatusDotProps["color"]>, string> = {
   mint: "bg-mint",
-  phosphor: "bg-phosphor",
-  amber: "bg-crt-amber",
+  blue: "bg-editor-blue",
+  orange: "bg-editor-orange",
 };
 
-export function StatusDot({ color = "phosphor", className }: StatusDotProps) {
+export function StatusDot({ color = "blue", className }: StatusDotProps) {
   return (
     <span className={cn("relative flex h-2 w-2", className)}>
       <span

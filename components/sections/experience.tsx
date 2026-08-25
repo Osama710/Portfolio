@@ -1,21 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import {
-  LayoutGroup,
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { experience } from "@/lib/data";
-import { channelMarker, getChannelById } from "@/lib/channels";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
 import { cn } from "@/lib/utils";
 
-function CircuitNode({
+function LogBlock({
   item,
   index,
   expanded,
@@ -28,140 +21,94 @@ function CircuitNode({
   onToggle: () => void;
   reducedMotion: boolean;
 }) {
-  const nodeId = `experience-node-${index}`;
+  const blockId = `log-block-${index}`;
 
   return (
-    <motion.li layout className="relative pl-10 sm:pl-14">
-      <span
+    <motion.li layout className="console-log-block">
+      <button
+        type="button"
+        id={blockId}
+        aria-expanded={expanded || reducedMotion}
+        aria-controls={`${blockId}-output`}
+        onClick={reducedMotion ? undefined : onToggle}
         className={cn(
-          "absolute left-0 top-5 z-[1] flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border-2 sm:h-5 sm:w-5",
-          item.current
-            ? "border-crt-amber bg-crt-amber/25 shadow-[0_0_12px_rgba(255,176,0,0.45)]"
-            : "border-phosphor/35 bg-phosphor/10",
-        )}
-        aria-hidden="true"
-      >
-        <span
-          className={cn(
-            "rounded-full",
-            item.current
-              ? "h-2 w-2 bg-crt-amber"
-              : "h-1.5 w-1.5 bg-phosphor/50",
-          )}
-        />
-      </span>
-
-      <motion.article
-        layout
-        className={cn(
-          "circuit-node overflow-hidden rounded-xl border bg-surface-2/90",
-          item.current
-            ? "border-crt-amber/25"
-            : "border-white/10",
+          "console-log-header w-full",
+          !reducedMotion && "cursor-pointer",
         )}
       >
-        <button
-          type="button"
-          id={nodeId}
-          aria-expanded={expanded}
-          aria-controls={`${nodeId}-details`}
-          onClick={reducedMotion ? undefined : onToggle}
-          className={cn(
-            "flex w-full items-start justify-between gap-3 p-5 text-left sm:p-6",
-            !reducedMotion && "cursor-pointer transition-colors hover:bg-white/[0.02]",
-          )}
-        >
-          <div className="min-w-0 flex-1">
-            <h3 className="font-display text-lg font-semibold text-ink">
-              {item.role}
-            </h3>
-            <p
-              className={cn(
-                "mt-1 text-sm",
-                item.current ? "text-crt-amber/90" : "text-phosphor-soft/80",
-              )}
-            >
-              {item.company} · {item.location}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-xs text-ink-muted">
-              {item.period}
-            </span>
-            {!reducedMotion ? (
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 text-ink-faint transition-transform duration-300",
-                  expanded && "rotate-180",
-                )}
-                aria-hidden="true"
-              />
-            ) : null}
-          </div>
-        </button>
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="text-[0.8rem] leading-snug text-ink">
+            <span className="text-editor-blue">[BUILD]</span>{" "}
+            <span className="text-ink">{item.company}</span>
+            <span className="text-ink-faint"> — </span>
+            <span className="text-ink-muted">{item.role}</span>
+          </p>
+          <p className="text-[0.72rem] text-ink-faint">
+            {item.period} · {item.location}
+          </p>
+        </div>
 
-        {(expanded || reducedMotion) && (
-          <motion.div
-            layout
-            id={`${nodeId}-details`}
-            role="region"
-            aria-labelledby={nodeId}
-            initial={reducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.25 }}
-            className="border-t border-white/5 px-5 pb-5 pt-4 sm:px-6 sm:pb-6"
+        <div className="flex shrink-0 items-center gap-2">
+          <span
+            className={cn(
+              item.current ? "log-tag-running" : "log-tag-complete",
+            )}
           >
-            <ul className="space-y-2.5">
-              {item.bullets.map((bullet) => (
-                <li
-                  key={bullet}
-                  className="flex gap-2.5 text-sm leading-relaxed text-ink-muted"
-                >
-                  <span
-                    className={cn(
-                      "mt-2 h-1 w-1 shrink-0 rounded-full",
-                      item.current ? "bg-crt-amber/70" : "bg-phosphor/40",
-                    )}
-                    aria-hidden="true"
-                  />
-                  {bullet}
-                </li>
-              ))}
-            </ul>
+            {item.current ? "Running" : "Complete"}
+          </span>
+          {!reducedMotion ? (
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-ink-faint transition-transform duration-200",
+                expanded && "rotate-180",
+              )}
+              aria-hidden="true"
+            />
+          ) : null}
+        </div>
+      </button>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {item.tech.map((tech) => (
-                <TechPill key={tech}>{tech}</TechPill>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </motion.article>
+      {(expanded || reducedMotion) && (
+        <motion.div
+          layout
+          id={`${blockId}-output`}
+          role="region"
+          aria-labelledby={blockId}
+          initial={reducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="console-log-output space-y-2"
+        >
+          {item.bullets.map((bullet) => (
+            <p key={bullet} className="console-log-line">
+              <span className="text-editor-blue/60">&gt;</span> {bullet}
+            </p>
+          ))}
+          <div className="flex flex-wrap gap-2 pt-3">
+            {item.tech.map((tech) => (
+              <TechPill key={tech}>{tech}</TechPill>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </motion.li>
   );
 }
 
 export function Experience() {
-  const experienceChannel = getChannelById("experience");
-  const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
-  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => new Set());
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start 0.85", "end 0.35"],
-  });
-
-  const traceDraw = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<number>>(
+    () => new Set(),
+  );
 
   useEffect(() => {
     if (reducedMotion) {
-      setExpandedNodes(new Set(experience.map((_, index) => index)));
+      setExpandedBlocks(new Set(experience.map((_, index) => index)));
     }
   }, [reducedMotion]);
 
-  const toggleNode = (index: number) => {
-    setExpandedNodes((prev) => {
+  const toggleBlock = (index: number) => {
+    setExpandedBlocks((prev) => {
       const next = new Set(prev);
       if (next.has(index)) {
         next.delete(index);
@@ -173,52 +120,28 @@ export function Experience() {
   };
 
   return (
-    <section
-      ref={sectionRef}
-      id="experience"
-      className="relative py-28 sm:py-32"
-    >
-      <div className="container">
-        <SectionHeading
-          channel={channelMarker(experienceChannel)}
-          eyebrow="Experience"
-          title="Where the work happened, in order."
-          description="Five roles across fintech, agency, and freelance work — each one building on the last."
-          className="mb-16"
-        />
+    <section id="experience" className="viewport-section">
+      <SectionHeading
+        eyebrow="// Console"
+        title="Where the work happened, in order."
+        description="Five roles across fintech, agency, and freelance work — each one building on the last."
+        className="mb-12"
+      />
 
-        <div className="relative">
-          <div
-            className="circuit-trace-rail absolute bottom-4 left-[7px] top-4 w-px sm:left-[9px]"
-            aria-hidden="true"
-          >
-            <div className="absolute inset-0 bg-phosphor/10" />
-            {reducedMotion ? (
-              <div className="circuit-trace-fill absolute inset-0 origin-top bg-gradient-to-b from-phosphor/70 via-phosphor/35 to-phosphor/15" />
-            ) : (
-              <motion.div
-                className="circuit-trace-fill absolute inset-0 origin-top bg-gradient-to-b from-phosphor/70 via-phosphor/35 to-phosphor/15"
-                style={{ scaleY: traceDraw }}
-              />
-            )}
-          </div>
-
-          <LayoutGroup>
-            <ol className="relative space-y-6 sm:space-y-8">
-              {experience.map((item, index) => (
-                <CircuitNode
-                  key={`${item.company}-${item.period}`}
-                  item={item}
-                  index={index}
-                  expanded={expandedNodes.has(index)}
-                  onToggle={() => toggleNode(index)}
-                  reducedMotion={Boolean(reducedMotion)}
-                />
-              ))}
-            </ol>
-          </LayoutGroup>
-        </div>
-      </div>
+      <LayoutGroup>
+        <ol className="space-y-3">
+          {experience.map((item, index) => (
+            <LogBlock
+              key={`${item.company}-${item.period}`}
+              item={item}
+              index={index}
+              expanded={expandedBlocks.has(index)}
+              onToggle={() => toggleBlock(index)}
+              reducedMotion={Boolean(reducedMotion)}
+            />
+          ))}
+        </ol>
+      </LayoutGroup>
     </section>
   );
 }
