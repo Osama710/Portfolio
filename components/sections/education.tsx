@@ -21,7 +21,7 @@ export function Education() {
         <div className="grid gap-6 lg:grid-cols-2">
           <ScrollReveal>
             <div className="glass-panel glass-panel-hover h-full p-7">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet/10 text-violet-soft">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-phosphor/10 text-phosphor-soft">
                 <GraduationCap className="h-5 w-5" aria-hidden="true" />
               </span>
               <h3 className="mt-5 font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
@@ -49,7 +49,7 @@ export function Education() {
 
           <ScrollReveal delay={0.1}>
             <div className="glass-panel glass-panel-hover h-full p-7">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan/10 text-cyan">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-crt-amber/10 text-crt-amber">
                 <Award className="h-5 w-5" aria-hidden="true" />
               </span>
               <h3 className="mt-5 font-mono text-xs uppercase tracking-[0.2em] text-ink-faint">
@@ -62,7 +62,7 @@ export function Education() {
                     className="flex gap-3 text-sm leading-relaxed text-ink-muted"
                   >
                     <span
-                      className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cyan"
+                      className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-crt-amber"
                       aria-hidden="true"
                     />
                     {cert.title}

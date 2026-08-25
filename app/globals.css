@@ -11,9 +11,9 @@
   body {
     @apply bg-void text-ink;
     background-image:
-      radial-gradient(circle at 15% 0%, rgba(57, 255, 20, 0.04), transparent 45%),
-      radial-gradient(circle at 85% 15%, rgba(124, 92, 255, 0.1), transparent 40%),
-      radial-gradient(circle at 50% 100%, rgba(34, 211, 238, 0.06), transparent 50%);
+      radial-gradient(circle at 15% 0%, rgba(57, 255, 20, 0.06), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(255, 176, 0, 0.05), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(57, 255, 20, 0.04), transparent 50%);
     background-attachment: fixed;
   }
 
@@ -85,24 +85,110 @@
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-white via-phosphor-soft to-cyan bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-white via-phosphor-soft to-crt-amber bg-clip-text text-transparent;
   }
 
-  /* Step 4 — Hero & section headline typography */
-  .hero-display {
-    @apply text-balance font-display font-bold leading-[0.92] tracking-[-0.035em] text-ink;
-    font-size: clamp(2.75rem, 6vw, 4.85rem);
+  /* Hero — broadcast stack layout */
+  .hero-tuning-bar {
+    @apply rounded-lg border border-crt-amber/20 bg-void/60 px-4 py-3 backdrop-blur-sm;
+  }
+
+  .hero-tuning-ticks {
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(255, 176, 0, 0.45) 0 6px,
+      transparent 6px 16px
+    );
+  }
+
+  .hero-name-stage {
+    @apply relative;
+  }
+
+  .hero-display-stacked {
+    @apply font-display font-bold leading-[0.9] tracking-[-0.04em] text-ink;
+    max-width: 100%;
+  }
+
+  .hero-name-line {
+    font-size: clamp(2.75rem, 9vw, 7rem);
   }
 
   .hero-display-accent {
-    @apply block bg-gradient-to-r from-white via-phosphor-soft to-cyan bg-clip-text text-transparent;
-    font-size: clamp(2.25rem, 5.2vw, 4rem);
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+    @apply bg-gradient-to-r from-white via-phosphor-soft to-crt-amber bg-clip-text font-bold text-transparent;
+    font-size: clamp(1.35rem, 3.5vw, 2.35rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    max-width: 36rem;
   }
 
   .hero-lead {
-    @apply max-w-xl text-balance font-sans text-lg leading-relaxed text-ink-muted sm:text-xl sm:leading-relaxed;
+    @apply text-balance font-sans leading-relaxed text-ink-muted;
+  }
+
+  .hero-telemetry-strip {
+    @apply rounded-xl border border-white/10 bg-white/[0.02] px-5 py-5 sm:px-6 sm:py-6;
+    border-left: 3px solid rgba(255, 176, 0, 0.45);
+  }
+
+  .hero-action-rail {
+    @apply flex flex-col gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .hero-pip-card {
+    @apply border-phosphor/15 shadow-[0_0_30px_-8px_rgba(57,255,20,0.25)];
+  }
+
+  @media (min-width: 1024px) {
+    .hero-name-stage {
+      min-height: clamp(260px, 36vh, 400px);
+      padding-right: min(320px, 34%);
+    }
+
+    .hero-display-stacked {
+      max-width: calc(100% - min(320px, 34%) - 1rem);
+    }
+
+    .hero-pip-wrap {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 280px;
+      max-width: 34%;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .hero-pip-wrap {
+      width: 300px;
+    }
+  }
+
+  /* About — transmission dossier */
+  .transmission-header {
+    @apply rounded-xl border border-white/10 bg-white/[0.02] px-5 py-6 sm:px-7 sm:py-7;
+    border-top: 2px solid rgba(255, 176, 0, 0.35);
+  }
+
+  .transmission-log {
+    @apply rounded-xl border border-white/10 bg-white/[0.02] px-5 py-5 sm:px-6 sm:py-6;
+  }
+
+  .transmission-log-accent {
+    border-left: 3px solid rgba(255, 176, 0, 0.5);
+  }
+
+  .transmission-log-label {
+    @apply font-mono text-[0.62rem] uppercase tracking-[0.22em] text-crt-amber;
+  }
+
+  .status-rail {
+    @apply grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .status-rail-cell {
+    @apply bg-void/90 px-5 py-5;
   }
 
   .section-display {
@@ -127,11 +213,11 @@
       to bottom,
       transparent 0px,
       transparent 2px,
-      rgba(0, 0, 0, 0.18) 2px,
-      rgba(0, 0, 0, 0.18) 3px
+      rgba(0, 0, 0, 0.28) 2px,
+      rgba(0, 0, 0, 0.28) 3px
     );
     background-size: 100% 3px;
-    opacity: 0.22;
+    opacity: 0.38;
     animation: crt-scanline-drift 12s linear infinite;
   }
 
@@ -152,8 +238,8 @@
   .console-bezel-frame {
     --bezel-inset: 16px;
     --bezel-arm: 36px;
-    --bezel-line: rgba(57, 255, 20, 0.38);
-    --bezel-line-faint: rgba(57, 255, 20, 0.14);
+    --bezel-line: rgba(57, 255, 20, 0.55);
+    --bezel-line-faint: rgba(255, 176, 0, 0.35);
   }
 
   .console-bezel-corner {
@@ -193,7 +279,7 @@
   /* Small tick marks along each edge */
   .console-bezel-ticks {
     position: absolute;
-    opacity: 0.55;
+    opacity: 0.75;
   }
 
   .console-bezel-ticks-top,
@@ -240,7 +326,7 @@
   .console-bezel-inset {
     position: absolute;
     inset: var(--bezel-inset);
-    border: 1px solid rgba(57, 255, 20, 0.07);
+    border: 1px solid rgba(255, 176, 0, 0.12);
     border-radius: 2px;
   }
 
@@ -430,7 +516,7 @@
   }
 
   .crt-scanlines {
-    opacity: 0.12;
+    opacity: 0.2;
     animation: none !important;
   }
 

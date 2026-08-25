@@ -6,10 +6,10 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
 
 const gradients = [
-  "from-violet/25 via-violet/5 to-transparent",
-  "from-cyan/25 via-cyan/5 to-transparent",
-  "from-magenta/20 via-magenta/5 to-transparent",
-  "from-mint/20 via-mint/5 to-transparent",
+  "from-phosphor/25 via-phosphor/5 to-transparent",
+  "from-crt-amber/20 via-crt-amber/5 to-transparent",
+  "from-phosphor/15 via-crt-amber/5 to-transparent",
+  "from-crt-amber/15 via-phosphor/5 to-transparent",
 ];
 
 function initialsOf(name: string) {
@@ -61,7 +61,7 @@ export function Projects() {
                         target="_blank"
                         rel="noreferrer noopener"
                         aria-label={`Visit ${project.name}`}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-ink-muted transition-all group-hover:border-violet/40 group-hover:text-violet-soft"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-ink-muted transition-all group-hover:border-phosphor/40 group-hover:text-phosphor-soft"
                       >
                         <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                       </a>
@@ -83,7 +83,7 @@ export function Projects() {
                       href={project.url}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-violet-soft transition-colors hover:text-cyan"
+                      className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-phosphor-soft transition-colors hover:text-crt-amber"
                     >
                       {project.domain}
                       <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />

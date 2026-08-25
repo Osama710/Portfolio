@@ -17,6 +17,95 @@ import { StatusDot } from "@/components/ui/status-dot";
 const SPARK_POINTS =
   "M0,42 C10,40 18,44 28,36 C38,28 44,34 54,26 C64,18 72,24 82,14 C92,4 100,10 110,2";
 
+const [firstName, ...restName] = profile.name.split(" ");
+const lastName = restName.join(" ") || firstName;
+
+function WalletPipCard({
+  cardRef,
+  transformStyle,
+  onMouseMove,
+  onMouseLeave,
+}: {
+  cardRef: React.RefObject<HTMLDivElement | null>;
+  transformStyle: ReturnType<typeof useMotionTemplate>;
+  onMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseLeave: () => void;
+}) {
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{ transform: transformStyle }}
+      className="glass-panel hero-pip-card relative overflow-hidden"
+    >
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.02] px-4 py-2.5">
+        <span className="h-2 w-2 rounded-full bg-[#FF5F57]" />
+        <span className="h-2 w-2 rounded-full bg-[#FEBC2E]" />
+        <span className="h-2 w-2 rounded-full bg-[#28C840]" />
+        <span className="ml-2 font-mono text-[0.6rem] text-phosphor/60">
+          raptr_wallet — production
+        </span>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-crt-amber/80">
+            Wallet Overview
+          </span>
+          <span className="flex items-center gap-1 rounded-full bg-phosphor/10 px-2 py-0.5 font-mono text-[0.58rem] text-phosphor">
+            <StatusDot color="phosphor" />
+            Live
+          </span>
+        </div>
+
+        <p className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">
+          <AnimatedCounter value="75,000" suffix="+" />
+        </p>
+        <p className="mt-0.5 text-xs text-ink-muted">Active users on Raptr Wallet</p>
+
+        <div className="mt-3 h-10 w-full">
+          <svg
+            viewBox="0 0 110 46"
+            fill="none"
+            className="h-full w-full"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              d={SPARK_POINTS}
+              stroke="url(#sparkGradient)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeDasharray="1000"
+              className="animate-draw"
+            />
+            <defs>
+              <linearGradient id="sparkGradient" x1="0" y1="0" x2="110" y2="0">
+                <stop offset="0%" stopColor="#39FF14" />
+                <stop offset="100%" stopColor="#FFB000" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+          {heroStats.map((stat) => (
+            <div key={stat.label}>
+              <p className="font-display text-sm font-semibold text-ink">
+                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+              </p>
+              <p className="mt-0.5 text-[0.58rem] leading-tight text-ink-faint">
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function Hero() {
   const cardRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -33,8 +122,8 @@ export function Hero() {
     const rect = cardRef.current.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width - 0.5;
     const py = (event.clientY - rect.top) / rect.height - 0.5;
-    rotateY.set(px * 10);
-    rotateX.set(py * -10);
+    rotateY.set(px * 8);
+    rotateX.set(py * -8);
   }
 
   function handleMouseLeave() {
@@ -45,58 +134,91 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[100svh] items-center overflow-hidden pt-28 sm:pt-24"
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-12 pt-28 sm:pt-24 lg:pb-16"
     >
-      <div className="container grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
-        {/* Copy column */}
-        <div>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="channel-tag mb-4"
-          >
-            <span className="h-px w-4 bg-phosphor/40" aria-hidden="true" />
-            {channelMarker(heroChannel)}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5"
-          >
-            <StatusDot color="mint" />
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-muted">
-              Open to relocation
+      <div className="container flex flex-col gap-8 lg:gap-10">
+        {/* CH 01 tuning bar — full width */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="hero-tuning-bar"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="broadcast-label-live" aria-hidden="true" />
+            <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-crt-amber">
+              {channelMarker(heroChannel)}
             </span>
-          </motion.div>
+            <span className="hidden h-px flex-1 bg-gradient-to-r from-crt-amber/40 via-phosphor/20 to-transparent sm:block" aria-hidden="true" />
+            <span className="flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.18em] text-phosphor/70">
+              <StatusDot color="phosphor" />
+              Signal locked
+            </span>
+          </div>
+          <div className="hero-tuning-ticks mt-2" aria-hidden="true" />
+        </motion.div>
 
+        {/* Name stage — card overlaps whitespace on lg+, stacks below on narrow */}
+        <div className="hero-name-stage relative">
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="hero-display mt-6"
+            transition={{ duration: 0.75, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="hero-display-stacked"
           >
-            {profile.name}
-            <span className="hero-display-accent mt-1">{profile.title}</span>
+            <span className="hero-name-line block">{firstName}</span>
+            <span className="hero-name-line block">{lastName}</span>
+            <span className="hero-display-accent mt-3 block">{profile.title}</span>
           </motion.h1>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="hero-lead mt-7"
+            style={{ perspective: 1200 }}
+            className="hero-pip-wrap mx-auto mt-8 w-full max-w-[300px] lg:mx-0 lg:mt-0"
           >
-            {profile.tagline}
-          </motion.p>
+            <div className="animate-float lg:animate-none">
+              <WalletPipCard
+                cardRef={cardRef}
+                transformStyle={transformStyle}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+              />
+            </div>
+            <p className="mt-2 hidden font-mono text-[0.55rem] uppercase tracking-[0.2em] text-crt-amber/60 lg:block" aria-hidden="true">
+              PiP · live feed
+            </p>
+          </motion.div>
+        </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-9 flex flex-wrap items-center gap-4"
-          >
+        {/* Telemetry strip — full-width tagline readout */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="hero-telemetry-strip"
+        >
+          <p className="font-mono text-[0.6rem] uppercase tracking-[0.22em] text-crt-amber/70">
+            Telemetry · role summary
+          </p>
+          <p className="hero-lead mt-3 max-w-3xl">{profile.tagline}</p>
+          <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">
+            <StatusDot color="phosphor" />
+            <span className="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-ink-muted">
+              Open to relocation
+            </span>
+          </span>
+        </motion.div>
+
+        {/* Bottom action rail */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+          className="hero-action-rail"
+        >
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               href="#projects"
               className="group inline-flex items-center gap-2 rounded-full bg-phosphor px-6 py-3.5 text-sm font-semibold text-void shadow-[0_0_40px_-5px_rgba(57,255,20,0.35)] transition-transform hover:scale-[1.03]"
@@ -110,19 +232,14 @@ export function Hero() {
             <a
               href={profile.resumeFile}
               download
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-white/[0.08]"
+              className="inline-flex items-center gap-2 rounded-full border border-crt-amber/30 bg-crt-amber/[0.06] px-6 py-3.5 text-sm font-semibold text-ink transition-colors hover:bg-crt-amber/10"
             >
-              <Download className="h-4 w-4" aria-hidden="true" />
+              <Download className="h-4 w-4 text-crt-amber" aria-hidden="true" />
               Download CV
             </a>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-faint"
-          >
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-faint">
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
               {profile.location}
@@ -131,7 +248,7 @@ export function Hero() {
               href={profile.github}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex items-center gap-1.5 transition-colors hover:text-ink"
+              className="flex items-center gap-1.5 transition-colors hover:text-phosphor-soft"
             >
               <Github className="h-3.5 w-3.5" aria-hidden="true" />
               {profile.githubLabel}
@@ -140,131 +257,11 @@ export function Hero() {
               href={profile.linkedin}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex items-center gap-1.5 transition-colors hover:text-ink"
+              className="flex items-center gap-1.5 transition-colors hover:text-phosphor-soft"
             >
               <Linkedin className="h-3.5 w-3.5" aria-hidden="true" />
               LinkedIn
             </a>
-          </motion.div>
-        </div>
-
-        {/* Signature dashboard card */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          style={{ perspective: 1200 }}
-          className="relative mx-auto w-full max-w-md"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="broadcast-label absolute -top-11 left-0 z-10 sm:-top-12"
-            aria-hidden="true"
-          >
-            <span className="broadcast-label-live" />
-            {channelMarker(heroChannel)}
-          </motion.div>
-
-          <div className="animate-float">
-          <motion.div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{ transform: transformStyle }}
-            className="glass-panel relative overflow-hidden"
-          >
-            {/* window chrome */}
-            <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.02] px-5 py-3.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-              <span className="ml-3 font-mono text-[0.7rem] text-phosphor/50">
-                raptr_wallet — production
-              </span>
-            </div>
-
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <span className="eyebrow">Wallet Overview</span>
-                <span className="flex items-center gap-1.5 rounded-full bg-mint/10 px-2.5 py-1 font-mono text-[0.65rem] text-mint">
-                  <StatusDot color="mint" />
-                  Live
-                </span>
-              </div>
-
-              <div className="mt-5">
-                <p className="font-display text-4xl font-semibold tracking-tight text-ink">
-                  <AnimatedCounter value="75,000" suffix="+" />
-                </p>
-                <p className="mt-1 text-sm text-ink-muted">
-                  Active users on Raptr Wallet
-                </p>
-              </div>
-
-              <div className="mt-5 h-14 w-full">
-                <svg
-                  viewBox="0 0 110 46"
-                  fill="none"
-                  className="h-full w-full"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d={SPARK_POINTS}
-                    stroke="url(#sparkGradient)"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeDasharray="1000"
-                    className="animate-draw"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="sparkGradient"
-                      x1="0"
-                      y1="0"
-                      x2="110"
-                      y2="0"
-                    >
-                      <stop offset="0%" stopColor="#7C5CFF" />
-                      <stop offset="100%" stopColor="#22D3EE" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-
-              <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
-                {heroStats.map((stat) => (
-                  <div key={stat.label}>
-                    <p className="font-display text-lg font-semibold text-ink">
-                      <AnimatedCounter
-                        value={stat.value}
-                        suffix={stat.suffix}
-                      />
-                    </p>
-                    <p className="mt-0.5 text-[0.65rem] leading-tight text-ink-faint">
-                      {stat.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-          </div>
-
-          {/* floating tech badge */}
-          <div className="animate-float-slow absolute -bottom-6 -left-6 hidden sm:block">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="glass-panel px-4 py-2.5"
-            >
-              <p className="font-mono text-[0.7rem] text-ink-muted">
-                KYC · JWT · Webhooks
-              </p>
-            </motion.div>
           </div>
         </motion.div>
       </div>

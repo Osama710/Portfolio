@@ -75,7 +75,7 @@ export function Contact() {
                 }
                 className="glass-panel glass-panel-hover flex items-center gap-4 p-5"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet/10 text-violet-soft">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-phosphor/10 text-phosphor-soft">
                   <method.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0">
@@ -109,7 +109,7 @@ export function Contact() {
                     required
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-violet/50 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-phosphor/50 focus:outline-none"
                     placeholder="Your name"
                   />
                 </div>
@@ -126,7 +126,7 @@ export function Contact() {
                     required
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-violet/50 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-phosphor/50 focus:outline-none"
                     placeholder="you@email.com"
                   />
                 </div>
@@ -145,7 +145,7 @@ export function Contact() {
                   rows={5}
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
-                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-violet/50 focus:outline-none"
+                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-phosphor/50 focus:outline-none"
                   placeholder="Tell me a bit about the role or project..."
                 />
               </div>

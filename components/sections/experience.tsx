@@ -21,7 +21,7 @@ export function Experience() {
 
         <div className="relative">
           <div
-            className="absolute left-[15px] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-violet/60 via-white/10 to-transparent sm:block"
+            className="absolute left-[15px] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-phosphor/60 via-white/10 to-transparent sm:block"
             aria-hidden="true"
           />
 
@@ -34,12 +34,12 @@ export function Experience() {
                       <span
                         className={`flex h-8 w-8 items-center justify-center rounded-full border ${
                           item.current
-                            ? "border-violet/50 bg-violet/15"
+                            ? "border-phosphor/50 bg-phosphor/15"
                             : "border-white/15 bg-surface-2"
                         }`}
                       >
                         {item.current ? (
-                          <StatusDot color="violet" />
+                          <StatusDot color="phosphor" />
                         ) : (
                           <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
                         )}
@@ -52,7 +52,7 @@ export function Experience() {
                           <h3 className="font-display text-lg font-semibold text-ink">
                             {item.role}
                           </h3>
-                          <p className="mt-1 text-sm text-violet-soft">
+                          <p className="mt-1 text-sm text-phosphor-soft">
                             {item.company} · {item.location}
                           </p>
                         </div>

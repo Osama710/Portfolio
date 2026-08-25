@@ -35,7 +35,7 @@ export function Skills() {
               <ScrollReveal key={category.label} delay={index * 0.06}>
                 <div className="glass-panel glass-panel-hover h-full p-6">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet/20 to-cyan/10 text-violet-soft">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-phosphor/20 to-crt-amber/10 text-phosphor-soft">
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <h3 className="font-display text-base font-semibold text-ink">
@@ -46,7 +46,7 @@ export function Skills() {
                     {category.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-muted transition-colors hover:border-violet/40 hover:text-ink"
+                        className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-ink-muted transition-colors hover:border-crt-amber/40 hover:text-ink"
                       >
                         {skill}
                       </span>
