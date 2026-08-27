@@ -1,7 +1,9 @@
 import type {
+  CapabilityItem,
   CertificationItem,
   EducationItem,
   ExperienceItem,
+  GithubProjectItem,
   ProjectItem,
   SkillCategory,
   SocialLink,
@@ -218,6 +220,137 @@ export const projects: ProjectItem[] = [
   },
 ];
 
+export const capabilities: CapabilityItem[] = [
+  {
+    id: "fullstack",
+    title: "Full-Stack Web Apps",
+    icon: "layers",
+    summary: "End-to-end product builds — UI, APIs, data layer, and deployment.",
+    deliverables: [
+      "Next.js / React product surfaces",
+      "Node.js & FastAPI service layers",
+      "Admin, vendor & internal dashboards",
+    ],
+    tags: ["Next.js", "React", "Node.js", "FastAPI"],
+  },
+  {
+    id: "frontend",
+    title: "Frontend Engineering",
+    icon: "layout",
+    summary: "Production UIs that stay fast, accessible, and maintainable.",
+    deliverables: [
+      "Marketing sites & landing pages",
+      "Dashboard & portal interfaces",
+      "Design-system friendly components",
+    ],
+    tags: ["Next.js", "TypeScript", "Tailwind CSS"],
+  },
+  {
+    id: "backend",
+    title: "Backend & APIs",
+    icon: "server",
+    summary: "Secure REST APIs, auth flows, and data models built to scale.",
+    deliverables: [
+      "RESTful API design & implementation",
+      "JWT auth & role-based access",
+      "MySQL / MongoDB schema design",
+    ],
+    tags: ["Node.js", "Express", "FastAPI", "Prisma"],
+  },
+  {
+    id: "fintech",
+    title: "Fintech Integrations",
+    icon: "plug",
+    summary: "Payment flows, webhooks, and third-party services wired safely.",
+    deliverables: [
+      "Payment gateway integrations",
+      "Idempotent webhook handlers",
+      "KYC & transaction workflows",
+    ],
+    tags: ["Payments", "Webhooks", "KYC"],
+  },
+  {
+    id: "integrations",
+    title: "API & Service Integrations",
+    icon: "shield",
+    summary: "Connect products to external platforms without brittle glue code.",
+    deliverables: [
+      "Partner & vendor-facing APIs",
+      "Third-party SDK / REST integrations",
+      "Redis sessions & encryption patterns",
+    ],
+    tags: ["REST", "Redis", "Cloud"],
+  },
+  {
+    id: "quality",
+    title: "Testing & Production Hardening",
+    icon: "test",
+    summary: "Ship with confidence — validation, monitoring, and deploy readiness.",
+    deliverables: [
+      "Schema validation & error handling",
+      "Staging / production deployment support",
+      "Agile delivery with clear documentation",
+    ],
+    tags: ["Validation", "Vercel", "GCP"],
+  },
+];
+
+export const githubProjects: GithubProjectItem[] = [
+  {
+    name: "Express TypeScript Boilerplate",
+    repo: "https://github.com/Osama710/express-typescript-boilerplate",
+    period: "University · Open source",
+    description:
+      "Starter API with JWT authentication, Yup validation, and MySQL user CRUD — a foundation I still reach for when bootstrapping backends.",
+    problem:
+      "New Node backends repeat the same auth, validation, and migration setup every time.",
+    solution:
+      "Packaged a typed Express boilerplate with login, protected routes, and a migrate endpoint for MySQL tables.",
+    architecture:
+      "Express + TypeScript, JWT auth middleware, Yup request validation, MySQL with migration endpoint.",
+    contribution:
+      "Designed the project structure, auth flow, user CRUD routes, and database migration pattern.",
+    tech: ["Express", "TypeScript", "JWT", "MySQL", "Yup"],
+    features: ["JWT auth", "Yup validation", "User CRUD", "DB migrate endpoint"],
+  },
+  {
+    name: "Accounting Cycle",
+    repo: "https://github.com/Osama710/Accounting-Cycle",
+    period: "University · Desktop app",
+    description:
+      "Python desktop app for ledgers, trial balance, income statements, and balance sheets — early proof of building complete business logic.",
+    problem:
+      "Manual accounting workflows needed a local system for ledgers, updates, and financial statements.",
+    solution:
+      "Built a Tkinter desktop app with SQLite storage, ledger management, and automated statement generation.",
+    architecture:
+      "Python + Tkinter UI, SQLite database layer, modular report preparation and Excel export scripts.",
+    contribution:
+      "Solo project — database design, UI forms, accounting calculations, and financial report modules.",
+    tech: ["Python", "Tkinter", "SQLite"],
+    features: ["Ledger management", "Trial balance", "Income & balance sheets", "Excel export"],
+    screenshot: "/projects/github/accounting-cycle.png",
+  },
+  {
+    name: "Snipping Tool",
+    repo: "https://github.com/Osama710/Snipping-Tool-with-Python",
+    period: "University · Desktop utility",
+    description:
+      "Python snipping tool with region capture, live coordinate readout, auto-save, and a packaged Windows executable.",
+    problem:
+      "Quick screen captures needed a lightweight tool with instant save and coordinate feedback for dev work.",
+    solution:
+      "Built a Tkinter + PyAutoGUI utility that captures snip regions and saves timestamped PNG files locally.",
+    architecture:
+      "Python desktop app with Tkinter UI, PyAutoGUI screen capture, and a release-built .exe for easy sharing.",
+    contribution:
+      "Solo project — capture UI, coordinate overlay, save workflow, and executable packaging.",
+    tech: ["Python", "Tkinter", "PyAutoGUI"],
+    features: ["Region snip capture", "Live coordinates", "Auto-save PNG", "Packaged .exe"],
+    screenshot: "/projects/github/snipping-tool.png",
+  },
+];
+
 export const skillCategories: SkillCategory[] = [
   {
     label: "Languages",
@@ -307,6 +440,7 @@ export const navLinks = [
   { label: "Skills", href: "#skills" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
+  { label: "Services", href: "#capabilities" },
   { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
 ];

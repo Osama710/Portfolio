@@ -10,6 +10,7 @@ const chapters = [
   { id: "skills", label: "Skills" },
   { id: "experience", label: "Work" },
   { id: "projects", label: "Projects" },
+  { id: "capabilities", label: "Services" },
   { id: "education", label: "Education" },
   { id: "contact", label: "Contact" },
 ];

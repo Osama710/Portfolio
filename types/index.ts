@@ -32,6 +32,29 @@ export interface ProjectItem {
   screenshot?: string;
 }
 
+export interface CapabilityItem {
+  id: string;
+  title: string;
+  icon: "layers" | "layout" | "server" | "plug" | "shield" | "test";
+  summary: string;
+  deliverables: string[];
+  tags: string[];
+}
+
+export interface GithubProjectItem {
+  name: string;
+  repo: string;
+  period: string;
+  description: string;
+  problem: string;
+  solution: string;
+  architecture: string;
+  contribution: string;
+  tech: string[];
+  features: string[];
+  screenshot?: string;
+}
+
 export interface SkillCategory {
   label: string;
   icon: "code" | "layout" | "server" | "database" | "cloud" | "sparkles";

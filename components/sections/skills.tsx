@@ -221,7 +221,6 @@ export function Skills() {
             <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
 
             <div className="relative p-6 sm:p-8">
-              <div className="scanline-thumb pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true" />
 
               <div className="relative flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-center gap-3">

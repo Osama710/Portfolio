@@ -10,10 +10,10 @@ import {
   MapPin,
   Rocket,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import { profile } from "@/lib/data";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { HeroOrbit } from "@/components/sections/hero-orbit";
 
 const [firstName, ...restName] = profile.name.split(" ");
 const lastName = restName.join(" ") || firstName;
@@ -24,22 +24,15 @@ const heroStats = [
   { label: "Current role", value: "Senior", suffix: " SWE", emoji: "💼" },
 ];
 
-const orbitChips = [
-  { label: "Next.js", color: "border-accent-violet/40 text-accent-violet" },
-  { label: "FastAPI", color: "border-accent-cyan/40 text-accent-cyan" },
-  { label: "Fintech", color: "border-accent-coral/40 text-accent-coral" },
-  { label: "Node.js", color: "border-accent-lime/40 text-accent-lime" },
-];
-
 export function Hero() {
   const reduced = useReducedMotion();
 
   return (
     <section
       id="hero"
-      className="site-container relative flex h-[100svh] max-h-[900px] min-h-[580px] flex-col justify-center overflow-hidden pt-[5.25rem] pb-10"
+      className="site-container relative flex min-h-[580px] flex-col justify-center overflow-hidden pb-10 pt-[5.25rem] lg:h-[100svh] lg:max-h-[900px]"
     >
-      <div className="grid items-center gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:gap-8">
+      <div className="grid items-center gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
@@ -76,12 +69,11 @@ export function Hero() {
             {profile.location} · {profile.relocation}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+          <HeroOrbit className="my-5 lg:hidden" />
+
+          <div className="mt-2 flex flex-wrap gap-2 sm:mt-4">
             {heroStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="stat-chip flex items-center gap-2 px-3 py-2"
-              >
+              <div key={stat.label} className="stat-chip flex items-center gap-2 px-3 py-2">
                 <span className="text-sm" aria-hidden="true">
                   {stat.emoji}
                 </span>
@@ -89,9 +81,7 @@ export function Hero() {
                   <p className="font-display text-sm font-bold leading-none text-ink sm:text-base">
                     <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                   </p>
-                  <p className="mt-0.5 text-[0.6rem] uppercase tracking-wider text-ink-faint">
-                    {stat.label}
-                  </p>
+                  <p className="mt-0.5 text-[0.6rem] uppercase tracking-wider text-ink-faint">{stat.label}</p>
                 </div>
               </div>
             ))}
@@ -127,39 +117,7 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <motion.div
-          className="relative mx-auto hidden aspect-square w-full max-w-[320px] lg:block xl:max-w-[360px]"
-          initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-        >
-          <div className="absolute inset-0 rounded-full bg-accent-violet/12 blur-3xl" />
-          <div className="absolute inset-[10%] rounded-full border border-white/10 bg-surface-2/60" />
-          <div className="absolute inset-[26%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/25 bg-gradient-brand-soft text-center shadow-glow-cyan">
-            <Zap className="h-7 w-7 text-accent-cyan" aria-hidden="true" />
-            <p className="mt-1.5 font-display text-xl font-bold text-ink">10+</p>
-            <p className="text-[0.6rem] uppercase tracking-widest text-ink-faint">
-              Live builds
-            </p>
-          </div>
-
-          {orbitChips.map((chip, i) => {
-            const angle = (i / orbitChips.length) * Math.PI * 2 - Math.PI / 2;
-            const x = 50 + Math.cos(angle) * 42;
-            const y = 50 + Math.sin(angle) * 42;
-            return (
-              <motion.span
-                key={chip.label}
-                className={`absolute rounded-lg border bg-void/90 px-2.5 py-1.5 text-[0.65rem] font-semibold transition-shadow hover:shadow-glow ${chip.color}`}
-                style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)" }}
-                animate={reduced ? undefined : { y: [0, -5, 0] }}
-                transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.3 }}
-              >
-                {chip.label}
-              </motion.span>
-            );
-          })}
-        </motion.div>
+        <HeroOrbit className="hidden lg:block" />
       </div>
 
       <motion.a

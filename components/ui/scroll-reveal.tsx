@@ -26,7 +26,7 @@ export function ScrollReveal({
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduceMotion ? 0.01 : 0.7,
+        duration: shouldReduceMotion ? 0.01 : 0.45,
         delay: shouldReduceMotion ? 0 : delay,
         ease: [0.16, 1, 0.3, 1],
       },
@@ -38,7 +38,7 @@ export function ScrollReveal({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, margin: "-80px" }}
+      viewport={{ once, margin: "-40px", amount: 0.15 }}
       variants={variants}
     >
       {children}
