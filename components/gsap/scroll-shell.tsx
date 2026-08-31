@@ -15,8 +15,10 @@ const SECTIONS = [
   { id: "contact" },
 ] as const;
 
+/** Play on enter only — never reverse-hide content (prevents stuck invisible sections). */
 const REVEAL_ONCE = "play none none none";
-const REVEAL_TOGGLE = "play none none reverse";
+
+const INTERACTIVE_SECTIONS = new Set(["skills", "experience"]);
 
 const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop";
 const MOBILE_ORBIT = ".hero-orbit-wrap-mobile";
@@ -142,6 +144,23 @@ function setupHeroPortalZoom(root: HTMLElement) {
   return mm;
 }
 
+function revealOnScroll(
+  targets: gsap.TweenTarget,
+  vars: gsap.TweenVars,
+  trigger: string | Element,
+  start = "top 85%",
+) {
+  gsap.from(targets, {
+    ...vars,
+    scrollTrigger: {
+      trigger,
+      start,
+      toggleActions: REVEAL_ONCE,
+      invalidateOnRefresh: true,
+    },
+  });
+}
+
 function setupSectionReveals(root: HTMLElement) {
   SECTIONS.slice(1).forEach((s) => {
     if (s.id === "about") return;
@@ -150,354 +169,155 @@ function setupSectionReveals(root: HTMLElement) {
     const label = root.querySelectorAll(`${section} .section-label`);
     const heading = root.querySelectorAll(`${section} .section-heading-block`);
     const body = root.querySelectorAll(`${section} .section-reveal`);
+    const isInteractive = INTERACTIVE_SECTIONS.has(s.id);
 
-    gsap.from(label, {
-      x: -32,
-      autoAlpha: 0,
-      duration: 0.65,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: section,
-        start: "top 82%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
+    revealOnScroll(label, { x: -28, autoAlpha: 0, duration: 0.6, ease: "power3.out" }, section, "top 88%");
 
-    gsap.from(heading, {
-      y: 52,
-      autoAlpha: 0,
-      scale: 0.9,
-      filter: "blur(10px)",
-      duration: 0.85,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: section,
-        start: "top 78%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
+    revealOnScroll(
+      heading,
+      { y: 44, autoAlpha: 0, scale: 0.94, filter: "blur(8px)", duration: 0.75, ease: "power3.out" },
+      section,
+      "top 86%",
+    );
 
-    gsap.from(body, {
-      y: 44,
-      autoAlpha: 0,
-      duration: 0.75,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: section,
-        start: "top 74%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
+    if (isInteractive) {
+      revealOnScroll(body, { y: 28, duration: 0.65, ease: "power2.out" }, section, "top 84%");
+    } else if (s.id === "education" || s.id === "contact") {
+      revealOnScroll(body, { y: 32, autoAlpha: 0, duration: 0.65, ease: "power2.out" }, section, "top 84%");
+    } else {
+      revealOnScroll(body, { y: 32, autoAlpha: 0, duration: 0.65, ease: "power2.out" }, section, "top 84%");
+    }
 
-    if (s.id === "education" || s.id === "contact") return;
+    if (isInteractive || s.id === "education" || s.id === "contact" || s.id === "projects") return;
 
     gsap.utils.toArray<HTMLElement>(root.querySelectorAll(`${section} .section-reveal > *`)).forEach((child, index) => {
-      gsap.from(child, {
-        y: 36,
-        autoAlpha: 0,
-        scale: 0.96,
-        duration: 0.6,
-        delay: index * 0.04,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: child,
-          start: "top 88%",
-          toggleActions: REVEAL_TOGGLE,
-        },
-      });
+      revealOnScroll(
+        child,
+        { y: 28, autoAlpha: 0, scale: 0.97, duration: 0.55, delay: index * 0.04, ease: "power2.out" },
+        child,
+        "top 90%",
+      );
     });
   });
 }
 
 function setupEducationReveals(root: HTMLElement) {
-  gsap.from(root.querySelectorAll("#education .edu-degree-panel"), {
-    x: -48,
-    autoAlpha: 0,
-    scale: 0.94,
-    rotate: -1,
-    duration: 0.85,
-    ease: "power3.out",
-    scrollTrigger: {
-      trigger: "#education .edu-degree-panel",
-      start: "top 86%",
-      toggleActions: REVEAL_ONCE,
-    },
-  });
+  revealOnScroll(
+    root.querySelectorAll("#education .edu-degree-panel"),
+    { x: -36, autoAlpha: 0, scale: 0.96, duration: 0.75, ease: "power3.out" },
+    "#education .edu-degree-panel",
+    "top 88%",
+  );
 
-  gsap.from(root.querySelectorAll("#education .edu-cert-panel"), {
-    x: 48,
-    autoAlpha: 0,
-    scale: 0.94,
-    rotate: 1,
-    duration: 0.85,
-    ease: "power3.out",
-    scrollTrigger: {
-      trigger: "#education .edu-cert-panel",
-      start: "top 86%",
-      toggleActions: REVEAL_ONCE,
-    },
-  });
+  revealOnScroll(
+    root.querySelectorAll("#education .edu-cert-panel"),
+    { x: 36, autoAlpha: 0, scale: 0.96, duration: 0.75, ease: "power3.out" },
+    "#education .edu-cert-panel",
+    "top 88%",
+  );
 
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#education .edu-cert-card")).forEach((card, index) => {
-    gsap.from(card, {
-      y: 32,
-      autoAlpha: 0,
-      scale: 0.92,
-      duration: 0.55,
-      delay: index * 0.07,
-      ease: "back.out(1.4)",
-      scrollTrigger: {
-        trigger: card,
-        start: "top 92%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
-  });
-
-  gsap.from(root.querySelectorAll("#education .edu-footnote"), {
-    y: 16,
-    autoAlpha: 0,
-    duration: 0.5,
-    stagger: 0.1,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: "#education .edu-cert-panel",
-      start: "top 70%",
-      toggleActions: REVEAL_ONCE,
-    },
+    revealOnScroll(
+      card,
+      { y: 24, autoAlpha: 0, scale: 0.96, duration: 0.5, delay: index * 0.05, ease: "back.out(1.3)" },
+      card,
+      "top 92%",
+    );
   });
 }
 
 function setupContactReveals(root: HTMLElement) {
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#contact .glass-card")).forEach((card, index) => {
-    gsap.from(card, {
-      x: index % 2 === 0 ? -28 : 28,
-      autoAlpha: 0,
-      scale: 0.96,
-      duration: 0.65,
-      delay: index * 0.08,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: card,
-        start: "top 90%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
+    revealOnScroll(
+      card,
+      { x: index % 2 === 0 ? -24 : 24, autoAlpha: 0, scale: 0.97, duration: 0.6, delay: index * 0.06, ease: "power3.out" },
+      card,
+      "top 92%",
+    );
   });
 
-  gsap.from(root.querySelectorAll("#contact form, #contact .contact-form"), {
-    y: 40,
-    autoAlpha: 0,
-    scale: 0.97,
-    duration: 0.75,
-    stagger: 0.12,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: "#contact .section-reveal",
-      start: "top 78%",
-      toggleActions: REVEAL_ONCE,
-    },
-  });
+  revealOnScroll(
+    root.querySelectorAll("#contact .contact-form"),
+    { y: 32, autoAlpha: 0, scale: 0.98, duration: 0.7, ease: "power2.out" },
+    "#contact .section-reveal",
+    "top 82%",
+  );
 }
 
 function setupExperienceReveals(root: HTMLElement) {
-  gsap.from(root.querySelectorAll("#experience .career-snake-path"), {
-    scaleY: 0,
-    autoAlpha: 0,
-    duration: 1.1,
-    ease: "power3.inOut",
-    transformOrigin: "top center",
-    scrollTrigger: {
-      trigger: "#experience .career-snake",
-      start: "top 80%",
-      toggleActions: REVEAL_ONCE,
-    },
-  });
+  revealOnScroll(
+    root.querySelectorAll("#experience .career-snake-node"),
+    { scale: 0.85, y: 16, duration: 0.5, stagger: 0.07, ease: "back.out(1.4)" },
+    "#experience .career-snake",
+    "top 85%",
+  );
+}
 
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#experience .career-snake-node")).forEach((node, index) => {
-    gsap.from(node, {
-      scale: 0,
-      autoAlpha: 0,
-      duration: 0.55,
-      delay: index * 0.1,
-      ease: "back.out(2)",
-      scrollTrigger: {
-        trigger: node,
-        start: "top 88%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
-  });
+function setupSkillsReveals(root: HTMLElement) {
+  revealOnScroll(
+    root.querySelectorAll("#skills .skills-loadout-strip"),
+    { y: 24, autoAlpha: 0, scale: 0.98, duration: 0.6, ease: "power2.out" },
+    "#skills .skills-loadout-strip",
+    "top 88%",
+  );
 
-  gsap.from(root.querySelectorAll("#experience .career-track"), {
-    y: 36,
-    autoAlpha: 0,
-    filter: "blur(8px)",
-    duration: 0.8,
-    ease: "power3.out",
-    scrollTrigger: {
-      trigger: "#experience .career-track",
-      start: "top 82%",
-      toggleActions: REVEAL_ONCE,
-    },
-  });
+  revealOnScroll(
+    root.querySelectorAll("#skills .skill-orbit-hub"),
+    { scale: 0.88, duration: 0.7, ease: "back.out(1.3)" },
+    "#skills .skill-orbit-hub",
+    "top 86%",
+  );
+
+  revealOnScroll(
+    root.querySelectorAll("#skills .skill-orbit-node"),
+    { scale: 0.85, duration: 0.45, stagger: 0.05, ease: "back.out(1.5)" },
+    "#skills .skill-orbit-hub",
+    "top 84%",
+  );
+
+  revealOnScroll(
+    root.querySelectorAll("#skills .skill-module-panel"),
+    { x: 32, duration: 0.65, ease: "power3.out" },
+    "#skills .skill-module-panel",
+    "top 86%",
+  );
 }
 
 function setupProjectScrollFx(root: HTMLElement) {
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item")).forEach((item, index) => {
-    gsap.from(item, {
-      y: 56,
-      autoAlpha: 0,
-      scale: 0.9,
-      rotate: index % 2 === 0 ? -2 : 2,
-      duration: 0.75,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: item,
-        start: "top 92%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
+    revealOnScroll(
+      item,
+      { y: 40, autoAlpha: 0, scale: 0.94, rotate: index % 2 === 0 ? -1.5 : 1.5, duration: 0.65, ease: "power3.out" },
+      item,
+      "top 92%",
+    );
   });
 
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-card-shell")).forEach((card) => {
-    gsap.to(card, {
-      y: -12,
-      ease: "none",
-      scrollTrigger: {
-        trigger: card,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 0.6,
-      },
-    });
+  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-github-item")).forEach((item) => {
+    revealOnScroll(item, { y: 32, autoAlpha: 0, scale: 0.96, duration: 0.6, ease: "power2.out" }, item, "top 92%");
   });
 }
 
 function setupElementReveals(root: HTMLElement) {
-  const selectors = [
-    ".panel-vivid",
-    ".panel-hud",
-    ".glass-card",
-    ".stat-chip",
-    ".capability-slot",
-    ".project-github-item",
-    ".skill-orbit-node",
-    ".skills-loadout-strip",
-    ".scroll-reveal-item",
-  ].join(", ");
+  const selectors = [".panel-vivid", ".panel-hud", ".stat-chip", ".capability-slot", ".scroll-reveal-item"].join(", ");
 
   ScrollTrigger.batch(root.querySelectorAll(selectors), {
-    start: "top 92%",
+    start: "top 90%",
+    once: true,
     onEnter: (batch) => {
       const filtered = batch.filter((el) => {
-        if (el.closest("#about")) return false;
-        if (el.closest("#education")) return false;
-        if (el.closest("#contact")) return false;
-        if (el.closest("#experience")) return false;
-        if (el.closest("#projects")) return false;
-        return true;
+        const section = el.closest("section[id]");
+        if (!section) return true;
+        const id = section.id;
+        return id !== "about" && id !== "education" && id !== "contact" && id !== "experience" && id !== "skills" && id !== "projects";
       });
       if (!filtered.length) return;
       gsap.fromTo(
         filtered,
-        { y: 48, autoAlpha: 0, scale: 0.92, filter: "blur(6px)" },
-        {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          filter: "blur(0px)",
-          stagger: 0.07,
-          duration: 0.7,
-          ease: "power2.out",
-          overwrite: true,
-        },
+        { y: 36, autoAlpha: 0, scale: 0.97 },
+        { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, duration: 0.6, ease: "power2.out", overwrite: true },
       );
     },
-  });
-
-  const mm = gsap.matchMedia();
-  mm.add("(min-width: 768px)", () => {
-    gsap.from("#skills .skill-orbit-hub", {
-      scale: 0.6,
-      autoAlpha: 0,
-      duration: 0.9,
-      ease: "back.out(1.5)",
-      scrollTrigger: {
-        trigger: "#skills",
-        start: "top 72%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
-    gsap.from("#skills .skill-module-panel", {
-      x: 40,
-      autoAlpha: 0,
-      duration: 0.75,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: "#skills",
-        start: "top 68%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
-    gsap.from("#skills .skill-orbit-node", {
-      scale: 0,
-      autoAlpha: 0,
-      stagger: 0.05,
-      duration: 0.45,
-      ease: "back.out(2)",
-      scrollTrigger: {
-        trigger: "#skills .skill-orbit-hub",
-        start: "top 75%",
-        toggleActions: REVEAL_ONCE,
-      },
-    });
-  });
-  mm.add("(max-width: 767px)", () => {
-    gsap.from("#skills .skill-orbit-hub", {
-      scale: 0.75,
-      autoAlpha: 0,
-      duration: 0.8,
-      ease: "back.out(1.35)",
-      scrollTrigger: {
-        trigger: "#skills",
-        start: "top 78%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
-    gsap.from("#skills .skill-module-panel", {
-      y: 32,
-      autoAlpha: 0,
-      duration: 0.7,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: "#skills",
-        start: "top 74%",
-        toggleActions: REVEAL_TOGGLE,
-      },
-    });
-  });
-
-  return mm;
-}
-
-function setupHeadingFocus(root: HTMLElement) {
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".section-heading-block h2")).forEach((heading) => {
-    gsap.fromTo(
-      heading,
-      { scale: 1, filter: "blur(0px)" },
-      {
-        scale: 1.02,
-        filter: "blur(0px)",
-        ease: "none",
-        scrollTrigger: {
-          trigger: heading,
-          start: "top 85%",
-          end: "top 45%",
-          scrub: 0.4,
-        },
-      },
-    );
   });
 }
 
@@ -506,12 +326,12 @@ function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof
   setupHeroIntro(root);
   mediaStores.push(setupHeroPortalZoom(root));
   setupSectionReveals(root);
+  setupSkillsReveals(root);
+  setupExperienceReveals(root);
   setupEducationReveals(root);
   setupContactReveals(root);
-  setupExperienceReveals(root);
   setupProjectScrollFx(root);
-  setupHeadingFocus(root);
-  mediaStores.push(setupElementReveals(root));
+  setupElementReveals(root);
 }
 
 export function ScrollShell({ children }: { children: ReactNode }) {
@@ -530,7 +350,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       if (!motionAllowed()) {
         gsap.set(
           root.querySelectorAll(
-            ".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, #about .panel-vivid, #about .panel-hud, #about .stat-chip, .edu-degree-panel, .edu-cert-panel, .edu-cert-card",
+            ".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, #about .panel-vivid, #about .panel-hud, #about .stat-chip, .edu-degree-panel, .edu-cert-panel, .edu-cert-card, .career-track, .career-snake-node, .skill-module-panel, .skill-orbit-hub, .skill-orbit-node",
           ),
           {
             clearProps: "all",

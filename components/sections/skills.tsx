@@ -87,7 +87,7 @@ export function Skills() {
         <SectionHeading
           label="Skills"
           title="Skills and stack"
-          description="Select a category to view tools and technologies."
+          description="Browse categories — first stack is shown by default."
         />
 
       <div className="section-reveal skills-reveal mt-8 min-w-0">
@@ -111,7 +111,7 @@ export function Skills() {
         <div>
           <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
             <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
-            Click a category to view its stack
+            Click a node to switch category
           </p>
 
           <div className="skill-orbit relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] lg:max-w-none">
@@ -152,7 +152,9 @@ export function Skills() {
               <span className="skill-orbit-hub-ring" aria-hidden="true" />
               <span className="relative font-display text-sm font-bold leading-none text-ink sm:text-base">Tech</span>
               <span className="relative font-display text-sm font-bold leading-none text-accent-cyan sm:text-base">Stack</span>
-              <span className="relative mt-1 text-[0.45rem] uppercase tracking-widest text-ink-faint">Select below</span>
+              <span className="relative mt-1 max-w-[4.5rem] truncate text-[0.45rem] uppercase tracking-widest text-ink-faint">
+                {active.label}
+              </span>
             </div>
 
             {skillCategories.map((category, i) => {
