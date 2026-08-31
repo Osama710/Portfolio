@@ -28,59 +28,57 @@ const cutVariants = [
 
 const projectInsights: Record<string, ProjectInsight> = {
   "Raptr Wallet": {
-    problem:
-      "Users needed trusted onboarding, KYC, and payments without failed or duplicate transactions.",
-    solution:
-      "Production fintech surface and core flows for an app now used by 75,000+ people.",
-    architecture:
-      "Next.js surface, JWT auth, KYC flows, idempotent webhooks, MySQL/MongoDB, Vercel + GCP.",
-    contribution:
-      "Core/lead engineer on KYC, payments, admin portal, vendor APIs, and production monitoring.",
-    features: ["KYC & identity", "Secure payments", "Live product APIs"],
+    problem: "Users needed a clear landing page to discover Raptr Wallet and download the app.",
+    solution: "Static marketing site highlighting app benefits, features, and download paths.",
+    architecture: "HTML, CSS, and JavaScript — lightweight static pages with responsive layout.",
+    contribution: "Built and maintained the marketing site; core wallet product (KYC, payments) is separate backend work.",
+    features: ["App download CTAs", "Product benefits", "Feature highlights"],
   },
   "Raptr Store": {
-    problem: "Gamers needed a reliable marketplace for in-game commodities without broken checkout.",
-    solution: "Primary e-commerce platform — catalog, orders, and vendor operations.",
-    architecture: "Next.js storefront, Node.js services, MongoDB + MySQL, vendor & admin dashboards.",
-    contribution: "Lead engineer on catalog, checkout, vendor tracking, and ops tooling.",
-    features: ["Marketplace checkout", "Vendor tracking", "Admin dashboards"],
+    problem: "Needed an e-commerce platform for gaming commodities with accounts and purchases.",
+    solution: "Next.js storefront with registration, checkout, coin purchases, and order flows.",
+    architecture: "Next.js frontend, Node.js APIs, MongoDB and MySQL, vendor and admin dashboards.",
+    contribution: "Lead engineer on catalog, checkout, coin purchases, vendor tracking, and admin tooling.",
+    features: ["User registration", "E-commerce checkout", "Coin purchases"],
   },
   "Raptr.gg": {
-    problem: "No single hub to register, fund a wallet, and join esports events.",
-    solution: "Unified platform for accounts, wallets, and tournament participation.",
-    architecture: "Next.js + Redux, Node/Express APIs, wallet registration tied to Raptr accounts.",
-    contribution: "Built registration, wallet creation, and tournament entry flows.",
-    features: ["Registration", "Wallet creation", "Tournament entry"],
+    problem: "Needed one platform for accounts, wallets, tournaments, and live esports content.",
+    solution: "Next.js app for registration, wallet creation, tournament entry, and live streaming.",
+    architecture: "Next.js and Redux UI, Node/Express APIs, wallet registration linked to Raptr accounts.",
+    contribution: "Built registration, wallet creation, tournament flows, and streaming integration.",
+    features: ["User registration", "Wallet creation", "Tournaments & live streams"],
   },
   "Raptr Games": {
-    problem: "Raptr's product suite needed one clear corporate home.",
-    solution: "Corporate site tying Wallet, Store, and esports under one brand.",
-    features: ["Product overview", "Marketing pages", "SEO-ready Next.js"],
+    problem: "Company needed a hub site explaining Raptr and routing visitors to each product.",
+    solution: "Static corporate site with company info and links to Wallet, Store, and Raptr.gg.",
+    architecture: "HTML, CSS, and JavaScript — static pages with cross-site navigation.",
+    contribution: "Built the company site and product landing paths to the Raptr ecosystem.",
+    features: ["Company overview", "Product links", "Static marketing pages"],
   },
   "Meri Sehat": {
-    problem: "Healthcare access beyond physical clinic visits.",
-    solution: "Patient app plus doctor panel for daily clinical workflows.",
+    problem: "Healthcare access outside physical clinic visits.",
+    solution: "Patient app and doctor panel for clinical workflows.",
     features: ["Patient portal", "Doctor panel", "Appointments"],
   },
   "The Groves": {
-    problem: "Riyadh Season venue needed a high-impact visitor presence.",
-    solution: "Entertainment marketing site for a flagship destination.",
-    features: ["Venue storytelling", "Visitor info", "Fast Next.js build"],
+    problem: "Riyadh Season venue needed a public web presence.",
+    solution: "Marketing site for a major entertainment destination.",
+    features: ["Venue information", "Visitor content", "Next.js build"],
   },
   "Prosper Architect": {
-    problem: "Firm needed public portfolio plus private client management.",
+    problem: "Architecture firm needed a public site and client management.",
     solution: "Marketing site and client portal for project tracking.",
     features: ["Portfolio pages", "Client portal", "Role-based access"],
   },
   "Ana Batla": {
-    problem: "Company needed a credible web presence for buyers.",
+    problem: "Company needed a web presence for products and services.",
     solution: "Corporate site with Node.js backend for content.",
-    features: ["Product showcase", "Brand pages", "Fastify API"],
+    features: ["Product showcase", "Company pages", "Fastify API"],
   },
   "Eats Official": {
-    problem: "Pakistan lacked one authoritative food reference.",
-    solution: "First comprehensive food encyclopedia on Next.js.",
-    features: ["Searchable database", "Editorial content", "Industry + casual"],
+    problem: "Needed a structured food reference platform.",
+    solution: "Food encyclopedia built on Next.js.",
+    features: ["Searchable database", "Editorial content", "Public reference"],
   },
 };
 
@@ -134,6 +132,12 @@ const tagThemes: Record<string, { accent: string; glow: string; gradient: string
       gradient: "linear-gradient(135deg, #A78BFA, #22D3EE)",
       emoji: "🏢",
     },
+    Marketing: {
+      accent: "#FB7185",
+      glow: "rgba(251, 113, 133, 0.4)",
+      gradient: "linear-gradient(135deg, #FB7185, #8B5CF6)",
+      emoji: "📣",
+    },
     Food: {
       accent: "#FBBF24",
       glow: "rgba(251, 191, 36, 0.35)",
@@ -150,10 +154,8 @@ const tagThemes: Record<string, { accent: string; glow: string; gradient: string
 
 const defaultTheme = tagThemes.Fintech;
 
-function getBentoClass(index: number, total: number) {
-  if (index < 2) return "project-bento-hero";
-  if (index === total - 1 && total % 3 === 1) return "project-bento-tile project-bento-solo";
-  return "project-bento-tile";
+function getDeckClass(index: number) {
+  return `project-deck-item project-deck-${index}`;
 }
 
 function screenshotOf(p: ProjectItem) {
@@ -163,7 +165,7 @@ function screenshotOf(p: ProjectItem) {
 function getInsight(project: ProjectItem): ProjectInsight {
   return (
     projectInsights[project.name] ?? {
-      problem: "Client needed a modern web product shipped to real users.",
+      problem: "Client needed a production web product.",
       solution: project.description,
       features: project.tech.slice(0, 3),
     }
@@ -271,9 +273,9 @@ function ExpandToggle({ expanded, onToggle }: { expanded: boolean; onToggle: () 
   return (
     <>
       <button type="button" className="project-expand-toggle lg:hidden" onClick={onToggle} aria-expanded={expanded}>
-        {expanded ? "Hide dossier" : "View dossier"}
+        {expanded ? "Hide details" : "View details"}
       </button>
-      <p className="project-expand-hint hidden lg:block">Hover to explore dossier</p>
+      <p className="project-expand-hint hidden lg:block">Hover for project details</p>
     </>
   );
 }
@@ -282,12 +284,14 @@ function LiveShipTile({
   project,
   index,
   variant = "tile",
+  defaultExpanded = false,
 }: {
   project: ProjectItem;
   index: number;
   variant?: "hero" | "tile";
+  defaultExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const insight = getInsight(project);
   const theme = tagThemes[project.tag] ?? defaultTheme;
   const shot = screenshotOf(project);
@@ -295,7 +299,7 @@ function LiveShipTile({
   const compact = !isHero;
 
   return (
-    <CutoutCardShell index={index} theme={theme} expanded={expanded}>
+    <CutoutCardShell index={index} theme={theme} expanded={expanded || defaultExpanded}>
       <div
         className={cn(
           "relative shrink-0 overflow-hidden border-b border-white/[0.07] bg-void/50",
@@ -552,45 +556,50 @@ function GithubShipTile({ project, index }: { project: GithubProjectItem; index:
 
 export function Projects() {
   return (
-    <section id="projects" className="site-section section-wash-violet relative">
-      <SectionHeading
-        label="Shipped live"
-        title="Real products in production"
-        description="Compact launch tiles — hover or tap to expand the full chroma dossier."
-        className="mb-6 sm:mb-8"
-      />
+    <section id="projects" className="site-section relative overflow-visible">
+      <div className="site-container">
+        <SectionHeading
+          label="Projects"
+          title="Production work"
+          description="Live sites and apps. Expand a card for scope, role, and stack."
+        />
 
-      <div className="project-bento-meta mb-4 flex flex-wrap items-center gap-3 font-mono text-[0.62rem] uppercase tracking-widest text-ink-faint">
-        <span className="rounded-full border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1 text-accent-cyan">
-          {String(projects.length).padStart(2, "0")} live builds
-        </span>
-        <span className="rounded-full border border-accent-violet/30 bg-accent-violet/10 px-3 py-1 text-accent-violet">
-          {String(githubProjects.length).padStart(2, "0")} open-source repos
-        </span>
-      </div>
-
-      <div className="project-bento-wall">
-        {projects.map((project, index) => (
-          <div key={project.name} className={getBentoClass(index, projects.length)}>
-            <LiveShipTile project={project} index={index} variant={index < 2 ? "hero" : "tile"} />
+        <div className="section-reveal projects-reveal mt-6">
+          <div className="project-bento-meta mb-5 flex flex-wrap items-center gap-3 font-mono text-[0.62rem] uppercase tracking-widest text-ink-faint">
+            <span className="rounded-full border border-accent-cyan/30 bg-accent-cyan/10 px-3 py-1 text-accent-cyan">
+              {String(projects.length).padStart(2, "0")} live projects
+            </span>
+            <span className="rounded-full border border-accent-violet/30 bg-accent-violet/10 px-3 py-1 text-accent-violet">
+              {String(githubProjects.length).padStart(2, "0")} GitHub repos
+            </span>
           </div>
-        ))}
-      </div>
 
-      <div className="mt-10 sm:mt-12">
-        <div className="mb-4 flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">Open source</p>
-            <h3 className="font-display text-lg font-bold text-ink sm:text-xl">University GitHub builds</h3>
+          <div className="project-deck">
+            {projects.map((project, index) => (
+              <div key={project.name} className={getDeckClass(index)}>
+                <LiveShipTile
+                  project={project}
+                  index={index}
+                  variant={index < 2 ? "hero" : "tile"}
+                  defaultExpanded={index === 0}
+                />
+              </div>
+            ))}
           </div>
-        </div>
 
-        <div className="project-bento-wall project-bento-repos">
-          {githubProjects.map((project, index) => (
-            <div key={project.name} className="project-bento-repo">
-              <GithubShipTile project={project} index={index} />
+          <div className="mt-10 sm:mt-14">
+            <div className="mb-5">
+              <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">Open source</p>
+              <h3 className="font-display text-lg font-bold text-ink sm:text-xl">GitHub projects</h3>
             </div>
-          ))}
+            <div className="project-github-wall">
+              {githubProjects.map((project, index) => (
+                <div key={project.name} className="project-github-item">
+                  <GithubShipTile project={project} index={index} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

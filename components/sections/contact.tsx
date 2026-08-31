@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Github, Linkedin, Mail, Phone, Send } from "lucide-react";
 import { profile } from "@/lib/data";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
 const methods = [
@@ -21,25 +20,24 @@ export function Contact() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const subject = encodeURIComponent(`Portfolio inquiry from ${name || "visitor"}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name}${email ? ` (${email})` : ""}`);
+    const body = encodeURIComponent(`${message}\n\n${name}${email ? ` (${email})` : ""}`);
     window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
   }
 
   return (
-    <section id="contact" className="site-section">
-      <SectionHeading
-        label="Contact"
-        title="Let's build something"
-        description="Open to full-time roles, relocation, and select freelance work."
-        align="center"
-        className="mb-14"
-      />
+    <section id="contact" className="site-section relative pb-16">
+      <div className="site-container relative">
+        <SectionHeading
+          label="Contact"
+          title="Get in touch"
+          description="Open to full-time roles, relocation, and freelance work."
+        />
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="space-y-3 lg:col-span-2">
-          {methods.map((m, i) => (
-            <ScrollReveal key={m.label} delay={i * 0.06}>
+        <div className="section-reveal mt-8 grid gap-6 lg:grid-cols-5">
+          <div className="space-y-3 lg:col-span-2">
+            {methods.map((m) => (
               <a
+                key={m.label}
                 href={m.href}
                 target={m.href.startsWith("http") ? "_blank" : undefined}
                 rel={m.href.startsWith("http") ? "noreferrer noopener" : undefined}
@@ -49,75 +47,68 @@ export function Contact() {
                   <m.icon className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
-                    {m.label}
-                  </p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-ink-faint">{m.label}</p>
                   <p className="truncate text-sm font-medium text-ink">{m.value}</p>
                 </div>
               </a>
-            </ScrollReveal>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <ScrollReveal delay={0.1} className="lg:col-span-3">
-          <form
-            onSubmit={handleSubmit}
-            className="gradient-border rounded-3xl p-[1px]"
-          >
-            <div className="glass-card space-y-5 rounded-[23px] p-6 sm:p-8">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
-                    placeholder="Your name"
-                  />
+          <div className="lg:col-span-3">
+            <form onSubmit={handleSubmit} className="contact-form gradient-border rounded-3xl p-[1px]">
+              <div className="glass-card space-y-5 rounded-[23px] p-6 sm:p-8">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
+                      Name
+                    </label>
+                    <input
+                      id="name"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
+                      placeholder="you@email.com"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
-                    Email
+                  <label htmlFor="message" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
+                    Message
                   </label>
-                  <input
-                    id="email"
-                    type="email"
+                  <textarea
+                    id="message"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
-                    placeholder="you@email.com"
+                    rows={5}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
+                    placeholder="Tell me about the role or project..."
                   />
                 </div>
+                <button type="submit" className="btn-primary w-full sm:w-auto">
+                  <Send className="h-4 w-4" />
+                  Send message
+                </button>
+                <p className="text-xs text-ink-faint">Opens your email client addressed to {profile.email}.</p>
               </div>
-              <div>
-                <label htmlFor="message" className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  required
-                  rows={5}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-void/50 px-4 py-3 text-sm text-ink focus:border-accent-violet/50 focus:outline-none"
-                  placeholder="Tell me about the role or project..."
-                />
-              </div>
-              <button type="submit" className="btn-primary w-full sm:w-auto">
-                <Send className="h-4 w-4" />
-                Send message
-              </button>
-              <p className="text-xs text-ink-faint">
-                Opens your email client addressed to {profile.email}.
-              </p>
-            </div>
-          </form>
-        </ScrollReveal>
+            </form>
+          </div>
+        </div>
       </div>
     </section>
   );

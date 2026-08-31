@@ -43,16 +43,16 @@ export function Capabilities() {
   const Icon = iconMap[active.icon];
 
   return (
-    <section id="capabilities" className="site-section section-wash-cyan relative overflow-hidden">
-      <SectionHeading
+    <section id="capabilities" className="site-section relative overflow-visible">
+      <div className="site-container overflow-visible">
+        <SectionHeading
         label="Services"
-        title="What I can build for you"
-        description="Full-time, relocation, contract, or select freelance — scoped engagements across the stack, with fintech and integration depth from production Raptr work."
-        className="mb-8 sm:mb-10"
+        title="What I can build"
+        description="Available for full-time roles, relocation, contract work, and selected freelance projects."
       />
 
-      <div className="capability-rack grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
-        <div className="capability-slots grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="section-reveal caps-reveal capability-rack mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+        <div className="capability-slots grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
           {capabilities.map((cap, index) => {
             const CapIcon = iconMap[cap.icon];
             const isActive = cap.id === activeId;
@@ -95,7 +95,7 @@ export function Capabilities() {
                   </span>
                   <div className="min-w-0">
                     <p className="font-mono text-[0.58rem] uppercase tracking-wider text-accent-cyan">
-                      Slot {String(index + 1).padStart(2, "0")}
+                      {String(index + 1).padStart(2, "0")} / {String(capabilities.length).padStart(2, "0")}
                     </p>
                     <p className="font-display text-sm font-bold text-ink sm:text-base">{cap.title}</p>
                     <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-ink-muted">{cap.summary}</p>
@@ -124,7 +124,7 @@ export function Capabilities() {
                 </span>
                 <div>
                   <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">
-                    Active module
+                    Selected service
                   </p>
                   <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">{active.title}</h3>
                 </div>
@@ -171,12 +171,12 @@ export function Capabilities() {
             </div>
 
             <p className="mt-5 rounded-xl border border-white/[0.06] bg-gradient-brand-soft px-4 py-3 text-xs leading-relaxed text-ink-muted sm:text-sm">
-              <span className="font-semibold text-ink">No fixed packages — </span>
-              scope is discussed after a brief on your product, timeline, and stack. Custom quotes for
-              freelance; open to senior full-time and relocation roles.
+              <span className="font-semibold text-ink">Pricing depends on scope. </span>
+              Share your product, timeline, and stack for a quote. Open to senior full-time roles and relocation.
             </p>
           </div>
         </motion.div>
+      </div>
       </div>
     </section>
   );

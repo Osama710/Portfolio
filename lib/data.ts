@@ -11,13 +11,15 @@ import type {
 } from "@/types";
 
 // ---------------------------------------------------------------------------
-// PROFILE — the single source of truth for personal/contact information.
+// Profile and contact details (source of truth for the site).
 // Every value here comes directly from Muhammad Osama's CV. Nothing invented.
 // ---------------------------------------------------------------------------
 export const profile = {
   name: "Muhammad Osama",
   initials: "MO",
   title: "Full Stack Software Engineer",
+  role: "Senior Software Engineer",
+  company: "Raptr Games",
   location: "Karachi, Pakistan",
   relocation: "Open to Relocation",
   email: "osamamymini@gmail.com",
@@ -29,9 +31,11 @@ export const profile = {
   githubLabel: "github.com/Osama710",
   resumeFile: "/Muhammad_Osama_Resume.pdf",
   tagline:
-    "Senior Software Engineer shipping production fintech and e-commerce systems — from KYC and payment webhooks to admin dashboards used every day by tens of thousands of people.",
+    "Senior Software Engineer building fintech and e-commerce products — KYC, payments, admin tools, and backend APIs.",
+  heroLead:
+    "At Raptr Games I ship wallet KYC, payment webhooks, admin dashboards, and vendor APIs across Wallet, Store, and Raptr.gg.",
   summary:
-    "Full Stack Software Engineer with 5+ years of experience building scalable web and fintech applications using Next.js, React, Node.js, and Python (FastAPI). Recently promoted to Senior Software Engineer at Raptr Games for consistent delivery on production fintech and e-commerce systems. Skilled across frontend, backend, and API design, with hands-on experience in payment integrations, database architecture, and cloud deployment.",
+    "Full stack engineer with 5+ years of experience in Next.js, React, Node.js, and Python (FastAPI). Promoted to Senior Software Engineer at Raptr Games for delivery on production fintech and e-commerce work. Strong across frontend, backend, and API design, including payment integrations, database design, and deployment on Vercel and GCP.",
 };
 
 export const socialLinks: SocialLink[] = [
@@ -40,26 +44,25 @@ export const socialLinks: SocialLink[] = [
   { label: "Email", href: `mailto:${profile.email}`, icon: "mail" },
 ];
 
-// Stats shown on the hero dashboard card — every number is drawn directly
-// from the CV (years of experience, Raptr Wallet's user base, project count).
+// Hero stats (from CV).
 export const heroStats: StatItem[] = [
-  { label: "Years of experience", value: "5", suffix: "+" },
-  { label: "Raptr Wallet users", value: "75,000", suffix: "+" },
+  { label: "Years experience", value: "5", suffix: "+" },
   { label: "Shipped projects", value: "9" },
+  { label: "Live platforms", value: "3" },
 ];
 
 export const experience: ExperienceItem[] = [
   {
     role: "Senior Software Engineer",
     company: "Raptr Games",
-    period: "Feb 2024 — Present",
+    period: "Feb 2024 - Present",
     location: "Karachi",
     current: true,
     bullets: [
       "Promoted from Software Engineer to Senior Software Engineer for consistent delivery on core product features.",
       "Core/lead engineer on Raptr Wallet, a fintech platform serving 75,000+ users, and Raptr Store, a gaming commodities e-commerce marketplace.",
       "Built KYC workflows, JWT-based authentication, and idempotent payment webhooks for secure, reliable transaction processing.",
-      "Built the admin portal from scratch — CRUD operations, AI-powered features, and transaction & settlement reporting with graph-based analytics and role-based permission access.",
+      "Built the admin portal from scratch: CRUD, AI features, transaction and settlement reporting, analytics dashboards, and role-based permissions.",
       "Developed a separate vendor portal for order and transaction tracking, complaint management, graph-based analytics dashboards, and team-based role permissions.",
       "Contributed to Raptr.gg, a platform for user registration, wallet creation, and esports tournament participation.",
       "Designed scalable MySQL/MongoDB schemas and RESTful APIs for authentication, payment gateways, and banking services.",
@@ -82,7 +85,7 @@ export const experience: ExperienceItem[] = [
   {
     role: "Full Stack Developer",
     company: "WeUno Technologies",
-    period: "Apr 2022 — Jan 2024",
+    period: "Apr 2022 - Jan 2024",
     location: "Karachi",
     bullets: [
       "Designed and developed multiple frontend websites and admin panels using React.js, Next.js, Bootstrap, Tailwind CSS, and Ant Design (SSR-enabled).",
@@ -103,7 +106,7 @@ export const experience: ExperienceItem[] = [
   {
     role: "Freelance Full Stack & Python Developer",
     company: "Fiverr & Upwork",
-    period: "Sept 2020 — Present",
+    period: "Sept 2020 - Present",
     location: "Remote",
     current: true,
     bullets: [
@@ -116,7 +119,7 @@ export const experience: ExperienceItem[] = [
   {
     role: "Frontend Developer Intern",
     company: "Interns Pakistan",
-    period: "Oct 2021 — Nov 2021",
+    period: "Oct 2021 - Nov 2021",
     location: "Remote",
     bullets: [
       "Learned frontend web development fundamentals using HTML, CSS, and Bootstrap.",
@@ -126,7 +129,7 @@ export const experience: ExperienceItem[] = [
   {
     role: "Web Developer Intern",
     company: "Switch Studios",
-    period: "Sept 2021 — Oct 2021",
+    period: "Sept 2021 - Oct 2021",
     location: "Karachi",
     bullets: ["Worked on frontend web projects using HTML, CSS, and WordPress."],
     tech: ["HTML", "CSS", "WordPress"],
@@ -139,9 +142,9 @@ export const projects: ProjectItem[] = [
     domain: "raptrwallet.com",
     url: "https://raptrwallet.com",
     description:
-      "Marketing site for the Raptr Wallet fintech app — the product Osama leads engineering on, now serving 75,000+ users with KYC, payments, and secure transactions.",
-    tech: ["Next.js", "TypeScript"],
-    tag: "Fintech",
+      "Static marketing site (HTML, CSS, JavaScript) that promotes the Raptr Wallet app — download links, product benefits, and feature highlights.",
+    tech: ["HTML", "CSS", "JavaScript"],
+    tag: "Marketing",
     screenshot: "/projects/raptr-wallet.png",
   },
   {
@@ -149,8 +152,8 @@ export const projects: ProjectItem[] = [
     domain: "raptrstore.com",
     url: "https://raptrstore.com",
     description:
-      "Primary e-commerce marketplace for gaming commodities, built and maintained as core/lead engineer.",
-    tech: ["Next.js", "Node.js", "MongoDB", "MySQL"],
+      "Next.js e-commerce platform with user registration, product checkout, in-app coin purchases, and vendor-facing flows.",
+    tech: ["Next.js", "Node.js", "MongoDB", "MySQL", "Redux"],
     tag: "E-commerce",
     screenshot: "/projects/raptr-store.png",
   },
@@ -159,7 +162,7 @@ export const projects: ProjectItem[] = [
     domain: "raptr.gg",
     url: "https://raptr.gg",
     description:
-      "Platform for user registration, wallet creation, and esports tournament participation.",
+      "Next.js platform for user registration, wallet creation, esports tournament sign-up, and live streaming features.",
     tech: ["Next.js", "Tailwind CSS", "Redux", "Node.js", "Express"],
     tag: "Esports",
     screenshot: "/projects/raptr-gg.png",
@@ -168,8 +171,9 @@ export const projects: ProjectItem[] = [
     name: "Raptr Games",
     domain: "raptrgames.com",
     url: "https://raptrgames.com",
-    description: "Corporate site showcasing the full Raptr product suite.",
-    tech: ["Next.js"],
+    description:
+      "Static company website (HTML, CSS, JavaScript) covering Raptr Games and linking to Wallet, Store, and Raptr.gg with product details.",
+    tech: ["HTML", "CSS", "JavaScript"],
     tag: "Corporate",
     screenshot: "/projects/raptr-games.png",
   },
@@ -213,7 +217,7 @@ export const projects: ProjectItem[] = [
   {
     name: "Eats Official",
     description:
-      "Pakistan's first comprehensive food encyclopedia — the ultimate destination for food lovers, industry professionals, and culinary explorers.",
+      "Food encyclopedia and reference site built on Next.js.",
     tech: ["Next.js"],
     tag: "Food",
     screenshot: "/projects/eats-official.png",
@@ -225,7 +229,7 @@ export const capabilities: CapabilityItem[] = [
     id: "fullstack",
     title: "Full-Stack Web Apps",
     icon: "layers",
-    summary: "End-to-end product builds — UI, APIs, data layer, and deployment.",
+    summary: "Full product builds: UI, APIs, data layer, and deployment.",
     deliverables: [
       "Next.js / React product surfaces",
       "Node.js & FastAPI service layers",
@@ -273,7 +277,7 @@ export const capabilities: CapabilityItem[] = [
     id: "integrations",
     title: "API & Service Integrations",
     icon: "shield",
-    summary: "Connect products to external platforms without brittle glue code.",
+    summary: "Third-party APIs, partner integrations, and secure service connections.",
     deliverables: [
       "Partner & vendor-facing APIs",
       "Third-party SDK / REST integrations",
@@ -285,7 +289,7 @@ export const capabilities: CapabilityItem[] = [
     id: "quality",
     title: "Testing & Production Hardening",
     icon: "test",
-    summary: "Ship with confidence — validation, monitoring, and deploy readiness.",
+    summary: "Validation, error handling, monitoring, and production deployment support.",
     deliverables: [
       "Schema validation & error handling",
       "Staging / production deployment support",
@@ -301,7 +305,7 @@ export const githubProjects: GithubProjectItem[] = [
     repo: "https://github.com/Osama710/express-typescript-boilerplate",
     period: "University · Open source",
     description:
-      "Starter API with JWT authentication, Yup validation, and MySQL user CRUD — a foundation I still reach for when bootstrapping backends.",
+      "Starter API with JWT auth, Yup validation, and MySQL user CRUD for new Node backends.",
     problem:
       "New Node backends repeat the same auth, validation, and migration setup every time.",
     solution:
@@ -318,7 +322,7 @@ export const githubProjects: GithubProjectItem[] = [
     repo: "https://github.com/Osama710/Accounting-Cycle",
     period: "University · Desktop app",
     description:
-      "Python desktop app for ledgers, trial balance, income statements, and balance sheets — early proof of building complete business logic.",
+      "Python desktop app for ledgers, trial balance, income statements, and balance sheets.",
     problem:
       "Manual accounting workflows needed a local system for ledgers, updates, and financial statements.",
     solution:
@@ -326,7 +330,7 @@ export const githubProjects: GithubProjectItem[] = [
     architecture:
       "Python + Tkinter UI, SQLite database layer, modular report preparation and Excel export scripts.",
     contribution:
-      "Solo project — database design, UI forms, accounting calculations, and financial report modules.",
+      "Solo project: database design, UI forms, accounting logic, and financial report modules.",
     tech: ["Python", "Tkinter", "SQLite"],
     features: ["Ledger management", "Trial balance", "Income & balance sheets", "Excel export"],
     screenshot: "/projects/github/accounting-cycle.png",
@@ -344,7 +348,7 @@ export const githubProjects: GithubProjectItem[] = [
     architecture:
       "Python desktop app with Tkinter UI, PyAutoGUI screen capture, and a release-built .exe for easy sharing.",
     contribution:
-      "Solo project — capture UI, coordinate overlay, save workflow, and executable packaging.",
+      "Solo project: capture UI, coordinate overlay, save workflow, and Windows executable packaging.",
     tech: ["Python", "Tkinter", "PyAutoGUI"],
     features: ["Region snip capture", "Live coordinates", "Auto-save PNG", "Packaged .exe"],
     screenshot: "/projects/github/snipping-tool.png",
@@ -423,7 +427,7 @@ export const education: EducationItem[] = [
     degree: "BS Computer Science",
     school: "Usman Institute of Technology (NED Affiliated)",
     detail: "CGPA 3.23",
-    period: "2018 — 2022",
+    period: "2018 - 2022",
     location: "Karachi, Pakistan",
   },
 ];
@@ -432,7 +436,7 @@ export const certifications: CertificationItem[] = [
   { title: "PCAP: Programming Essentials in Python" },
   { title: "Saylani MTP: Online Python Programming Course" },
   { title: "IEEE Speed Programming Competition Winner, 2020" },
-  { title: "Google Hash Code 2020 — 1777th worldwide, 5th in Pakistan" },
+  { title: "Google Hash Code 2020, 1777th worldwide, 5th in Pakistan" },
 ];
 
 export const navLinks = [

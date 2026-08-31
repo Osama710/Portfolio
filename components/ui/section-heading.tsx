@@ -1,41 +1,25 @@
 import { cn } from "@/lib/utils";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 interface SectionHeadingProps {
   label: string;
   title: string;
   description?: string;
-  align?: "left" | "center";
   className?: string;
 }
 
-export function SectionHeading({
-  label,
-  title,
-  description,
-  align = "left",
-  className,
-}: SectionHeadingProps) {
+export function SectionHeading({ label, title, description, className }: SectionHeadingProps) {
   return (
-    <ScrollReveal
-      className={cn(
-        "max-w-2xl",
-        align === "center" && "mx-auto text-center",
-        className,
-      )}
-    >
-      <span className={cn("section-label", align === "center" && "justify-center")}>
+    <div className={cn("section-heading-block max-w-2xl text-left", className)}>
+      <span className="section-label">
         <span className="section-label-dot" aria-hidden="true" />
         {label}
       </span>
-      <h2 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+      <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl lg:leading-[1.12]">
         <span className="gradient-text">{title}</span>
       </h2>
       {description ? (
-        <p className="mt-4 text-base leading-relaxed text-ink-muted sm:text-lg">
-          {description}
-        </p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-muted sm:text-base">{description}</p>
       ) : null}
-    </ScrollReveal>
+    </div>
   );
 }

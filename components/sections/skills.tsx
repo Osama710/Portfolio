@@ -82,23 +82,18 @@ export function Skills() {
   const theme = moduleThemes[activeCategory % moduleThemes.length];
 
   return (
-    <section id="skills" className="site-section section-wash-cyan relative overflow-hidden">
-      <SectionHeading
-        label="Loadout"
-        title="Skills & stack"
-        description="Equipped for production fintech — pick a node to inspect the full arsenal."
-        align="center"
-        className="mb-12"
-      />
+    <section id="skills" className="site-section relative overflow-visible">
+      <div className="site-container relative overflow-visible">
+        <SectionHeading
+          label="Skills"
+          title="Skills and stack"
+          description="Select a category to view tools and technologies."
+        />
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="panel-hud mb-12"
-      >
+      <div className="section-reveal skills-reveal mt-8 min-w-0">
+      <div className="skills-loadout-strip panel-hud mb-8">
         <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-accent-cyan">
-          Equipped · Primary stack
+          Primary stack
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {loadout.map((skill) => (
@@ -110,16 +105,16 @@ export function Skills() {
             </span>
           ))}
         </div>
-      </motion.div>
+      </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-10">
+      <div className="skills-reveal grid min-w-0 gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-10">
         <div>
           <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
             <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
-            Click a node to view that stack
+            Click a category to view its stack
           </p>
 
-          <div className="relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] lg:max-w-none">
+          <div className="skill-orbit relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] lg:max-w-none">
             <svg
               className="pointer-events-none absolute inset-0 h-full w-full"
               viewBox="0 0 400 400"
@@ -151,15 +146,13 @@ export function Skills() {
             </svg>
 
             <div
-              className="absolute left-1/2 top-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/15 bg-gradient-brand-soft text-center shadow-glow sm:h-28 sm:w-28"
-              aria-hidden="true"
+              className="skill-orbit-hub relative absolute left-1/2 top-1/2 z-20 flex h-[5.75rem] w-[5.75rem] origin-center -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-cyan/35 bg-void/95 text-center shadow-glow-cyan sm:h-28 sm:w-28"
             >
-              <Sparkles className="h-5 w-5 text-accent-violet" />
-              <span className="mt-1 text-[0.55rem] font-bold uppercase leading-tight tracking-wider text-ink">
-                Pick a
-                <br />
-                stack
-              </span>
+              <span className="skill-orbit-hub-glow" aria-hidden="true" />
+              <span className="skill-orbit-hub-ring" aria-hidden="true" />
+              <span className="relative font-display text-sm font-bold leading-none text-ink sm:text-base">Tech</span>
+              <span className="relative font-display text-sm font-bold leading-none text-accent-cyan sm:text-base">Stack</span>
+              <span className="relative mt-1 text-[0.45rem] uppercase tracking-widest text-ink-faint">Select below</span>
             </div>
 
             {skillCategories.map((category, i) => {
@@ -178,7 +171,7 @@ export function Skills() {
                   onMouseEnter={() => setHoveredCategory(i)}
                   onMouseLeave={() => setHoveredCategory(null)}
                   className={cn(
-                    "group/orbit absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border bg-surface/95 transition-all duration-300 sm:h-16 sm:w-16",
+                    "skill-orbit-node group/orbit absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border bg-surface/95 transition-all duration-300 sm:h-16 sm:w-16",
                     ringColors[i % ringColors.length],
                     isActive
                       ? "border-accent-cyan shadow-glow-cyan ring-2 ring-accent-cyan/40"
@@ -200,7 +193,7 @@ export function Skills() {
                   >
                     {category.label}
                     {!isActive ? (
-                      <span className="ml-1 text-accent-cyan">· click to view</span>
+                      <span className="ml-1 text-accent-cyan">· view</span>
                     ) : null}
                   </span>
                 </button>
@@ -231,8 +224,7 @@ export function Skills() {
                   </span>
                   <div>
                     <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">
-                      Module {String(activeCategory + 1).padStart(2, "0")} /{" "}
-                      {String(skillCategories.length).padStart(2, "0")}
+                      Category {activeCategory + 1} of {skillCategories.length}
                     </p>
                     <h3 className="font-display text-2xl font-bold text-ink">
                       {active.label}
@@ -245,7 +237,7 @@ export function Skills() {
               </div>
 
               <div className="relative mt-5 flex items-center gap-3">
-                <span className="text-xs text-ink-faint">Coverage</span>
+                <span className="text-xs text-ink-faint">Skills listed</span>
                 <div className="xp-bar h-1.5 flex-1">
                   <motion.div
                     className={cn("h-full rounded-full", theme.bar)}
@@ -275,6 +267,8 @@ export function Skills() {
             </div>
           </motion.div>
         </AnimatePresence>
+      </div>
+      </div>
       </div>
     </section>
   );
