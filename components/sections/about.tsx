@@ -24,7 +24,7 @@ const hueMap = {
 
 export function About() {
   return (
-    <section id="about" className="site-section relative z-10 overflow-visible">
+    <section id="about" className="site-section relative z-10">
       <div className="site-container">
         <SectionHeading
           label="About"

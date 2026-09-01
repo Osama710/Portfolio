@@ -50,7 +50,7 @@ export function SiteNav() {
       <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
         <nav
           className={cn(
-            "site-container flex h-14 items-center justify-between rounded-2xl border px-4 transition-all duration-300 sm:px-6",
+            "site-container flex h-14 min-w-0 max-w-full items-center justify-between rounded-2xl border px-3 transition-all duration-300 sm:px-6",
             scrolled || open
               ? "border-white/10 bg-surface/90 shadow-card backdrop-blur-md"
               : "border-transparent bg-transparent",

@@ -26,7 +26,7 @@ export function Contact() {
 
   return (
     <section id="contact" className="site-section relative pb-16">
-      <div className="site-container relative">
+      <div className="site-container relative min-w-0">
         <SectionHeading
           label="Contact"
           title="Get in touch"

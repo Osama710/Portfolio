@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 export function Education() {
   return (
     <section id="education" className="site-section relative">
-      <div className="site-container overflow-visible">
+      <div className="site-container min-w-0">
         <SectionHeading
           label="Education"
           title="Education and certifications"

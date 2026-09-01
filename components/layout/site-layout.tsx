@@ -13,7 +13,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       <AmbientBackground />
       <SiteNav />
       <ScrollChapters />
-      <main id="main-content">{children}</main>
+      <main id="main-content" className="min-w-0 overflow-x-clip">{children}</main>
       <Footer />
     </div>
   );

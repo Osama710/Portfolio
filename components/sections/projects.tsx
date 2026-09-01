@@ -556,8 +556,8 @@ function GithubShipTile({ project, index }: { project: GithubProjectItem; index:
 
 export function Projects() {
   return (
-    <section id="projects" className="site-section relative overflow-visible">
-      <div className="site-container">
+    <section id="projects" className="site-section relative">
+      <div className="site-container min-w-0">
         <SectionHeading
           label="Projects"
           title="Production work"

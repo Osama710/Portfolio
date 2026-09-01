@@ -33,9 +33,9 @@ export function Hero() {
                 <Briefcase className="h-3 w-3" aria-hidden="true" />
                 {profile.role}
               </span>
-              <span className="tag-pill border-accent-cyan/30 text-accent-cyan">
-                <Workflow className="h-3 w-3" aria-hidden="true" />
-                KYC · Payments · Admin · APIs
+              <span className="tag-pill max-w-full border-accent-cyan/30 text-accent-cyan">
+                <Workflow className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="truncate">KYC · Payments · Admin · APIs</span>
               </span>
             </div>
 
@@ -59,7 +59,7 @@ export function Hero() {
               <span className="text-accent-cyan/90">{profile.relocation}</span>
             </div>
 
-            <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[300px] origin-center will-change-transform lg:hidden">
+            <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-hidden will-change-transform sm:max-w-[300px] lg:hidden">
               <HeroOrbit />
             </div>
 

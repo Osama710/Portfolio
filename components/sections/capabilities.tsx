@@ -43,8 +43,8 @@ export function Capabilities() {
   const Icon = iconMap[active.icon];
 
   return (
-    <section id="capabilities" className="site-section relative overflow-visible">
-      <div className="site-container overflow-visible">
+    <section id="capabilities" className="site-section relative">
+      <div className="site-container min-w-0">
         <SectionHeading
         label="Services"
         title="What I can build"

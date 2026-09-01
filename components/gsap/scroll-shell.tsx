@@ -251,6 +251,13 @@ function setupExperienceReveals(root: HTMLElement) {
     "#experience .career-snake",
     "top 85%",
   );
+
+  revealOnScroll(
+    root.querySelectorAll("#experience .career-mobile-item"),
+    { y: 20, scale: 0.98, duration: 0.45, stagger: 0.06, ease: "back.out(1.2)" },
+    "#experience .career-mobile-track",
+    "top 88%",
+  );
 }
 
 function setupSkillsReveals(root: HTMLElement) {
@@ -389,7 +396,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div ref={wrapRef} className="scroll-shell relative overflow-x-clip">
+    <div ref={wrapRef} className="scroll-shell relative min-w-0 overflow-x-clip">
       {children}
     </div>
   );

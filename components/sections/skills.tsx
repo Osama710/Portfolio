@@ -82,8 +82,8 @@ export function Skills() {
   const theme = moduleThemes[activeCategory % moduleThemes.length];
 
   return (
-    <section id="skills" className="site-section relative overflow-visible">
-      <div className="site-container relative overflow-visible">
+    <section id="skills" className="site-section relative overflow-x-clip">
+      <div className="site-container relative min-w-0">
         <SectionHeading
           label="Skills"
           title="Skills and stack"
@@ -114,7 +114,7 @@ export function Skills() {
             Click a node to switch category
           </p>
 
-          <div className="skill-orbit relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] lg:max-w-none">
+          <div className="skill-orbit relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] overflow-hidden lg:max-w-none">
             <svg
               className="pointer-events-none absolute inset-0 h-full w-full"
               viewBox="0 0 400 400"
@@ -187,7 +187,7 @@ export function Skills() {
 
                   <span
                     className={cn(
-                      "pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-void/95 px-2.5 py-1 text-[0.65rem] font-medium text-ink shadow-card transition-all duration-200",
+                      "pointer-events-none absolute left-1/2 z-30 hidden max-w-[10rem] -translate-x-1/2 truncate whitespace-nowrap rounded-lg border border-white/10 bg-void/95 px-2.5 py-1 text-[0.65rem] font-medium text-ink shadow-card transition-all duration-200 sm:block",
                       isHovered || isActive
                         ? "bottom-[calc(100%+8px)] opacity-100"
                         : "bottom-[calc(100%+4px)] opacity-0",
