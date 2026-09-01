@@ -110,7 +110,7 @@ function CareerDetailPanel({
   );
 }
 
-function CareerMobileExperience({
+function CareerMobileAccordion({
   activeIndex,
   onSelect,
   reducedMotion,
@@ -120,54 +120,45 @@ function CareerMobileExperience({
   reducedMotion: boolean | null;
 }) {
   return (
-    <div className="career-mobile-shell min-w-0 space-y-4">
-      <AnimatePresence mode="wait">
-        <CareerDetailPanel
-          key={`mobile-detail-${activeIndex}`}
-          activeIndex={activeIndex}
-          reducedMotion={reducedMotion}
-          compact
-          side="right"
-          staticEnter
-        />
-      </AnimatePresence>
+    <div className="career-mobile-shell min-w-0 space-y-2">
+      {experience.map((item, index) => {
+        const isActive = activeIndex === index;
+        return (
+          <div key={`${item.company}-${item.period}`} className="career-mobile-entry min-w-0">
+            <button
+              type="button"
+              onClick={() => onSelect(index)}
+              aria-expanded={isActive}
+              aria-pressed={isActive}
+              className={cn("career-mobile-item w-full text-left", isActive && "is-active")}
+            >
+              <span className="font-mono text-[0.6rem] uppercase tracking-widest text-accent-cyan">{item.period}</span>
+              <span className="mt-1 block break-words font-display text-sm font-bold leading-snug text-ink">
+                {item.role}
+              </span>
+              <span className="mt-0.5 block break-words text-xs leading-snug text-accent-violet">{item.company}</span>
+              {item.current ? (
+                <span className="mt-2 inline-flex items-center gap-1 text-[0.6rem] font-semibold uppercase text-accent-coral">
+                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+                  Current
+                </span>
+              ) : null}
+            </button>
 
-      <div>
-        <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-widest text-ink-faint">Switch role</p>
-        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {experience.map((item, index) => {
-            const isActive = activeIndex === index;
-            return (
-              <button
-                key={`${item.company}-${item.period}`}
-                type="button"
-                onClick={() => onSelect(index)}
-                aria-pressed={isActive}
-                className={cn(
-                  "career-mobile-pill shrink-0 snap-start text-left",
-                  isActive && "is-active",
-                )}
-              >
-                <span className="block font-mono text-[0.55rem] uppercase tracking-wider text-accent-cyan">
-                  {item.period}
-                </span>
-                <span className="mt-1 block max-w-[9.5rem] truncate font-display text-xs font-bold text-ink">
-                  {item.role}
-                </span>
-                <span className="mt-0.5 block max-w-[9.5rem] truncate text-[0.65rem] text-accent-violet">
-                  {item.company}
-                </span>
-                {item.current ? (
-                  <span className="mt-1 inline-flex items-center gap-0.5 text-[0.55rem] font-semibold uppercase text-accent-coral">
-                    <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
-                    Now
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+            {isActive ? (
+              <div className="career-mobile-detail mt-2 min-w-0">
+                <CareerDetailPanel
+                  activeIndex={index}
+                  reducedMotion={reducedMotion}
+                  compact
+                  side="right"
+                  staticEnter
+                />
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -188,7 +179,7 @@ export function Experience() {
 
         <div className="section-reveal mt-8 min-w-0">
           <div className="lg:hidden">
-            <CareerMobileExperience
+            <CareerMobileAccordion
               activeIndex={activeIndex}
               onSelect={setActiveIndex}
               reducedMotion={reducedMotion}

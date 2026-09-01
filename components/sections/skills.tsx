@@ -108,7 +108,7 @@ export function Skills() {
       </div>
 
       <div className="flex min-w-0 flex-col gap-8 lg:grid lg:grid-cols-[1fr_1.15fr] lg:gap-10">
-        <div className="skill-orbit-shell order-2 min-w-0 lg:order-1">
+        <div className="skill-orbit-shell min-w-0">
           <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
             <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
             Tap a node to switch category
@@ -204,7 +204,7 @@ export function Skills() {
           </div>
         </div>
 
-        <div className="order-1 min-w-0 lg:order-2">
+        <div className="min-w-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeCategory}
