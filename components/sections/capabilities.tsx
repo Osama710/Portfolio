@@ -10,7 +10,7 @@ import {
   Shield,
   type LucideIcon,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { capabilities } from "@/lib/data";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
@@ -34,149 +34,158 @@ const slotThemes = [
   { bar: "bg-accent-violet", glow: "rgba(167, 139, 250, 0.3)" },
 ];
 
+function CapabilityBriefing({
+  active,
+  activeIndex,
+  theme,
+}: {
+  active: (typeof capabilities)[number];
+  activeIndex: number;
+  theme: (typeof slotThemes)[number];
+}) {
+  const Icon = iconMap[active.icon];
+
+  return (
+    <>
+      <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
+      <div className="relative p-5 sm:p-7">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-void/40 text-accent-cyan">
+              <Icon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">Selected service</p>
+              <h3 className="break-words font-display text-xl font-bold text-ink sm:text-2xl">{active.title}</h3>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-accent-coral/30 bg-accent-coral/10 px-3 py-1 text-[0.62rem] font-bold uppercase text-accent-coral">
+              Full-time
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[0.62rem] font-bold uppercase text-ink-faint">
+              Contract
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[0.62rem] font-bold uppercase text-ink-faint">
+              Freelance
+            </span>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm leading-relaxed text-ink-muted">{active.summary}</p>
+
+        <p className="mt-5 text-[0.65rem] font-bold uppercase tracking-widest text-ink-faint">Typical deliverables</p>
+        <ul className="mt-3 space-y-2">
+          {active.deliverables.map((item) => (
+            <li
+              key={item}
+              className="flex gap-2.5 rounded-xl border border-white/[0.06] bg-void/30 px-3 py-2.5 text-sm text-ink-muted"
+            >
+              <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", theme.bar)} />
+              <span className="min-w-0 break-words">{item}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-5 border-t border-white/[0.06] pt-4">
+          <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-widest text-ink-faint">Stack focus</p>
+          <div className="flex flex-wrap gap-1.5">
+            {active.tags.map((tag) => (
+              <TechPill key={tag}>{tag}</TechPill>
+            ))}
+          </div>
+        </div>
+
+        <p className="mt-5 rounded-xl border border-white/[0.06] bg-gradient-brand-soft px-4 py-3 text-xs leading-relaxed text-ink-muted sm:text-sm">
+          <span className="font-semibold text-ink">Pricing depends on scope. </span>
+          Share your product, timeline, and stack for a quote. Open to senior full-time roles and relocation.
+        </p>
+      </div>
+    </>
+  );
+}
+
 export function Capabilities() {
   const reducedMotion = useReducedMotion();
   const [activeId, setActiveId] = useState(capabilities[0].id);
   const active = capabilities.find((c) => c.id === activeId) ?? capabilities[0];
   const activeIndex = capabilities.findIndex((c) => c.id === activeId);
   const theme = slotThemes[activeIndex % slotThemes.length];
-  const Icon = iconMap[active.icon];
 
   return (
-    <section id="capabilities" className="site-section relative">
+    <section id="capabilities" className="site-section relative overflow-x-clip">
       <div className="site-container min-w-0">
         <SectionHeading
-        label="Services"
-        title="What I can build"
-        description="Available for full-time roles, relocation, contract work, and selected freelance projects."
-      />
+          label="Services"
+          title="What I can build"
+          description="Available for full-time roles, relocation, contract work, and selected freelance projects."
+        />
 
-      <div className="section-reveal caps-reveal capability-rack mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
-        <div className="capability-slots grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
-          {capabilities.map((cap, index) => {
-            const CapIcon = iconMap[cap.icon];
-            const isActive = cap.id === activeId;
-            const slotTheme = slotThemes[index % slotThemes.length];
-
-            return (
-              <motion.button
-                key={cap.id}
-                type="button"
-                onClick={() => setActiveId(cap.id)}
-                aria-pressed={isActive}
-                initial={reducedMotion ? false : { opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05, duration: 0.4 }}
-                className={cn(
-                  "capability-slot group relative overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition-all duration-300",
-                  isActive
-                    ? "border-white/20 bg-surface-2 shadow-glow"
-                    : "border-white/[0.08] bg-surface/60 hover:border-white/15 hover:bg-surface",
-                )}
-                style={isActive ? { boxShadow: `0 0 28px ${slotTheme.glow}` } : undefined}
+        <div className="section-reveal caps-reveal mt-8 flex min-w-0 flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+          <div className="scroll-ui-panel capability-briefing order-1 min-w-0 overflow-hidden rounded-3xl lg:order-2">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active.id}
+                initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.28 }}
               >
-                <span
+                <CapabilityBriefing active={active} activeIndex={activeIndex} theme={theme} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="capability-slots order-2 grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:order-1 lg:grid-cols-1">
+            {capabilities.map((cap, index) => {
+              const CapIcon = iconMap[cap.icon];
+              const isActive = cap.id === activeId;
+              const slotTheme = slotThemes[index % slotThemes.length];
+
+              return (
+                <button
+                  key={cap.id}
+                  type="button"
+                  onClick={() => setActiveId(cap.id)}
+                  aria-pressed={isActive}
                   className={cn(
-                    "absolute inset-y-0 left-0 w-1 transition-opacity",
-                    slotTheme.bar,
-                    isActive ? "opacity-100" : "opacity-40 group-hover:opacity-70",
+                    "capability-slot group relative overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition-all duration-300",
+                    isActive
+                      ? "border-white/20 bg-surface-2 shadow-glow"
+                      : "border-white/[0.08] bg-surface/60 hover:border-white/15 hover:bg-surface",
                   )}
-                  aria-hidden="true"
-                />
-                <div className="flex items-start gap-3 pl-2">
+                  style={isActive ? { boxShadow: `0 0 28px ${slotTheme.glow}` } : undefined}
+                >
                   <span
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-void/50",
-                      isActive ? "text-accent-cyan" : "text-ink-muted",
+                      "absolute inset-y-0 left-0 w-1 transition-opacity",
+                      slotTheme.bar,
+                      isActive ? "opacity-100" : "opacity-40 group-hover:opacity-70",
                     )}
-                  >
-                    <CapIcon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-mono text-[0.58rem] uppercase tracking-wider text-accent-cyan">
-                      {String(index + 1).padStart(2, "0")} / {String(capabilities.length).padStart(2, "0")}
-                    </p>
-                    <p className="font-display text-sm font-bold text-ink sm:text-base">{cap.title}</p>
-                    <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-ink-muted">{cap.summary}</p>
+                    aria-hidden="true"
+                  />
+                  <div className="flex items-start gap-3 pl-2">
+                    <span
+                      className={cn(
+                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-void/50",
+                        isActive ? "text-accent-cyan" : "text-ink-muted",
+                      )}
+                    >
+                      <CapIcon className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-mono text-[0.58rem] uppercase tracking-wider text-accent-cyan">
+                        {String(index + 1).padStart(2, "0")} / {String(capabilities.length).padStart(2, "0")}
+                      </p>
+                      <p className="font-display text-sm font-bold text-ink sm:text-base">{cap.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-ink-muted">{cap.summary}</p>
+                    </div>
                   </div>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-
-        <motion.div
-          key={active.id}
-          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="capability-briefing skill-module-panel overflow-hidden rounded-3xl"
-        >
-          <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
-
-          <div className="relative p-5 sm:p-7">
-
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-void/40 text-accent-cyan">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">
-                    Selected service
-                  </p>
-                  <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">{active.title}</h3>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-accent-coral/30 bg-accent-coral/10 px-3 py-1 text-[0.62rem] font-bold uppercase text-accent-coral">
-                  Full-time
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[0.62rem] font-bold uppercase text-ink-faint">
-                  Contract
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[0.62rem] font-bold uppercase text-ink-faint">
-                  Freelance
-                </span>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm leading-relaxed text-ink-muted">{active.summary}</p>
-
-            <p className="mt-5 text-[0.65rem] font-bold uppercase tracking-widest text-ink-faint">
-              Typical deliverables
-            </p>
-            <ul className="mt-3 space-y-2">
-              {active.deliverables.map((item) => (
-                <li
-                  key={item}
-                  className="flex gap-2.5 rounded-xl border border-white/[0.06] bg-void/30 px-3 py-2.5 text-sm text-ink-muted"
-                >
-                  <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", theme.bar)} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-5 border-t border-white/[0.06] pt-4">
-              <p className="mb-2 text-[0.65rem] font-bold uppercase tracking-widest text-ink-faint">
-                Stack focus
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {active.tags.map((tag) => (
-                  <TechPill key={tag}>{tag}</TechPill>
-                ))}
-              </div>
-            </div>
-
-            <p className="mt-5 rounded-xl border border-white/[0.06] bg-gradient-brand-soft px-4 py-3 text-xs leading-relaxed text-ink-muted sm:text-sm">
-              <span className="font-semibold text-ink">Pricing depends on scope. </span>
-              Share your product, timeline, and stack for a quote. Open to senior full-time roles and relocation.
-            </p>
+                </button>
+              );
+            })}
           </div>
-        </motion.div>
-      </div>
+        </div>
       </div>
     </section>
   );

@@ -25,7 +25,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="site-section relative pb-16">
+    <section id="contact" className="site-section relative overflow-x-clip pb-16">
       <div className="site-container relative min-w-0">
         <SectionHeading
           label="Contact"
@@ -33,8 +33,8 @@ export function Contact() {
           description="Open to full-time roles, relocation, and freelance work."
         />
 
-        <div className="section-reveal mt-8 grid gap-6 lg:grid-cols-5">
-          <div className="space-y-3 lg:col-span-2">
+        <div className="section-reveal mt-8 grid min-w-0 gap-6 lg:grid-cols-5">
+          <div className="contact-methods min-w-0 space-y-3 lg:col-span-2">
             {methods.map((m) => (
               <a
                 key={m.label}
@@ -54,7 +54,7 @@ export function Contact() {
             ))}
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="min-w-0 lg:col-span-3">
             <form onSubmit={handleSubmit} className="contact-form gradient-border rounded-3xl p-[1px]">
               <div className="glass-card space-y-5 rounded-[23px] p-6 sm:p-8">
                 <div className="grid gap-5 sm:grid-cols-2">

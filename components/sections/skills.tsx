@@ -107,14 +107,14 @@ export function Skills() {
         </div>
       </div>
 
-      <div className="skills-reveal grid min-w-0 gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-10">
-        <div>
+      <div className="flex min-w-0 flex-col gap-8 lg:grid lg:grid-cols-[1fr_1.15fr] lg:gap-10">
+        <div className="skill-orbit-shell order-2 min-w-0 lg:order-1">
           <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
             <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
-            Click a node to switch category
+            Tap a node to switch category
           </p>
 
-          <div className="skill-orbit relative mx-auto h-[min(88vw,420px)] w-full max-w-[420px] overflow-hidden lg:max-w-none">
+          <div className="skill-orbit relative mx-auto h-[min(80vw,360px)] w-full max-w-[360px] overflow-hidden sm:h-[min(88vw,420px)] sm:max-w-[420px] lg:max-w-none">
             <svg
               className="pointer-events-none absolute inset-0 h-full w-full"
               viewBox="0 0 400 400"
@@ -204,14 +204,15 @@ export function Skills() {
           </div>
         </div>
 
+        <div className="order-1 min-w-0 lg:order-2">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeCategory}
-            initial={reduced ? false : { opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={reduced ? undefined : { opacity: 0, x: -16 }}
-            transition={{ duration: 0.35 }}
-            className={cn("skill-module-panel overflow-hidden rounded-3xl", theme.glow)}
+            initial={reduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? undefined : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className={cn("scroll-ui-panel skill-module-panel overflow-hidden rounded-3xl", theme.glow)}
           >
             <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
 
@@ -254,8 +255,8 @@ export function Skills() {
                 {active.skills.map((skill, i) => (
                   <motion.div
                     key={skill}
-                    initial={reduced ? false : { opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={reduced ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04 }}
                     className="hover-lift flex items-center gap-3 rounded-xl border border-white/[0.08] bg-void/50 px-3 py-2.5"
                   >
@@ -269,6 +270,7 @@ export function Skills() {
             </div>
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
       </div>
       </div>

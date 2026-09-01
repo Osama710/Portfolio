@@ -29,11 +29,13 @@ function CareerDetailPanel({
   reducedMotion,
   compact,
   side,
+  staticEnter,
 }: {
   activeIndex: number;
   reducedMotion: boolean | null;
   compact?: boolean;
   side: "left" | "right";
+  staticEnter?: boolean;
 }) {
   const active = experience[activeIndex];
   const enterX = side === "right" ? 36 : -36;
@@ -42,12 +44,16 @@ function CareerDetailPanel({
   return (
     <motion.div
       key={activeIndex}
-      initial={reducedMotion ? false : { opacity: 0, x: compact ? 0 : enterX, y: compact ? 12 : 0 }}
+      initial={
+        reducedMotion || staticEnter
+          ? false
+          : { opacity: 0, x: compact ? 0 : enterX, y: compact ? 8 : 0 }
+      }
       animate={{ opacity: 1, x: 0, y: 0 }}
-      exit={reducedMotion ? undefined : { opacity: 0, x: compact ? 0 : exitX, y: compact ? -8 : 0 }}
+      exit={reducedMotion || staticEnter ? undefined : { opacity: 0, x: compact ? 0 : exitX, y: compact ? -6 : 0 }}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "min-w-0 w-full max-w-full",
+        "scroll-ui-panel min-w-0 w-full max-w-full",
         compact
           ? "overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-2/90"
           : "sticky top-28 overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2/90 shadow-card",
@@ -104,41 +110,64 @@ function CareerDetailPanel({
   );
 }
 
-function CareerMobileList({
+function CareerMobileExperience({
   activeIndex,
   onSelect,
+  reducedMotion,
 }: {
   activeIndex: number;
   onSelect: (index: number) => void;
+  reducedMotion: boolean | null;
 }) {
   return (
-    <div className="career-mobile-track min-w-0 space-y-2">
-      {experience.map((item, index) => {
-        const isActive = activeIndex === index;
-        return (
-          <button
-            key={`${item.company}-${item.period}`}
-            type="button"
-            onClick={() => onSelect(index)}
-            aria-pressed={isActive}
-            className={cn("career-mobile-item", isActive && "is-active")}
-          >
-            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-accent-cyan">
-              {item.period}
-            </span>
-            <span className="mt-1 block break-words font-display text-sm font-bold leading-snug text-ink">
-              {item.role}
-            </span>
-            <span className="mt-0.5 block break-words text-xs leading-snug text-accent-violet">{item.company}</span>
-            {item.current ? (
-              <span className="mt-2 inline-flex items-center gap-1 text-[0.6rem] font-semibold uppercase text-accent-coral">
-                <Sparkles className="h-3 w-3" aria-hidden="true" />
-                Current
-              </span>
-            ) : null}
-          </button>
-        );
-      })}
+    <div className="career-mobile-shell min-w-0 space-y-4">
+      <AnimatePresence mode="wait">
+        <CareerDetailPanel
+          key={`mobile-detail-${activeIndex}`}
+          activeIndex={activeIndex}
+          reducedMotion={reducedMotion}
+          compact
+          side="right"
+          staticEnter
+        />
+      </AnimatePresence>
+
+      <div>
+        <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-widest text-ink-faint">Switch role</p>
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {experience.map((item, index) => {
+            const isActive = activeIndex === index;
+            return (
+              <button
+                key={`${item.company}-${item.period}`}
+                type="button"
+                onClick={() => onSelect(index)}
+                aria-pressed={isActive}
+                className={cn(
+                  "career-mobile-pill shrink-0 snap-start text-left",
+                  isActive && "is-active",
+                )}
+              >
+                <span className="block font-mono text-[0.55rem] uppercase tracking-wider text-accent-cyan">
+                  {item.period}
+                </span>
+                <span className="mt-1 block max-w-[9.5rem] truncate font-display text-xs font-bold text-ink">
+                  {item.role}
+                </span>
+                <span className="mt-0.5 block max-w-[9.5rem] truncate text-[0.65rem] text-accent-violet">
+                  {item.company}
+                </span>
+                {item.current ? (
+                  <span className="mt-1 inline-flex items-center gap-0.5 text-[0.55rem] font-semibold uppercase text-accent-coral">
+                    <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+                    Now
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -159,18 +188,11 @@ export function Experience() {
 
         <div className="section-reveal mt-8 min-w-0">
           <div className="lg:hidden">
-            <CareerMobileList activeIndex={activeIndex} onSelect={setActiveIndex} />
-            <div className="mt-4 min-w-0">
-              <AnimatePresence mode="wait">
-                <CareerDetailPanel
-                  key={`mobile-${activeIndex}`}
-                  activeIndex={activeIndex}
-                  reducedMotion={reducedMotion}
-                  compact
-                  side="right"
-                />
-              </AnimatePresence>
-            </div>
+            <CareerMobileExperience
+              activeIndex={activeIndex}
+              onSelect={setActiveIndex}
+              reducedMotion={reducedMotion}
+            />
           </div>
 
           <div className="career-track hidden min-w-0 lg:grid">

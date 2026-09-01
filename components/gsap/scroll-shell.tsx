@@ -15,10 +15,11 @@ const SECTIONS = [
   { id: "contact" },
 ] as const;
 
-/** Play on enter only — never reverse-hide content (prevents stuck invisible sections). */
 const REVEAL_ONCE = "play none none none";
 
-const INTERACTIVE_SECTIONS = new Set(["skills", "experience"]);
+const INTERACTIVE_SECTIONS = new Set(["skills", "experience", "capabilities"]);
+
+const NO_GSAP_TRANSFORM = ".scroll-ui-panel, .glass-card, .contact-methods, .edu-degree-panel, .edu-cert-panel, .capability-briefing, .career-mobile-shell";
 
 const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop";
 const MOBILE_ORBIT = ".hero-orbit-wrap-mobile";
@@ -94,7 +95,13 @@ function setupHeroPortalZoom(root: HTMLElement) {
   const aboutReveal = root.querySelectorAll("#about .section-reveal");
   const aboutPanels = root.querySelectorAll("#about .panel-vivid, #about .panel-hud, #about .stat-chip");
 
-  const buildTimeline = (orbitScale: number, orbitBlur: number, copyY: number) => {
+  const buildTimeline = (
+    end: string,
+    orbitScale: number,
+    orbitBlur: number,
+    copyY: number,
+    copyFadeStart: number,
+  ) => {
     const orbit = heroOrbitNodes(root);
 
     gsap
@@ -102,45 +109,45 @@ function setupHeroPortalZoom(root: HTMLElement) {
         scrollTrigger: {
           trigger: "#about",
           start: "top bottom",
-          end: "top 30%",
-          scrub: 0.65,
+          end,
+          scrub: 0.75,
           invalidateOnRefresh: true,
         },
       })
-      .fromTo(heroCopy, { y: 0, autoAlpha: 1, scale: 1 }, { y: copyY, autoAlpha: 0, scale: 0.94, ease: "power2.in" }, 0)
-      .fromTo(scrollCue, { autoAlpha: 1 }, { autoAlpha: 0, y: -16, ease: "power2.in" }, 0)
+      .fromTo(heroCopy, { y: 0, autoAlpha: 1, scale: 1 }, { y: copyY, autoAlpha: 0, scale: 0.96, ease: "power2.in" }, copyFadeStart)
+      .fromTo(scrollCue, { autoAlpha: 1 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, copyFadeStart)
       .fromTo(
         orbit.wrap,
         { scale: 1, rotate: 0, autoAlpha: 1, filter: "blur(0px)" },
         {
           scale: orbitScale,
-          rotate: 8,
+          rotate: 6,
           autoAlpha: 0,
           filter: `blur(${orbitBlur}px)`,
           ease: "power2.inOut",
           transformOrigin: "50% 50%",
         },
-        0,
+        copyFadeStart,
       )
-      .fromTo(aboutLabel, { x: -28, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power3.out" }, 0.12)
+      .fromTo(aboutLabel, { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power3.out" }, 0.08)
       .fromTo(
         aboutHeading,
-        { y: 56, autoAlpha: 0, scale: 0.9, filter: "blur(12px)" },
+        { y: 40, autoAlpha: 0, scale: 0.94, filter: "blur(8px)" },
         { y: 0, autoAlpha: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" },
-        0.2,
+        0.16,
       )
-      .fromTo(aboutReveal, { y: 40, autoAlpha: 0, scale: 0.96 }, { y: 0, autoAlpha: 1, scale: 1, ease: "power2.out" }, 0.32)
+      .fromTo(aboutReveal, { y: 32, autoAlpha: 0, scale: 0.98 }, { y: 0, autoAlpha: 1, scale: 1, ease: "power2.out" }, 0.26)
       .fromTo(
         aboutPanels,
-        { y: 32, autoAlpha: 0, scale: 0.94 },
-        { y: 0, autoAlpha: 1, scale: 1, stagger: 0.08, ease: "back.out(1.2)" },
-        0.42,
+        { y: 24, autoAlpha: 0, scale: 0.98 },
+        { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, ease: "back.out(1.2)" },
+        0.34,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => buildTimeline(3.1, 6, -64));
-  mm.add("(max-width: 1023px)", () => buildTimeline(1.85, 3, -32));
+  mm.add("(min-width: 1024px)", () => buildTimeline("top 28%", 3.1, 6, -64, 0));
+  mm.add("(max-width: 1023px)", () => buildTimeline("top 6%", 1.45, 2, -18, 0.35));
   return mm;
 }
 
@@ -148,9 +155,15 @@ function revealOnScroll(
   targets: gsap.TweenTarget,
   vars: gsap.TweenVars,
   trigger: string | Element,
-  start = "top 85%",
+  start = "top 88%",
 ) {
+  if (!targets || (targets instanceof NodeList && targets.length === 0)) return;
+
   gsap.from(targets, {
+    y: 24,
+    autoAlpha: 0,
+    duration: 0.65,
+    ease: "power2.out",
     ...vars,
     scrollTrigger: {
       trigger,
@@ -171,32 +184,18 @@ function setupSectionReveals(root: HTMLElement) {
     const body = root.querySelectorAll(`${section} .section-reveal`);
     const isInteractive = INTERACTIVE_SECTIONS.has(s.id);
 
-    revealOnScroll(label, { x: -28, autoAlpha: 0, duration: 0.6, ease: "power3.out" }, section, "top 88%");
+    revealOnScroll(label, { y: 16, duration: 0.55 }, section, "top 90%");
+    revealOnScroll(heading, { y: 32, scale: 0.97, filter: "blur(6px)", duration: 0.7 }, section, "top 88%");
 
-    revealOnScroll(
-      heading,
-      { y: 44, autoAlpha: 0, scale: 0.94, filter: "blur(8px)", duration: 0.75, ease: "power3.out" },
-      section,
-      "top 86%",
-    );
-
-    if (isInteractive) {
-      revealOnScroll(body, { y: 28, duration: 0.65, ease: "power2.out" }, section, "top 84%");
-    } else if (s.id === "education" || s.id === "contact") {
-      revealOnScroll(body, { y: 32, autoAlpha: 0, duration: 0.65, ease: "power2.out" }, section, "top 84%");
-    } else {
-      revealOnScroll(body, { y: 32, autoAlpha: 0, duration: 0.65, ease: "power2.out" }, section, "top 84%");
+    if (!isInteractive) {
+      revealOnScroll(body, { y: 28, duration: 0.6 }, section, "top 86%");
     }
 
     if (isInteractive || s.id === "education" || s.id === "contact" || s.id === "projects") return;
 
     gsap.utils.toArray<HTMLElement>(root.querySelectorAll(`${section} .section-reveal > *`)).forEach((child, index) => {
-      revealOnScroll(
-        child,
-        { y: 28, autoAlpha: 0, scale: 0.97, duration: 0.55, delay: index * 0.04, ease: "power2.out" },
-        child,
-        "top 90%",
-      );
+      if (child.matches(NO_GSAP_TRANSFORM) || child.querySelector(NO_GSAP_TRANSFORM)) return;
+      revealOnScroll(child, { y: 20, delay: index * 0.03, duration: 0.5 }, child, "top 92%");
     });
   });
 }
@@ -204,89 +203,68 @@ function setupSectionReveals(root: HTMLElement) {
 function setupEducationReveals(root: HTMLElement) {
   revealOnScroll(
     root.querySelectorAll("#education .edu-degree-panel"),
-    { x: -36, autoAlpha: 0, scale: 0.96, duration: 0.75, ease: "power3.out" },
+    { y: 28, duration: 0.65 },
     "#education .edu-degree-panel",
-    "top 88%",
+    "top 90%",
   );
 
   revealOnScroll(
     root.querySelectorAll("#education .edu-cert-panel"),
-    { x: 36, autoAlpha: 0, scale: 0.96, duration: 0.75, ease: "power3.out" },
+    { y: 28, duration: 0.65 },
     "#education .edu-cert-panel",
-    "top 88%",
+    "top 90%",
   );
 
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#education .edu-cert-card")).forEach((card, index) => {
-    revealOnScroll(
-      card,
-      { y: 24, autoAlpha: 0, scale: 0.96, duration: 0.5, delay: index * 0.05, ease: "back.out(1.3)" },
-      card,
-      "top 92%",
-    );
+    revealOnScroll(card, { y: 16, delay: index * 0.04, duration: 0.45 }, card, "top 94%");
   });
 }
 
 function setupContactReveals(root: HTMLElement) {
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#contact .glass-card")).forEach((card, index) => {
-    revealOnScroll(
-      card,
-      { x: index % 2 === 0 ? -24 : 24, autoAlpha: 0, scale: 0.97, duration: 0.6, delay: index * 0.06, ease: "power3.out" },
-      card,
-      "top 92%",
-    );
-  });
+  revealOnScroll(
+    root.querySelectorAll("#contact .contact-methods"),
+    { y: 24, duration: 0.6 },
+    "#contact .contact-methods",
+    "top 90%",
+  );
 
   revealOnScroll(
     root.querySelectorAll("#contact .contact-form"),
-    { y: 32, autoAlpha: 0, scale: 0.98, duration: 0.7, ease: "power2.out" },
-    "#contact .section-reveal",
-    "top 82%",
+    { y: 28, duration: 0.65 },
+    "#contact .contact-form",
+    "top 88%",
   );
 }
 
 function setupExperienceReveals(root: HTMLElement) {
   revealOnScroll(
     root.querySelectorAll("#experience .career-snake-node"),
-    { scale: 0.85, y: 16, duration: 0.5, stagger: 0.07, ease: "back.out(1.4)" },
+    { scale: 0.9, y: 12, duration: 0.45, stagger: 0.06, ease: "back.out(1.3)" },
     "#experience .career-snake",
-    "top 85%",
+    "top 88%",
   );
 
   revealOnScroll(
-    root.querySelectorAll("#experience .career-mobile-item"),
-    { y: 20, scale: 0.98, duration: 0.45, stagger: 0.06, ease: "back.out(1.2)" },
-    "#experience .career-mobile-track",
-    "top 88%",
+    root.querySelectorAll("#experience .career-mobile-shell"),
+    { y: 20, duration: 0.55 },
+    "#experience .career-mobile-shell",
+    "top 90%",
   );
 }
 
 function setupSkillsReveals(root: HTMLElement) {
   revealOnScroll(
     root.querySelectorAll("#skills .skills-loadout-strip"),
-    { y: 24, autoAlpha: 0, scale: 0.98, duration: 0.6, ease: "power2.out" },
+    { y: 20, duration: 0.55 },
     "#skills .skills-loadout-strip",
+    "top 90%",
+  );
+
+  revealOnScroll(
+    root.querySelectorAll("#skills .skill-orbit-shell"),
+    { y: 24, duration: 0.6 },
+    "#skills .skill-orbit-shell",
     "top 88%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#skills .skill-orbit-hub"),
-    { scale: 0.88, duration: 0.7, ease: "back.out(1.3)" },
-    "#skills .skill-orbit-hub",
-    "top 86%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#skills .skill-orbit-node"),
-    { scale: 0.85, duration: 0.45, stagger: 0.05, ease: "back.out(1.5)" },
-    "#skills .skill-orbit-hub",
-    "top 84%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#skills .skill-module-panel"),
-    { x: 32, duration: 0.65, ease: "power3.out" },
-    "#skills .skill-module-panel",
-    "top 86%",
   );
 }
 
@@ -294,38 +272,51 @@ function setupProjectScrollFx(root: HTMLElement) {
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item")).forEach((item, index) => {
     revealOnScroll(
       item,
-      { y: 40, autoAlpha: 0, scale: 0.94, rotate: index % 2 === 0 ? -1.5 : 1.5, duration: 0.65, ease: "power3.out" },
+      { y: 32, scale: 0.97, delay: index * 0.02, duration: 0.6 },
       item,
-      "top 92%",
+      "top 94%",
     );
   });
 
   gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-github-item")).forEach((item) => {
-    revealOnScroll(item, { y: 32, autoAlpha: 0, scale: 0.96, duration: 0.6, ease: "power2.out" }, item, "top 92%");
+    revealOnScroll(item, { y: 24, duration: 0.55 }, item, "top 94%");
   });
 }
 
 function setupElementReveals(root: HTMLElement) {
-  const selectors = [".panel-vivid", ".panel-hud", ".stat-chip", ".capability-slot", ".scroll-reveal-item"].join(", ");
+  const selectors = [".panel-vivid", ".panel-hud", ".stat-chip", ".capability-slot"].join(", ");
 
   ScrollTrigger.batch(root.querySelectorAll(selectors), {
-    start: "top 90%",
+    start: "top 92%",
     once: true,
     onEnter: (batch) => {
       const filtered = batch.filter((el) => {
+        if (el.matches(NO_GSAP_TRANSFORM) || el.closest(NO_GSAP_TRANSFORM)) return false;
         const section = el.closest("section[id]");
         if (!section) return true;
         const id = section.id;
-        return id !== "about" && id !== "education" && id !== "contact" && id !== "experience" && id !== "skills" && id !== "projects";
+        return (
+          id !== "about" &&
+          id !== "education" &&
+          id !== "contact" &&
+          id !== "experience" &&
+          id !== "skills" &&
+          id !== "capabilities" &&
+          id !== "projects"
+        );
       });
       if (!filtered.length) return;
       gsap.fromTo(
         filtered,
-        { y: 36, autoAlpha: 0, scale: 0.97 },
-        { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, duration: 0.6, ease: "power2.out", overwrite: true },
+        { y: 28, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, stagger: 0.05, duration: 0.55, ease: "power2.out", overwrite: true },
       );
     },
   });
+}
+
+function protectInteractivePanels(root: HTMLElement) {
+  gsap.set(root.querySelectorAll(NO_GSAP_TRANSFORM), { x: 0, y: 0, clearProps: "transform" });
 }
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
@@ -339,6 +330,7 @@ function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof
   setupContactReveals(root);
   setupProjectScrollFx(root);
   setupElementReveals(root);
+  protectInteractivePanels(root);
 }
 
 export function ScrollShell({ children }: { children: ReactNode }) {
@@ -355,27 +347,25 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
-        gsap.set(
-          root.querySelectorAll(
-            ".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, #about .panel-vivid, #about .panel-hud, #about .stat-chip, .edu-degree-panel, .edu-cert-panel, .edu-cert-card, .career-track, .career-snake-node, .skill-module-panel, .skill-orbit-hub, .skill-orbit-node",
-          ),
-          {
-            clearProps: "all",
-            opacity: 1,
-            visibility: "visible",
-            x: 0,
-            y: 0,
-            scale: 1,
-            filter: "none",
-          },
-        );
+        gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, #about *, .scroll-ui-panel, .glass-card, .contact-methods"), {
+          clearProps: "all",
+          opacity: 1,
+          visibility: "visible",
+          x: 0,
+          y: 0,
+          scale: 1,
+          filter: "none",
+        });
         return;
       }
 
       setupScrollExperience(root, mediaStores);
       setActiveSection(root, "hero");
 
-      const refresh = () => ScrollTrigger.refresh();
+      const refresh = () => {
+        ScrollTrigger.refresh();
+        protectInteractivePanels(root);
+      };
       window.addEventListener("resize", refresh, { passive: true });
       window.addEventListener("orientationchange", refresh);
       window.addEventListener("hashchange", refresh);
