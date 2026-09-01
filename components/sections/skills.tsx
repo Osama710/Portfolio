@@ -64,12 +64,31 @@ const iconColors = [
 
 const ORBIT_RADIUS = 130;
 const CENTER = 200;
+const VIEWBOX = 400;
+/** Hub outer radius in SVG units (matches sm:h-28 inside 400 viewBox). */
+const HUB_RADIUS = 58;
+const NODE_RADIUS = 30;
 
 function orbitPosition(index: number, total: number) {
   const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
   return {
     x: CENTER + Math.cos(angle) * ORBIT_RADIUS,
     y: CENTER + Math.sin(angle) * ORBIT_RADIUS,
+  };
+}
+
+function spokeLine(index: number, total: number) {
+  const { x, y } = orbitPosition(index, total);
+  const dx = x - CENTER;
+  const dy = y - CENTER;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  return {
+    x1: CENTER + ux * HUB_RADIUS,
+    y1: CENTER + uy * HUB_RADIUS,
+    x2: x - ux * NODE_RADIUS,
+    y2: y - uy * NODE_RADIUS,
   };
 }
 
@@ -80,6 +99,7 @@ export function Skills() {
   const active = skillCategories[activeCategory];
   const ActiveIcon = iconMap[active.icon];
   const theme = moduleThemes[activeCategory % moduleThemes.length];
+  const total = skillCategories.length;
 
   return (
     <section id="skills" className="site-section relative overflow-x-clip">
@@ -90,189 +110,217 @@ export function Skills() {
           description="Browse categories — first stack is shown by default."
         />
 
-      <div className="section-reveal skills-reveal mt-8 min-w-0">
-      <div className="skills-loadout-strip panel-hud mb-8">
-        <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-accent-cyan">
-          Primary stack
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          {loadout.map((skill) => (
-            <span
-              key={skill}
-              className="rounded-xl border border-white/10 bg-void/80 px-3 py-2 text-xs font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-accent-violet/40 hover:text-accent-cyan hover:shadow-glow"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
+        <div className="section-reveal skills-reveal mt-8 min-w-0">
+          <div className="skills-loadout-strip panel-hud mb-8">
+            <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-accent-cyan">
+              Primary stack
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              {loadout.map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-xl border border-white/10 bg-void/80 px-3 py-2 text-xs font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-accent-violet/40 hover:text-accent-cyan hover:shadow-glow"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
 
-      <div className="flex min-w-0 flex-col gap-8 lg:grid lg:grid-cols-[1fr_1.15fr] lg:gap-10">
-        <div className="skill-orbit-shell min-w-0">
-          <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
-            <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
-            Tap a node to switch category
-          </p>
+          <div className="flex min-w-0 flex-col gap-8 lg:grid lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-10">
+            <div className="skill-orbit-shell min-w-0">
+              <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs text-ink-faint">
+                <MousePointerClick className="h-3.5 w-3.5 text-accent-cyan" aria-hidden="true" />
+                Tap a node to switch category
+              </p>
 
-          <div className="skill-orbit relative mx-auto h-[min(80vw,360px)] w-full max-w-[360px] overflow-hidden sm:h-[min(88vw,420px)] sm:max-w-[420px] lg:max-w-none">
-            <svg
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              viewBox="0 0 400 400"
-              preserveAspectRatio="xMidYMid meet"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="skillLine" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.3" />
-                </linearGradient>
-              </defs>
-              {skillCategories.map((_, i) => {
-                const { x, y } = orbitPosition(i, skillCategories.length);
-                return (
-                  <line
-                    key={i}
-                    x1={CENTER}
-                    y1={CENTER}
-                    x2={x}
-                    y2={y}
-                    stroke="url(#skillLine)"
-                    strokeWidth={activeCategory === i ? 2.5 : 1}
-                    strokeDasharray={activeCategory === i ? "0" : "4 6"}
-                    opacity={activeCategory === i ? 0.95 : 0.3}
-                  />
-                );
-              })}
-            </svg>
+              <div className="skill-orbit relative mx-auto aspect-square w-full max-w-[360px] sm:max-w-[420px]">
+                <svg
+                  className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+                  viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+                  preserveAspectRatio="xMidYMid meet"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <linearGradient id="skillLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.3" />
+                    </linearGradient>
+                    <linearGradient id="skillLineActive" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#22D3EE" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.9" />
+                    </linearGradient>
+                  </defs>
+                  {skillCategories.map((_, i) => {
+                    if (i === activeCategory) return null;
+                    const { x1, y1, x2, y2 } = spokeLine(i, total);
+                    return (
+                      <line
+                        key={`spoke-${i}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="url(#skillLine)"
+                        strokeWidth={1}
+                        strokeDasharray="4 6"
+                        opacity={0.32}
+                      />
+                    );
+                  })}
+                </svg>
 
-            <div
-              className="skill-orbit-hub relative absolute left-1/2 top-1/2 z-20 flex h-[5.75rem] w-[5.75rem] origin-center -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-cyan/35 bg-void/95 text-center shadow-glow-cyan sm:h-28 sm:w-28"
-            >
-              <span className="skill-orbit-hub-glow" aria-hidden="true" />
-              <span className="skill-orbit-hub-ring" aria-hidden="true" />
-              <span className="relative font-display text-sm font-bold leading-none text-ink sm:text-base">Tech</span>
-              <span className="relative font-display text-sm font-bold leading-none text-accent-cyan sm:text-base">Stack</span>
-              <span className="relative mt-1 max-w-[4.5rem] truncate text-[0.45rem] uppercase tracking-widest text-ink-faint">
-                {active.label}
-              </span>
+                <div className="skill-orbit-hub relative absolute left-1/2 top-1/2 z-10 flex h-[5.75rem] w-[5.75rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-accent-cyan/35 bg-void/95 text-center shadow-glow-cyan sm:h-28 sm:w-28">
+                  <span className="skill-orbit-hub-glow" aria-hidden="true" />
+                  <span className="skill-orbit-hub-ring" aria-hidden="true" />
+                  <span className="relative font-display text-sm font-bold leading-none text-ink sm:text-base">Tech</span>
+                  <span className="relative font-display text-sm font-bold leading-none text-accent-cyan sm:text-base">
+                    Stack
+                  </span>
+                  <span className="relative mt-1 max-w-[4.5rem] truncate text-[0.45rem] uppercase tracking-widest text-ink-faint">
+                    {active.label}
+                  </span>
+                </div>
+
+                <svg
+                  className="pointer-events-none absolute inset-0 z-[15] h-full w-full"
+                  viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+                  preserveAspectRatio="xMidYMid meet"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <linearGradient id="skillLineActiveOverlay" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#22D3EE" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.9" />
+                    </linearGradient>
+                  </defs>
+                  {(() => {
+                    const { x1, y1, x2, y2 } = spokeLine(activeCategory, total);
+                    return (
+                      <line
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="url(#skillLineActiveOverlay)"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                      />
+                    );
+                  })()}
+                </svg>
+
+                {skillCategories.map((category, i) => {
+                  const { x, y } = orbitPosition(i, total);
+                  const leftPct = (x / VIEWBOX) * 100;
+                  const topPct = (y / VIEWBOX) * 100;
+                  const Icon = iconMap[category.icon];
+                  const isActive = activeCategory === i;
+                  const isHovered = hoveredCategory === i;
+
+                  return (
+                    <button
+                      key={category.label}
+                      type="button"
+                      onClick={() => setActiveCategory(i)}
+                      onMouseEnter={() => setHoveredCategory(i)}
+                      onMouseLeave={() => setHoveredCategory(null)}
+                      className={cn(
+                        "skill-orbit-node group/orbit absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border bg-surface/95 transition-all duration-300 sm:h-16 sm:w-16",
+                        ringColors[i % ringColors.length],
+                        isActive
+                          ? "border-accent-cyan shadow-glow-cyan ring-2 ring-accent-cyan/40"
+                          : "hover:scale-105 hover:border-white/30 hover:shadow-glow",
+                      )}
+                      style={{ left: `${leftPct}%`, top: `${topPct}%` }}
+                      aria-pressed={isActive}
+                      aria-label={`View ${category.label} stack`}
+                    >
+                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColors[i]}`} />
+
+                      <span
+                        className={cn(
+                          "pointer-events-none absolute left-1/2 z-30 hidden max-w-[10rem] -translate-x-1/2 truncate whitespace-nowrap rounded-lg border border-white/10 bg-void/95 px-2.5 py-1 text-[0.65rem] font-medium text-ink shadow-card transition-all duration-200 sm:block",
+                          isHovered || isActive
+                            ? "bottom-[calc(100%+8px)] opacity-100"
+                            : "bottom-[calc(100%+4px)] opacity-0",
+                        )}
+                      >
+                        {category.label}
+                        {!isActive ? <span className="ml-1 text-accent-cyan">· view</span> : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {skillCategories.map((category, i) => {
-              const { x, y } = orbitPosition(i, skillCategories.length);
-              const leftPct = (x / 400) * 100;
-              const topPct = (y / 400) * 100;
-              const Icon = iconMap[category.icon];
-              const isActive = activeCategory === i;
-              const isHovered = hoveredCategory === i;
-
-              return (
-                <button
-                  key={category.label}
-                  type="button"
-                  onClick={() => setActiveCategory(i)}
-                  onMouseEnter={() => setHoveredCategory(i)}
-                  onMouseLeave={() => setHoveredCategory(null)}
-                  className={cn(
-                    "skill-orbit-node group/orbit absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border bg-surface/95 transition-all duration-300 sm:h-16 sm:w-16",
-                    ringColors[i % ringColors.length],
-                    isActive
-                      ? "border-accent-cyan shadow-glow-cyan ring-2 ring-accent-cyan/40"
-                      : "hover:scale-105 hover:border-white/30 hover:shadow-glow",
-                  )}
-                  style={{ left: `${leftPct}%`, top: `${topPct}%` }}
-                  aria-pressed={isActive}
-                  aria-label={`View ${category.label} stack`}
+            <div className="min-w-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeCategory}
+                  initial={reduced ? false : { opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? undefined : { opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className={cn("scroll-ui-panel skill-module-panel overflow-hidden rounded-3xl", theme.glow)}
                 >
-                  <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColors[i]}`} />
+                  <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
 
-                  <span
-                    className={cn(
-                      "pointer-events-none absolute left-1/2 z-30 hidden max-w-[10rem] -translate-x-1/2 truncate whitespace-nowrap rounded-lg border border-white/10 bg-void/95 px-2.5 py-1 text-[0.65rem] font-medium text-ink shadow-card transition-all duration-200 sm:block",
-                      isHovered || isActive
-                        ? "bottom-[calc(100%+8px)] opacity-100"
-                        : "bottom-[calc(100%+4px)] opacity-0",
-                    )}
-                  >
-                    {category.label}
-                    {!isActive ? (
-                      <span className="ml-1 text-accent-cyan">· view</span>
-                    ) : null}
-                  </span>
-                </button>
-              );
-            })}
+                  <div className="relative p-6 sm:p-8">
+                    <div className="relative flex flex-wrap items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-void/60 ${iconColors[activeCategory]}`}
+                        >
+                          <ActiveIcon className="h-7 w-7" />
+                        </span>
+                        <div>
+                          <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">
+                            Category {activeCategory + 1} of {skillCategories.length}
+                          </p>
+                          <h3 className="font-display text-2xl font-bold text-ink">{active.label}</h3>
+                        </div>
+                      </div>
+                      <span className="rounded-lg border border-white/10 bg-void/60 px-3 py-1.5 font-mono text-xs text-ink-muted">
+                        {active.skills.length} tools
+                      </span>
+                    </div>
+
+                    <div className="relative mt-5 flex items-center gap-3">
+                      <span className="text-xs text-ink-faint">Skills listed</span>
+                      <div className="xp-bar h-1.5 flex-1">
+                        <motion.div
+                          className={cn("h-full rounded-full", theme.bar)}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${60 + activeCategory * 6}%` }}
+                          transition={{ duration: 0.6 }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="relative mt-6 grid gap-2 sm:grid-cols-2">
+                      {active.skills.map((skill, i) => (
+                        <motion.div
+                          key={skill}
+                          initial={reduced ? false : { opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.04 }}
+                          className="hover-lift flex items-center gap-3 rounded-xl border border-white/[0.08] bg-void/50 px-3 py-2.5"
+                        >
+                          <span className="font-mono text-[0.6rem] text-accent-violet/80">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span className="text-sm text-ink">{skill}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
-
-        <div className="min-w-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCategory}
-            initial={reduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduced ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-            className={cn("scroll-ui-panel skill-module-panel overflow-hidden rounded-3xl", theme.glow)}
-          >
-            <div className={cn("h-1 w-full", theme.bar)} aria-hidden="true" />
-
-            <div className="relative p-6 sm:p-8">
-
-              <div className="relative flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-void/60 ${iconColors[activeCategory]}`}
-                  >
-                    <ActiveIcon className="h-7 w-7" />
-                  </span>
-                  <div>
-                    <p className="font-mono text-[0.65rem] uppercase tracking-widest text-accent-cyan">
-                      Category {activeCategory + 1} of {skillCategories.length}
-                    </p>
-                    <h3 className="font-display text-2xl font-bold text-ink">
-                      {active.label}
-                    </h3>
-                  </div>
-                </div>
-                <span className="rounded-lg border border-white/10 bg-void/60 px-3 py-1.5 font-mono text-xs text-ink-muted">
-                  {active.skills.length} tools
-                </span>
-              </div>
-
-              <div className="relative mt-5 flex items-center gap-3">
-                <span className="text-xs text-ink-faint">Skills listed</span>
-                <div className="xp-bar h-1.5 flex-1">
-                  <motion.div
-                    className={cn("h-full rounded-full", theme.bar)}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${60 + activeCategory * 6}%` }}
-                    transition={{ duration: 0.6 }}
-                  />
-                </div>
-              </div>
-
-              <div className="relative mt-6 grid gap-2 sm:grid-cols-2">
-                {active.skills.map((skill, i) => (
-                  <motion.div
-                    key={skill}
-                    initial={reduced ? false : { opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="hover-lift flex items-center gap-3 rounded-xl border border-white/[0.08] bg-void/50 px-3 py-2.5"
-                  >
-                    <span className="font-mono text-[0.6rem] text-accent-violet/80">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-sm text-ink">{skill}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-        </div>
-      </div>
-      </div>
       </div>
     </section>
   );

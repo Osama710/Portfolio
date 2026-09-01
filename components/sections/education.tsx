@@ -12,7 +12,7 @@ export function Education() {
           description="Degree, certifications, and competition results."
         />
 
-        <div className="section-reveal edu-reveal mt-8 flex min-w-0 flex-col gap-6">
+        <div className="section-reveal edu-reveal mt-8 grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
           <div className="panel-vivid edu-degree-panel w-full min-w-0">
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-violet/15 text-2xl">
               🎓

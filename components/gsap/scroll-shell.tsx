@@ -15,11 +15,10 @@ const SECTIONS = [
   { id: "contact" },
 ] as const;
 
-const REVEAL_ONCE = "play none none none";
+const INTERACTIVE = ".career-detail-panel, .career-track-detail, .career-mobile-shell";
 
-const INTERACTIVE_SECTIONS = new Set(["skills", "experience", "capabilities"]);
-
-const NO_GSAP_TRANSFORM = ".scroll-ui-panel, .glass-card, .contact-methods, .edu-degree-panel, .edu-cert-panel, .capability-briefing, .career-mobile-shell";
+/** Mobile: hide current section once the next one covers ~80% of the viewport. */
+const MOBILE_NEXT_VISIBLE = "top 20%";
 
 const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop";
 const MOBILE_ORBIT = ".hero-orbit-wrap-mobile";
@@ -56,14 +55,18 @@ function setupSectionTracking(root: HTMLElement) {
   });
 }
 
+function aboutTargets(root: HTMLElement) {
+  return root.querySelectorAll(
+    "#about .section-label, #about .section-heading-block, #about .section-reveal, #about .panel-vivid, #about .panel-hud, #about .stat-chip",
+  );
+}
+
 function setupHeroIntro(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const orbit = heroOrbitNodes(root);
 
   gsap.set(scrollCue, { autoAlpha: 0 });
-  gsap.set(root.querySelectorAll("#about .section-label, #about .section-heading-block, #about .section-reveal, #about .panel-vivid, #about .panel-hud, #about .stat-chip"), {
-    autoAlpha: 0,
-  });
+  gsap.set(aboutTargets(root), { autoAlpha: 0, y: 32 });
 
   gsap
     .timeline({ defaults: { ease: "power3.out" } })
@@ -73,49 +76,47 @@ function setupHeroIntro(root: HTMLElement) {
       { y: 52, autoAlpha: 0, stagger: 0.14, duration: 0.82, ease: "power4.out" },
       0.08,
     )
-    .from(root.querySelectorAll(".hero-lead"), { y: 28, autoAlpha: 0, duration: 0.55 }, 0.22)
-    .from(root.querySelectorAll(".hero-location"), { y: 18, autoAlpha: 0, duration: 0.45 }, 0.3)
+    .from(root.querySelectorAll(".hero-rotator"), { y: 28, autoAlpha: 0, duration: 0.55 }, 0.18)
+    .from(root.querySelectorAll(".hero-lead"), { y: 22, autoAlpha: 0, duration: 0.5 }, 0.26)
+    .from(root.querySelectorAll(".hero-actions > *"), { y: 20, autoAlpha: 0, stagger: 0.06, duration: 0.46 }, 0.34)
+    .from(root.querySelectorAll(".hero-location"), { y: 18, autoAlpha: 0, duration: 0.45 }, 0.42)
     .from(
       root.querySelectorAll(".hero-stat"),
       { y: 22, scale: 0.82, autoAlpha: 0, stagger: 0.07, duration: 0.52, ease: "back.out(1.45)" },
-      0.42,
+      0.48,
     )
-    .from(root.querySelectorAll(".hero-actions > *"), { y: 20, autoAlpha: 0, stagger: 0.06, duration: 0.46 }, 0.52)
     .from(orbit.wrap, { scale: 0.48, autoAlpha: 0, rotate: -12, duration: 1.05, ease: "back.out(1.65)" }, 0.1)
     .from(orbit.chips, { scale: 0, autoAlpha: 0, stagger: 0.05, duration: 0.48, ease: "back.out(2.1)" }, 0.58)
     .from(orbit.ring, { scale: 0.7, autoAlpha: 0, duration: 0.85, ease: "power2.out" }, 0.18)
     .to(scrollCue, { autoAlpha: 1, y: 0, duration: 0.45 }, 0.88);
 }
 
-function setupHeroPortalZoom(root: HTMLElement) {
+/** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
+function setupHeroToAboutTransition(root: HTMLElement) {
   const heroCopy = root.querySelectorAll(".hero-copy");
   const scrollCue = root.querySelector(".hero-scroll-cue");
-  const aboutLabel = root.querySelectorAll("#about .section-label");
-  const aboutHeading = root.querySelectorAll("#about .section-heading-block");
-  const aboutReveal = root.querySelectorAll("#about .section-reveal");
-  const aboutPanels = root.querySelectorAll("#about .panel-vivid, #about .panel-hud, #about .stat-chip");
+  const about = aboutTargets(root);
 
-  const buildTimeline = (
-    end: string,
-    orbitScale: number,
-    orbitBlur: number,
-    copyY: number,
-    copyFadeStart: number,
-  ) => {
+  const build = (orbitScale: number, orbitBlur: number, copyY: number, fadeStart = 0.78) => {
     const orbit = heroOrbitNodes(root);
 
     gsap
       .timeline({
         scrollTrigger: {
-          trigger: "#about",
-          start: "top bottom",
-          end,
-          scrub: 0.75,
+          trigger: "#hero",
+          start: "top top",
+          end: "80% top",
+          scrub: 0.55,
           invalidateOnRefresh: true,
         },
       })
-      .fromTo(heroCopy, { y: 0, autoAlpha: 1, scale: 1 }, { y: copyY, autoAlpha: 0, scale: 0.96, ease: "power2.in" }, copyFadeStart)
-      .fromTo(scrollCue, { autoAlpha: 1 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, copyFadeStart)
+      .fromTo(
+        heroCopy,
+        { y: 0, autoAlpha: 1, scale: 1 },
+        { y: copyY, autoAlpha: 0, scale: 0.96, ease: "power2.in" },
+        fadeStart,
+      )
+      .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
       .fromTo(
         orbit.wrap,
         { scale: 1, rotate: 0, autoAlpha: 1, filter: "blur(0px)" },
@@ -127,210 +128,322 @@ function setupHeroPortalZoom(root: HTMLElement) {
           ease: "power2.inOut",
           transformOrigin: "50% 50%",
         },
-        copyFadeStart,
+        fadeStart,
       )
-      .fromTo(aboutLabel, { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power3.out" }, 0.08)
       .fromTo(
-        aboutHeading,
-        { y: 40, autoAlpha: 0, scale: 0.94, filter: "blur(8px)" },
-        { y: 0, autoAlpha: 1, scale: 1, filter: "blur(0px)", ease: "power3.out" },
-        0.16,
-      )
-      .fromTo(aboutReveal, { y: 32, autoAlpha: 0, scale: 0.98 }, { y: 0, autoAlpha: 1, scale: 1, ease: "power2.out" }, 0.26)
-      .fromTo(
-        aboutPanels,
-        { y: 24, autoAlpha: 0, scale: 0.98 },
-        { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, ease: "back.out(1.2)" },
-        0.34,
+        about,
+        { y: 32, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, stagger: 0.05, ease: "power3.out" },
+        fadeStart + 0.08,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => buildTimeline("top 28%", 3.1, 6, -64, 0));
-  mm.add("(max-width: 1023px)", () => buildTimeline("top 6%", 1.45, 2, -18, 0.35));
+  mm.add("(min-width: 1024px)", () => build(3.1, 6, -64, 0.78));
+  mm.add("(max-width: 1023px)", () => build(1.5, 2, -20, 0.82));
   return mm;
 }
 
-function revealOnScroll(
-  targets: gsap.TweenTarget,
-  vars: gsap.TweenVars,
-  trigger: string | Element,
-  start = "top 88%",
-) {
-  if (!targets || (targets instanceof NodeList && targets.length === 0)) return;
+function sectionBlock(root: HTMLElement, sectionId: string) {
+  return root.querySelectorAll(
+    `#${sectionId} .section-label, #${sectionId} .section-heading-block, #${sectionId} .section-reveal`,
+  );
+}
 
-  gsap.from(targets, {
-    y: 24,
-    autoAlpha: 0,
+function showTargets(targets: gsap.TweenTarget, stagger = 0.07) {
+  gsap.to(targets, {
+    autoAlpha: 1,
+    y: 0,
     duration: 0.65,
-    ease: "power2.out",
-    ...vars,
-    scrollTrigger: {
-      trigger,
-      start,
-      toggleActions: REVEAL_ONCE,
+    ease: "power3.out",
+    stagger,
+    overwrite: "auto",
+  });
+}
+
+function hideTargets(targets: gsap.TweenTarget, stagger = 0.04) {
+  gsap.to(targets, {
+    autoAlpha: 0,
+    y: 36,
+    duration: 0.42,
+    ease: "power2.in",
+    stagger,
+    overwrite: "auto",
+  });
+}
+
+function gateSection(root: HTMLElement, sectionId: string, nextSectionId?: string) {
+  const targets = sectionBlock(root, sectionId);
+  if (!targets.length) return;
+
+  gsap.set(targets, { autoAlpha: 0, y: 40 });
+
+  const mm = gsap.matchMedia();
+
+  mm.add("(min-width: 1024px)", () => {
+    ScrollTrigger.create({
+      trigger: `#${sectionId}`,
+      start: "top 86%",
+      end: "bottom 14%",
+      onEnter: () => showTargets(targets),
+      onLeave: () => hideTargets(targets),
+      onEnterBack: () => showTargets(targets),
+      onLeaveBack: () => hideTargets(targets),
       invalidateOnRefresh: true,
+    });
+  });
+
+  mm.add("(max-width: 1023px)", () => {
+    ScrollTrigger.create({
+      trigger: `#${sectionId}`,
+      start: "top 92%",
+      onEnter: () => showTargets(targets),
+      onEnterBack: () => showTargets(targets),
+      invalidateOnRefresh: true,
+    });
+
+    if (nextSectionId) {
+      ScrollTrigger.create({
+        trigger: `#${nextSectionId}`,
+        start: MOBILE_NEXT_VISIBLE,
+        onEnter: () => hideTargets(targets),
+        onLeaveBack: () => showTargets(targets),
+        invalidateOnRefresh: true,
+      });
+    } else {
+      ScrollTrigger.create({
+        trigger: `#${sectionId}`,
+        start: "bottom top+=12%",
+        onEnter: () => hideTargets(targets),
+        onLeaveBack: () => showTargets(targets),
+        invalidateOnRefresh: true,
+      });
+    }
+  });
+
+  return mm;
+}
+
+function setupSectionGates(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
+  const gated = SECTIONS.slice(2);
+  gated.forEach((s, index) => {
+    const mm = gateSection(root, s.id, gated[index + 1]?.id);
+    if (mm) mediaStores.push(mm);
+  });
+}
+
+function setupAboutGate(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
+  const targets = aboutTargets(root);
+  const mm = gsap.matchMedia();
+
+  mm.add("(min-width: 1024px)", () => {
+    ScrollTrigger.create({
+      trigger: "#about",
+      start: "bottom 14%",
+      end: "bottom top",
+      onEnter: () => hideTargets(targets, 0.03),
+      onLeaveBack: () => showTargets(targets, 0.05),
+      invalidateOnRefresh: true,
+    });
+  });
+
+  mm.add("(max-width: 1023px)", () => {
+    ScrollTrigger.create({
+      trigger: "#skills",
+      start: MOBILE_NEXT_VISIBLE,
+      onEnter: () => hideTargets(targets, 0.03),
+      onLeaveBack: () => showTargets(targets, 0.05),
+      invalidateOnRefresh: true,
+    });
+  });
+
+  mediaStores.push(mm);
+}
+
+function batchSectionElements(
+  root: HTMLElement,
+  selector: string,
+  sectionId: string,
+  nextSectionId?: string,
+) {
+  const elements = root.querySelectorAll(selector);
+  if (!elements.length) return;
+
+  gsap.set(elements, { autoAlpha: 0, y: 28 });
+
+  const show = () =>
+    gsap.to(elements, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.58,
+      ease: "power3.out",
+      stagger: 0.07,
+      overwrite: "auto",
+    });
+
+  const hide = () =>
+    gsap.to(elements, {
+      autoAlpha: 0,
+      y: 24,
+      duration: 0.38,
+      ease: "power2.in",
+      stagger: 0.04,
+      overwrite: "auto",
+    });
+
+  const mm = gsap.matchMedia();
+
+  mm.add("(min-width: 1024px)", () => {
+    ScrollTrigger.create({
+      trigger: `#${sectionId}`,
+      start: "top 86%",
+      end: "bottom 14%",
+      onEnter: show,
+      onLeave: hide,
+      onEnterBack: show,
+      onLeaveBack: hide,
+      invalidateOnRefresh: true,
+    });
+  });
+
+  mm.add("(max-width: 1023px)", () => {
+    ScrollTrigger.create({
+      trigger: `#${sectionId}`,
+      start: "top 92%",
+      onEnter: show,
+      onEnterBack: show,
+      invalidateOnRefresh: true,
+    });
+
+    if (nextSectionId) {
+      ScrollTrigger.create({
+        trigger: `#${nextSectionId}`,
+        start: MOBILE_NEXT_VISIBLE,
+        onEnter: hide,
+        onLeaveBack: show,
+        invalidateOnRefresh: true,
+      });
+    } else {
+      ScrollTrigger.create({
+        trigger: `#${sectionId}`,
+        start: "bottom top+=12%",
+        onEnter: hide,
+        onLeaveBack: show,
+        invalidateOnRefresh: true,
+      });
+    }
+  });
+
+  return mm;
+}
+
+function setupSectionElementBatches(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
+  const pairs: [string, string, string?][] = [
+    ["#skills .skills-loadout-strip, #skills .skill-orbit-shell, #skills .skill-module-panel", "skills", "experience"],
+    ["#experience .career-snake-node, #experience .career-mobile-shell", "experience", "projects"],
+    ["#capabilities .capability-slot, #capabilities .capability-briefing", "capabilities", "education"],
+    ["#education .edu-degree-panel, #education .edu-cert-panel, #education .edu-cert-card", "education", "contact"],
+    ["#contact .contact-methods, #contact .contact-form", "contact", undefined],
+  ];
+
+  pairs.forEach(([selector, id, next]) => {
+    const mm = batchSectionElements(root, selector, id, next);
+    if (mm) mediaStores.push(mm);
+  });
+
+  const projectMm = gsap.matchMedia();
+  projectMm.add("(min-width: 1024px)", () => {
+    bindProjectCards(root, "top 92%", "bottom 8%");
+  });
+  projectMm.add("(max-width: 1023px)", () => {
+    bindProjectCardsMobile(root);
+  });
+  mediaStores.push(projectMm);
+}
+
+function bindProjectCardsMobile(root: HTMLElement) {
+  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item, .project-github-item")).forEach((item) => {
+    gsap.set(item, { autoAlpha: 0, y: 28 });
+
+    ScrollTrigger.create({
+      trigger: item,
+      start: "top 94%",
+      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" }),
+      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" }),
+    });
+  });
+
+  ScrollTrigger.create({
+    trigger: "#capabilities",
+    start: MOBILE_NEXT_VISIBLE,
+    onEnter: () => {
+      gsap.to(root.querySelectorAll(".project-deck-item, .project-github-item"), {
+        autoAlpha: 0,
+        y: 24,
+        duration: 0.38,
+        stagger: 0.03,
+        ease: "power2.in",
+        overwrite: "auto",
+      });
+    },
+    onLeaveBack: () => {
+      gsap.to(root.querySelectorAll(".project-deck-item, .project-github-item"), {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.04,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
     },
   });
 }
 
-function setupSectionReveals(root: HTMLElement) {
-  SECTIONS.slice(1).forEach((s) => {
-    if (s.id === "about") return;
+function bindProjectCards(root: HTMLElement, start: string, end: string) {
+  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item")).forEach((item) => {
+    gsap.set(item, { autoAlpha: 0, y: 32 });
+    ScrollTrigger.create({
+      trigger: item,
+      start,
+      end,
+      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.58, ease: "power3.out", overwrite: "auto" }),
+      onLeave: () => gsap.to(item, { autoAlpha: 0, y: 28, duration: 0.38, ease: "power2.in", overwrite: "auto" }),
+      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.58, ease: "power3.out", overwrite: "auto" }),
+      onLeaveBack: () => gsap.to(item, { autoAlpha: 0, y: 28, duration: 0.38, ease: "power2.in", overwrite: "auto" }),
+    });
+  });
 
-    const section = `#${s.id}`;
-    const label = root.querySelectorAll(`${section} .section-label`);
-    const heading = root.querySelectorAll(`${section} .section-heading-block`);
-    const body = root.querySelectorAll(`${section} .section-reveal`);
-    const isInteractive = INTERACTIVE_SECTIONS.has(s.id);
-
-    revealOnScroll(label, { y: 16, duration: 0.55 }, section, "top 90%");
-    revealOnScroll(heading, { y: 32, scale: 0.97, filter: "blur(6px)", duration: 0.7 }, section, "top 88%");
-
-    if (!isInteractive) {
-      revealOnScroll(body, { y: 28, duration: 0.6 }, section, "top 86%");
-    }
-
-    if (isInteractive || s.id === "education" || s.id === "contact" || s.id === "projects") return;
-
-    gsap.utils.toArray<HTMLElement>(root.querySelectorAll(`${section} .section-reveal > *`)).forEach((child, index) => {
-      if (child.matches(NO_GSAP_TRANSFORM) || child.querySelector(NO_GSAP_TRANSFORM)) return;
-      revealOnScroll(child, { y: 20, delay: index * 0.03, duration: 0.5 }, child, "top 92%");
+  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-github-item")).forEach((item) => {
+    gsap.set(item, { autoAlpha: 0, y: 24 });
+    ScrollTrigger.create({
+      trigger: item,
+      start,
+      end,
+      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.52, ease: "power3.out", overwrite: "auto" }),
+      onLeave: () => gsap.to(item, { autoAlpha: 0, y: 22, duration: 0.35, ease: "power2.in", overwrite: "auto" }),
+      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.52, ease: "power3.out", overwrite: "auto" }),
+      onLeaveBack: () => gsap.to(item, { autoAlpha: 0, y: 22, duration: 0.35, ease: "power2.in", overwrite: "auto" }),
     });
   });
 }
 
-function setupEducationReveals(root: HTMLElement) {
-  revealOnScroll(
-    root.querySelectorAll("#education .edu-degree-panel"),
-    { y: 28, duration: 0.65 },
-    "#education .edu-degree-panel",
-    "top 90%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#education .edu-cert-panel"),
-    { y: 28, duration: 0.65 },
-    "#education .edu-cert-panel",
-    "top 90%",
-  );
-
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll("#education .edu-cert-card")).forEach((card, index) => {
-    revealOnScroll(card, { y: 16, delay: index * 0.04, duration: 0.45 }, card, "top 94%");
+function unlockInteractivePanels(root: HTMLElement) {
+  gsap.set(root.querySelectorAll(INTERACTIVE), {
+    autoAlpha: 1,
+    visibility: "visible",
+    x: 0,
+    clearProps: "transform",
   });
-}
-
-function setupContactReveals(root: HTMLElement) {
-  revealOnScroll(
-    root.querySelectorAll("#contact .contact-methods"),
-    { y: 24, duration: 0.6 },
-    "#contact .contact-methods",
-    "top 90%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#contact .contact-form"),
-    { y: 28, duration: 0.65 },
-    "#contact .contact-form",
-    "top 88%",
-  );
-}
-
-function setupExperienceReveals(root: HTMLElement) {
-  revealOnScroll(
-    root.querySelectorAll("#experience .career-snake-node"),
-    { scale: 0.9, y: 12, duration: 0.45, stagger: 0.06, ease: "back.out(1.3)" },
-    "#experience .career-snake",
-    "top 88%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#experience .career-mobile-shell"),
-    { y: 20, duration: 0.55 },
-    "#experience .career-mobile-shell",
-    "top 90%",
-  );
-}
-
-function setupSkillsReveals(root: HTMLElement) {
-  revealOnScroll(
-    root.querySelectorAll("#skills .skills-loadout-strip"),
-    { y: 20, duration: 0.55 },
-    "#skills .skills-loadout-strip",
-    "top 90%",
-  );
-
-  revealOnScroll(
-    root.querySelectorAll("#skills .skill-orbit-shell"),
-    { y: 24, duration: 0.6 },
-    "#skills .skill-orbit-shell",
-    "top 88%",
-  );
-}
-
-function setupProjectScrollFx(root: HTMLElement) {
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item")).forEach((item, index) => {
-    revealOnScroll(
-      item,
-      { y: 32, scale: 0.97, delay: index * 0.02, duration: 0.6 },
-      item,
-      "top 94%",
-    );
-  });
-
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-github-item")).forEach((item) => {
-    revealOnScroll(item, { y: 24, duration: 0.55 }, item, "top 94%");
-  });
-}
-
-function setupElementReveals(root: HTMLElement) {
-  const selectors = [".panel-vivid", ".panel-hud", ".stat-chip", ".capability-slot"].join(", ");
-
-  ScrollTrigger.batch(root.querySelectorAll(selectors), {
-    start: "top 92%",
-    once: true,
-    onEnter: (batch) => {
-      const filtered = batch.filter((el) => {
-        if (el.matches(NO_GSAP_TRANSFORM) || el.closest(NO_GSAP_TRANSFORM)) return false;
-        const section = el.closest("section[id]");
-        if (!section) return true;
-        const id = section.id;
-        return (
-          id !== "about" &&
-          id !== "education" &&
-          id !== "contact" &&
-          id !== "experience" &&
-          id !== "skills" &&
-          id !== "capabilities" &&
-          id !== "projects"
-        );
-      });
-      if (!filtered.length) return;
-      gsap.fromTo(
-        filtered,
-        { y: 28, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, stagger: 0.05, duration: 0.55, ease: "power2.out", overwrite: true },
-      );
-    },
-  });
-}
-
-function protectInteractivePanels(root: HTMLElement) {
-  gsap.set(root.querySelectorAll(NO_GSAP_TRANSFORM), { x: 0, y: 0, clearProps: "transform" });
 }
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
   setupHeroIntro(root);
-  mediaStores.push(setupHeroPortalZoom(root));
-  setupSectionReveals(root);
-  setupSkillsReveals(root);
-  setupExperienceReveals(root);
-  setupEducationReveals(root);
-  setupContactReveals(root);
-  setupProjectScrollFx(root);
-  setupElementReveals(root);
-  protectInteractivePanels(root);
+  mediaStores.push(setupHeroToAboutTransition(root));
+  setupAboutGate(root, mediaStores);
+  setupSectionGates(root, mediaStores);
+  setupSectionElementBatches(root, mediaStores);
+  unlockInteractivePanels(root);
 }
 
 export function ScrollShell({ children }: { children: ReactNode }) {
@@ -347,7 +460,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
-        gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, #about *, .scroll-ui-panel, .glass-card, .contact-methods"), {
+        gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner"), {
           clearProps: "all",
           opacity: 1,
           visibility: "visible",
@@ -362,16 +475,13 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       setupScrollExperience(root, mediaStores);
       setActiveSection(root, "hero");
 
-      const refresh = () => {
-        ScrollTrigger.refresh();
-        protectInteractivePanels(root);
-      };
+      const refresh = () => ScrollTrigger.refresh();
       window.addEventListener("resize", refresh, { passive: true });
       window.addEventListener("orientationchange", refresh);
       window.addEventListener("hashchange", refresh);
       window.visualViewport?.addEventListener("resize", refresh);
-      window.setTimeout(refresh, 400);
-      window.setTimeout(refresh, 1200);
+      window.setTimeout(refresh, 450);
+      window.setTimeout(refresh, 1400);
 
       return () => {
         window.removeEventListener("resize", refresh);

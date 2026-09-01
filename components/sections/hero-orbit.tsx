@@ -7,12 +7,12 @@ import { profile } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 const orbitChips = [
-  { label: "Next.js", color: "border-accent-violet/50 text-accent-violet", glow: "rgba(139,92,246,0.45)" },
-  { label: "FastAPI", color: "border-accent-cyan/50 text-accent-cyan", glow: "rgba(34,211,238,0.45)" },
-  { label: "Fintech", color: "border-accent-coral/50 text-accent-coral", glow: "rgba(251,113,133,0.45)" },
-  { label: "Node.js", color: "border-accent-lime/50 text-accent-lime", glow: "rgba(190,242,100,0.45)" },
-  { label: "React", color: "border-accent-violet/40 text-accent-violet", glow: "rgba(139,92,246,0.35)" },
-  { label: "TypeScript", color: "border-accent-cyan/40 text-accent-cyan", glow: "rgba(34,211,238,0.35)" },
+  { label: "Next.js", color: "border-accent-violet/45 text-accent-violet", glow: "rgba(139,92,246,0.4)" },
+  { label: "FastAPI", color: "border-accent-cyan/45 text-accent-cyan", glow: "rgba(34,211,238,0.35)" },
+  { label: "Fintech", color: "border-accent-coral/40 text-accent-coral", glow: "rgba(244,114,182,0.32)" },
+  { label: "Node.js", color: "border-accent-blue/40 text-accent-blue", glow: "rgba(99,102,241,0.35)" },
+  { label: "React", color: "border-accent-violet/35 text-accent-violet/90", glow: "rgba(139,92,246,0.3)" },
+  { label: "TypeScript", color: "border-accent-cyan/35 text-accent-cyan/90", glow: "rgba(34,211,238,0.28)" },
 ];
 
 type HeroOrbitProps = {
@@ -99,7 +99,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
       </svg>
 
       <motion.div
-        className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-2 text-center shadow-glow-cyan"
+        className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-3 text-center shadow-glow-cyan"
         style={reduced ? undefined : { y: hubY }}
         whileHover={reduced ? undefined : { scale: 1.04 }}
       >
@@ -109,25 +109,10 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         >
           <Orbit className="h-5 w-5 text-accent-violet sm:h-6 sm:w-6" aria-hidden="true" />
         </motion.div>
-        <p className="mt-1.5 font-display text-2xl font-bold leading-none text-ink sm:text-3xl">{profile.initials}</p>
-        <p className="mt-1.5 text-[0.48rem] font-semibold uppercase tracking-[0.22em] text-accent-cyan sm:text-[0.52rem]">
-          Wallet · Store · GG
+        <p className="mt-2 font-display text-2xl font-bold leading-none text-ink sm:text-3xl">{profile.initials}</p>
+        <p className="mt-2 max-w-[7rem] text-[0.55rem] font-medium leading-snug text-ink-muted sm:max-w-[8rem] sm:text-[0.6rem]">
+          {profile.title}
         </p>
-        <div className="mt-2 flex items-center gap-1">
-          {["N", "Py", "Nd"].map((stack, i) => (
-            <span
-              key={stack}
-              className={cn(
-                "rounded-md border px-1 py-0.5 font-mono text-[0.42rem] font-bold sm:text-[0.45rem]",
-                i === 0 && "border-accent-violet/40 text-accent-violet",
-                i === 1 && "border-accent-cyan/40 text-accent-cyan",
-                i === 2 && "border-accent-lime/40 text-accent-lime",
-              )}
-            >
-              {stack}
-            </span>
-          ))}
-        </div>
       </motion.div>
 
       {orbitChips.map((chip, i) => {

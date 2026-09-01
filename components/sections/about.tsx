@@ -10,8 +10,7 @@ const journey = [
 
 const aboutStats = [
   { n: "5+", label: "Years experience", c: "text-accent-violet" },
-  { n: "9", label: "Shipped projects", c: "text-accent-cyan" },
-  { n: "3", label: "Live platforms", c: "text-accent-coral" },
+  { n: "10+", label: "Shipped projects", c: "text-accent-cyan" },
   { n: "PK", label: "Open to relocate", c: "text-accent-lime" },
 ];
 
@@ -68,7 +67,7 @@ export function About() {
 
             <div className="panel-hud lg:col-span-12">
               <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-accent-violet">At a glance</p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {aboutStats.map((s) => (
                   <div key={s.label} className="stat-chip text-center sm:text-left">
                     <p className={`font-display text-2xl font-bold ${s.c}`}>{s.n}</p>

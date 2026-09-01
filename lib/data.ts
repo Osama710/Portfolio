@@ -33,7 +33,15 @@ export const profile = {
   tagline:
     "Senior Software Engineer building fintech and e-commerce products — KYC, payments, admin tools, and backend APIs.",
   heroLead:
-    "At Raptr Games I ship wallet KYC, payment webhooks, admin dashboards, and vendor APIs across Wallet, Store, and Raptr.gg.",
+    "Full-stack engineer with 5+ years shipping production systems — payment integrations, admin dashboards, vendor APIs, and e-commerce platforms serving 75,000+ users at Raptr Games.",
+  heroRotations: [
+    "payment systems that scale",
+    "admin tools teams rely on",
+    "FastAPI vendor integrations",
+    "Next.js products end-to-end",
+    "secure KYC & checkout flows",
+    "APIs built for real traffic",
+  ],
   summary:
     "Full stack engineer with 5+ years of experience in Next.js, React, Node.js, and Python (FastAPI). Promoted to Senior Software Engineer at Raptr Games for delivery on production fintech and e-commerce work. Strong across frontend, backend, and API design, including payment integrations, database design, and deployment on Vercel and GCP.",
 };
@@ -47,8 +55,7 @@ export const socialLinks: SocialLink[] = [
 // Hero stats (from CV).
 export const heroStats: StatItem[] = [
   { label: "Years experience", value: "5", suffix: "+" },
-  { label: "Shipped projects", value: "9" },
-  { label: "Live platforms", value: "3" },
+  { label: "Shipped projects", value: "10", suffix: "+" },
 ];
 
 export const experience: ExperienceItem[] = [
@@ -106,9 +113,8 @@ export const experience: ExperienceItem[] = [
   {
     role: "Freelance Full Stack & Python Developer",
     company: "Fiverr & Upwork",
-    period: "Sept 2020 - Present",
+    period: "Sept 2020 - Apr 2022",
     location: "Remote",
-    current: true,
     bullets: [
       "Completed multiple Python projects and GUI-based desktop applications using Tkinter.",
       "Designed frontend web UIs using HTML, CSS, jQuery, React.js, Next.js, and Tailwind CSS.",

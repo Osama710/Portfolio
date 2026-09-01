@@ -15,7 +15,7 @@ export function SectionHeading({ label, title, description, className }: Section
         {label}
       </span>
       <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl lg:leading-[1.12]">
-        <span className="gradient-text">{title}</span>
+        <span className="gradient-text-shimmer">{title}</span>
       </h2>
       {description ? (
         <p className="mt-2 text-sm leading-relaxed text-ink-muted sm:text-base">{description}</p>

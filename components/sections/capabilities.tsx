@@ -79,7 +79,7 @@ function CapabilityBriefing({
           {active.deliverables.map((item) => (
             <li
               key={item}
-              className="flex gap-2.5 rounded-xl border border-white/[0.06] bg-void/30 px-3 py-2.5 text-sm text-ink-muted"
+              className="capability-deliverable"
             >
               <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", theme.bar)} />
               <span className="min-w-0 break-words">{item}</span>
@@ -195,7 +195,7 @@ export function Capabilities() {
                       initial={reducedMotion ? false : { opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="scroll-ui-panel capability-briefing mt-2 overflow-hidden rounded-3xl"
+                      className="scroll-ui-panel capability-briefing capability-briefing-vivid mt-2 overflow-hidden rounded-3xl"
                     >
                       <CapabilityBriefing active={cap} activeIndex={index} theme={slotThemes[index % slotThemes.length]} />
                     </motion.div>
@@ -223,7 +223,7 @@ export function Capabilities() {
               initial={reducedMotion ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="scroll-ui-panel capability-briefing min-w-0 overflow-hidden rounded-3xl"
+              className="scroll-ui-panel capability-briefing capability-briefing-vivid min-w-0 overflow-hidden rounded-3xl"
             >
               <CapabilityBriefing active={active} activeIndex={activeIndex} theme={theme} />
             </motion.div>
