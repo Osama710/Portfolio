@@ -158,7 +158,7 @@ const tagThemes: Record<string, { accent: string; glow: string; gradient: string
 const defaultTheme = tagThemes.Fintech;
 
 function getDeckClass(index: number) {
-  return `project-deck-item project-deck-${index}`;
+  return `project-deck-item project-journey-item project-deck-${index}`;
 }
 
 function screenshotOf(p: ProjectItem) {
@@ -305,7 +305,7 @@ function LiveShipTile({
     <CutoutCardShell index={index} theme={theme} expanded={expanded || defaultExpanded}>
       <div
         className={cn(
-          "relative shrink-0 overflow-hidden border-b border-white/[0.07] bg-void/50",
+          "project-reveal-media relative shrink-0 overflow-hidden border-b border-white/[0.07] bg-void/50",
           isHero ? "h-36 sm:h-40" : "h-28 sm:h-32",
         )}
       >
@@ -360,7 +360,7 @@ function LiveShipTile({
         ) : null}
       </div>
 
-      <div className="relative z-[2] flex flex-1 flex-col">
+      <div className="project-reveal-content relative z-[2] flex flex-1 flex-col">
         <div className="px-3.5 py-3 sm:px-4">
           <p className="font-mono text-[0.6rem] font-medium uppercase tracking-widest text-accent-cyan">
             {project.domain ?? "Production build"}

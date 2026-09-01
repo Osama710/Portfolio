@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown,
@@ -22,8 +23,27 @@ const lastName = restName.join(" ") || firstName;
 
 const statIcons = [Zap, Rocket, Target];
 
+const heroProof = ["75k+ users on Raptr Wallet", "Payments, KYC & admin systems", "Full-stack · Next.js to FastAPI"];
+
 export function Hero() {
   const reduced = useReducedMotion();
+  const [introReady, setIntroReady] = useState(false);
+
+  useEffect(() => {
+    if (reduced) {
+      setIntroReady(true);
+      return;
+    }
+
+    const onIntro = () => setIntroReady(true);
+    window.addEventListener("hero-intro-complete", onIntro);
+
+    if (document.querySelector(".scroll-shell")?.classList.contains("hero-intro-done")) {
+      setIntroReady(true);
+    }
+
+    return () => window.removeEventListener("hero-intro-complete", onIntro);
+  }, [reduced]);
 
   return (
     <section id="hero" className="hero-stage relative w-full overflow-x-clip">
@@ -36,13 +56,23 @@ export function Hero() {
             </span>
 
             <h1 className="mt-4 font-display text-[clamp(2.25rem,6.5vw,4.25rem)] font-bold leading-[0.98] tracking-[-0.04em] sm:mt-5">
-              <span className="block text-ink">{firstName}</span>
-              <span className="gradient-text-shimmer block">{lastName}</span>
+              <span className="hero-name-line block text-ink">{firstName}</span>
+              <span className="hero-name-line gradient-text-shimmer block">{lastName}</span>
             </h1>
+
+            <div className="hero-signal mt-4" aria-hidden="true" />
+
+            <div className="hero-proof mt-3 flex flex-wrap gap-2">
+              {heroProof.map((item) => (
+                <span key={item} className="hero-proof-item">
+                  {item}
+                </span>
+              ))}
+            </div>
 
             <p className="hero-rotator mt-4 flex min-h-[2.75rem] flex-wrap items-baseline gap-x-2 text-lg font-medium leading-snug sm:min-h-[3rem] sm:text-xl">
               <span className="text-ink-muted">I ship</span>
-              <RotatingText items={profile.heroRotations} intervalMs={3000} />
+              <RotatingText items={profile.heroRotations} intervalMs={3000} paused={!introReady} />
             </p>
 
             <p className="hero-lead mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-base sm:leading-relaxed">
@@ -91,11 +121,7 @@ export function Hero() {
               <span className="text-accent-cyan">{profile.relocation}</span>
             </div>
 
-            <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-hidden will-change-transform sm:max-w-[300px] lg:hidden">
-              <HeroOrbit />
-            </div>
-
-            <div className="mt-2 flex flex-wrap gap-2 sm:mt-4">
+            <div className="hero-stats relative z-20 mt-2 flex flex-wrap gap-2 sm:mt-4">
               {heroStats.map((stat, index) => {
                 const StatIcon = statIcons[index] ?? Zap;
                 return (
@@ -103,7 +129,7 @@ export function Hero() {
                     <StatIcon className="h-3.5 w-3.5 shrink-0 text-accent-cyan/80" aria-hidden="true" />
                     <div>
                       <p className="font-display text-sm font-bold leading-none text-ink sm:text-base">
-                        <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                        <AnimatedCounter value={stat.value} suffix={stat.suffix} start={introReady} />
                       </p>
                       <p className="mt-0.5 text-[0.6rem] uppercase tracking-wider text-ink-faint">{stat.label}</p>
                     </div>
@@ -112,6 +138,9 @@ export function Hero() {
               })}
             </div>
 
+            <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-hidden will-change-transform sm:max-w-[300px] lg:hidden">
+              <HeroOrbit />
+            </div>
           </div>
 
           <div className="hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto hidden w-full max-w-[420px] origin-center overflow-visible py-4 will-change-transform lg:block">

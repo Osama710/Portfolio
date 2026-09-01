@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, motionAllowed, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap/register";
+import { setupExperienceJourney, setupProjectJourney } from "@/components/gsap/journey-reveals";
 
 const SECTIONS = [
   { id: "hero" },
@@ -14,8 +15,6 @@ const SECTIONS = [
   { id: "education" },
   { id: "contact" },
 ] as const;
-
-const INTERACTIVE = ".career-detail-panel, .career-track-detail, .career-mobile-shell";
 
 /** Mobile: hide current section once the next one covers ~80% of the viewport. */
 const MOBILE_NEXT_VISIBLE = "top 20%";
@@ -61,39 +60,137 @@ function aboutTargets(root: HTMLElement) {
   );
 }
 
+function heroIntroTargets(root: HTMLElement) {
+  return root.querySelectorAll(
+    ".hero-copy .tag-pill, .hero-name-line, .hero-rotator, .hero-lead, .hero-actions, .hero-actions > *, .hero-location, .hero-stats, .hero-stat, .hero-proof-item",
+  );
+}
+
+function finalizeHeroCopy(root: HTMLElement) {
+  gsap.set(heroIntroTargets(root), {
+    autoAlpha: 1,
+    opacity: 1,
+    visibility: "visible",
+    y: 0,
+    x: 0,
+    scale: 1,
+    filter: "none",
+  });
+
+  gsap.set(root.querySelector(".hero-signal"), { scaleX: 1, autoAlpha: 1 });
+
+  gsap.set(root.querySelectorAll(".hero-orbit-wrap, .hero-scroll-cue"), {
+    autoAlpha: 1,
+    visibility: "visible",
+    y: 0,
+    scale: 1,
+    rotate: 0,
+    filter: "none",
+  });
+
+  root.classList.add("hero-intro-done");
+  window.dispatchEvent(new CustomEvent("hero-intro-complete"));
+}
+
 function setupHeroIntro(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
+  const signal = root.querySelector(".hero-signal");
+  const proof = root.querySelectorAll(".hero-proof-item");
   const orbit = heroOrbitNodes(root);
+  const copyTargets = heroIntroTargets(root);
+  const nameLines = root.querySelectorAll(".hero-name-line");
 
-  gsap.set(scrollCue, { autoAlpha: 0 });
+  root.classList.remove("hero-intro-done");
+
+  gsap.set(scrollCue, { autoAlpha: 0, y: 12 });
   gsap.set(aboutTargets(root), { autoAlpha: 0, y: 32 });
+  gsap.set(copyTargets, { autoAlpha: 0, y: 26, filter: "blur(10px)" });
+  gsap.set(nameLines, { autoAlpha: 0, y: 36, filter: "blur(12px)" });
+  gsap.set(signal, { scaleX: 0, autoAlpha: 1, transformOrigin: "0% 50%" });
+  gsap.set(proof, { autoAlpha: 0, y: 18, filter: "blur(8px)" });
+  gsap.set(root.querySelectorAll(".hero-stat"), { scale: 0.94 });
+  gsap.set(orbit.wrap, { autoAlpha: 0, scale: 0.42, rotate: -14, filter: "blur(8px)" });
+  gsap.set(orbit.chips, { autoAlpha: 0, scale: 0, filter: "blur(4px)" });
+  gsap.set(orbit.ring, { autoAlpha: 0, scale: 0.65, filter: "blur(6px)" });
 
   gsap
-    .timeline({ defaults: { ease: "power3.out" } })
-    .from(root.querySelectorAll(".hero-copy .tag-pill"), { y: 26, autoAlpha: 0, stagger: 0.08, duration: 0.58 }, 0)
-    .from(
-      root.querySelectorAll(".hero-copy h1 > span"),
-      { y: 52, autoAlpha: 0, stagger: 0.14, duration: 0.82, ease: "power4.out" },
-      0.08,
+    .timeline({
+      defaults: { ease: "power3.out" },
+      onComplete: () => finalizeHeroCopy(root),
+      onInterrupt: () => finalizeHeroCopy(root),
+    })
+    .fromTo(
+      root.querySelector(".hero-stage"),
+      { opacity: 0.88 },
+      { opacity: 1, duration: 0.7, ease: "power2.out" },
+      0,
     )
-    .from(root.querySelectorAll(".hero-rotator"), { y: 28, autoAlpha: 0, duration: 0.55 }, 0.18)
-    .from(root.querySelectorAll(".hero-lead"), { y: 22, autoAlpha: 0, duration: 0.5 }, 0.26)
-    .from(root.querySelectorAll(".hero-actions > *"), { y: 20, autoAlpha: 0, stagger: 0.06, duration: 0.46 }, 0.34)
-    .from(root.querySelectorAll(".hero-location"), { y: 18, autoAlpha: 0, duration: 0.45 }, 0.42)
-    .from(
+    .to(
+      root.querySelectorAll(".hero-copy .tag-pill"),
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.62, ease: "back.out(1.4)" },
+      0.1,
+    )
+    .to(
+      nameLines,
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.12, duration: 0.9, ease: "power4.out" },
+      0.22,
+    )
+    .to(signal, { scaleX: 1, duration: 0.65, ease: "power2.inOut" }, 0.46)
+    .to(
+      proof,
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "power3.out" },
+      0.52,
+    )
+    .to(
+      root.querySelectorAll(".hero-rotator"),
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.55 },
+      0.62,
+    )
+    .to(
+      root.querySelectorAll(".hero-lead"),
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.52 },
+      0.7,
+    )
+    .to(
+      root.querySelectorAll(".hero-actions > *"),
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "back.out(1.35)" },
+      0.78,
+    )
+    .to(
+      root.querySelectorAll(".hero-location"),
+      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.45 },
+      0.92,
+    )
+    .to(
       root.querySelectorAll(".hero-stat"),
-      { y: 22, scale: 0.82, autoAlpha: 0, stagger: 0.07, duration: 0.52, ease: "back.out(1.45)" },
-      0.48,
+      { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", stagger: 0.08, duration: 0.55, ease: "back.out(1.5)" },
+      1,
     )
-    .from(orbit.wrap, { scale: 0.48, autoAlpha: 0, rotate: -12, duration: 1.05, ease: "back.out(1.65)" }, 0.1)
-    .from(orbit.chips, { scale: 0, autoAlpha: 0, stagger: 0.05, duration: 0.48, ease: "back.out(2.1)" }, 0.58)
-    .from(orbit.ring, { scale: 0.7, autoAlpha: 0, duration: 0.85, ease: "power2.out" }, 0.18)
-    .to(scrollCue, { autoAlpha: 1, y: 0, duration: 0.45 }, 0.88);
+    .to(
+      orbit.wrap,
+      { autoAlpha: 1, scale: 1, rotate: 0, filter: "blur(0px)", duration: 1.15, ease: "back.out(1.55)" },
+      0.14,
+    )
+    .to(
+      orbit.ring,
+      { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "power2.out" },
+      0.28,
+    )
+    .to(
+      orbit.chips,
+      { autoAlpha: 1, scale: 1, filter: "blur(0px)", stagger: 0.06, duration: 0.52, ease: "back.out(2)" },
+      0.72,
+    )
+    .to(scrollCue, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power2.out" }, 1.18);
+
+  gsap.delayedCall(2.1, () => finalizeHeroCopy(root));
 }
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
-  const heroCopy = root.querySelectorAll(".hero-copy");
+  const heroFadeTargets = root.querySelectorAll(
+    ".hero-copy .tag-pill, .hero-name-line, .hero-signal, .hero-proof-item, .hero-rotator, .hero-lead, .hero-location, .hero-orbit-wrap-mobile",
+  );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
 
@@ -111,9 +208,9 @@ function setupHeroToAboutTransition(root: HTMLElement) {
         },
       })
       .fromTo(
-        heroCopy,
+        heroFadeTargets,
         { y: 0, autoAlpha: 1, scale: 1 },
-        { y: copyY, autoAlpha: 0, scale: 0.96, ease: "power2.in" },
+        { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in", stagger: 0.02 },
         fadeStart,
       )
       .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
@@ -145,6 +242,10 @@ function setupHeroToAboutTransition(root: HTMLElement) {
 }
 
 function sectionBlock(root: HTMLElement, sectionId: string) {
+  if (sectionId === "experience") {
+    return root.querySelectorAll(`#${sectionId} .section-label, #${sectionId} .section-heading-block`);
+  }
+
   return root.querySelectorAll(
     `#${sectionId} .section-label, #${sectionId} .section-heading-block, #${sectionId} .section-reveal`,
   );
@@ -340,7 +441,6 @@ function batchSectionElements(
 function setupSectionElementBatches(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   const pairs: [string, string, string?][] = [
     ["#skills .skills-loadout-strip, #skills .skill-orbit-shell, #skills .skill-module-panel", "skills", "experience"],
-    ["#experience .career-snake-node, #experience .career-mobile-shell", "experience", "projects"],
     ["#capabilities .capability-slot, #capabilities .capability-briefing", "capabilities", "education"],
     ["#education .edu-degree-panel, #education .edu-cert-panel, #education .edu-cert-card", "education", "contact"],
     ["#contact .contact-methods, #contact .contact-form", "contact", undefined],
@@ -351,87 +451,16 @@ function setupSectionElementBatches(root: HTMLElement, mediaStores: ReturnType<t
     if (mm) mediaStores.push(mm);
   });
 
-  const projectMm = gsap.matchMedia();
-  projectMm.add("(min-width: 1024px)", () => {
-    bindProjectCards(root, "top 92%", "bottom 8%");
-  });
-  projectMm.add("(max-width: 1023px)", () => {
-    bindProjectCardsMobile(root);
-  });
-  mediaStores.push(projectMm);
-}
-
-function bindProjectCardsMobile(root: HTMLElement) {
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item, .project-github-item")).forEach((item) => {
-    gsap.set(item, { autoAlpha: 0, y: 28 });
-
-    ScrollTrigger.create({
-      trigger: item,
-      start: "top 94%",
-      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" }),
-      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" }),
-    });
-  });
-
-  ScrollTrigger.create({
-    trigger: "#capabilities",
-    start: MOBILE_NEXT_VISIBLE,
-    onEnter: () => {
-      gsap.to(root.querySelectorAll(".project-deck-item, .project-github-item"), {
-        autoAlpha: 0,
-        y: 24,
-        duration: 0.38,
-        stagger: 0.03,
-        ease: "power2.in",
-        overwrite: "auto",
-      });
-    },
-    onLeaveBack: () => {
-      gsap.to(root.querySelectorAll(".project-deck-item, .project-github-item"), {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.5,
-        stagger: 0.04,
-        ease: "power3.out",
-        overwrite: "auto",
-      });
-    },
-  });
-}
-
-function bindProjectCards(root: HTMLElement, start: string, end: string) {
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-deck-item")).forEach((item) => {
-    gsap.set(item, { autoAlpha: 0, y: 32 });
-    ScrollTrigger.create({
-      trigger: item,
-      start,
-      end,
-      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.58, ease: "power3.out", overwrite: "auto" }),
-      onLeave: () => gsap.to(item, { autoAlpha: 0, y: 28, duration: 0.38, ease: "power2.in", overwrite: "auto" }),
-      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.58, ease: "power3.out", overwrite: "auto" }),
-      onLeaveBack: () => gsap.to(item, { autoAlpha: 0, y: 28, duration: 0.38, ease: "power2.in", overwrite: "auto" }),
-    });
-  });
-
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-github-item")).forEach((item) => {
-    gsap.set(item, { autoAlpha: 0, y: 24 });
-    ScrollTrigger.create({
-      trigger: item,
-      start,
-      end,
-      onEnter: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.52, ease: "power3.out", overwrite: "auto" }),
-      onLeave: () => gsap.to(item, { autoAlpha: 0, y: 22, duration: 0.35, ease: "power2.in", overwrite: "auto" }),
-      onEnterBack: () => gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.52, ease: "power3.out", overwrite: "auto" }),
-      onLeaveBack: () => gsap.to(item, { autoAlpha: 0, y: 22, duration: 0.35, ease: "power2.in", overwrite: "auto" }),
-    });
-  });
+  setupExperienceJourney(root, mediaStores);
+  setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
 }
 
 function unlockInteractivePanels(root: HTMLElement) {
-  gsap.set(root.querySelectorAll(INTERACTIVE), {
+  gsap.set(root.querySelectorAll(".career-mobile-shell, .career-detail-panel, .career-track-detail"), {
     autoAlpha: 1,
     visibility: "visible",
     x: 0,
+    y: 0,
     clearProps: "transform",
   });
 }
@@ -460,7 +489,9 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
-        gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner"), {
+        root.classList.add("hero-intro-done");
+        window.dispatchEvent(new CustomEvent("hero-intro-complete"));
+        gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner, .career-journey-step, .career-track-detail, .project-journey-item, .project-reveal-media, .project-reveal-content, .project-github-item"), {
           clearProps: "all",
           opacity: 1,
           visibility: "visible",
@@ -488,6 +519,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
         window.removeEventListener("orientationchange", refresh);
         window.removeEventListener("hashchange", refresh);
         window.visualViewport?.removeEventListener("resize", refresh);
+        if (root) finalizeHeroCopy(root);
         mediaStores.forEach((mm) => mm.revert());
         delete document.documentElement.dataset.section;
       };

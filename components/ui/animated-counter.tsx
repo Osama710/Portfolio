@@ -8,6 +8,8 @@ interface AnimatedCounterProps {
   suffix?: string;
   duration?: number;
   className?: string;
+  /** When true, starts count-up immediately instead of waiting for scroll into view. */
+  start?: boolean;
 }
 
 /**
@@ -19,6 +21,7 @@ export function AnimatedCounter({
   suffix = "",
   duration = 1.6,
   className,
+  start = false,
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
@@ -26,9 +29,10 @@ export function AnimatedCounter({
   const target = Number(value.replace(/,/g, ""));
   const isNumeric = !Number.isNaN(target);
   const [display, setDisplay] = useState(isNumeric ? "0" : value);
+  const shouldRun = start || isInView;
 
   useEffect(() => {
-    if (!isInView || !isNumeric) return;
+    if (!shouldRun || !isNumeric) return;
 
     if (shouldReduceMotion) {
       setDisplay(target.toLocaleString("en-US"));
@@ -52,7 +56,7 @@ export function AnimatedCounter({
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [isInView, isNumeric, target, duration, shouldReduceMotion]);
+  }, [shouldRun, isNumeric, target, duration, shouldReduceMotion]);
 
   return (
     <span ref={ref} className={className}>

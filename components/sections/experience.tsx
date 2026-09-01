@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { TechPill } from "@/components/ui/tech-pill";
@@ -15,26 +15,35 @@ const accents = [
   "from-accent-coral to-accent-cyan",
 ];
 
+/** Evenly spaced dot anchors — viewBox height 420, ~18% gap, room at bottom for last card. */
 const snakeNodes = [
-  { top: 2, x: 50, align: "center" as const },
-  { top: 21, x: 68, align: "left" as const },
-  { top: 40, x: 32, align: "right" as const },
-  { top: 59, x: 68, align: "left" as const },
-  { top: 78, x: 32, align: "right" as const },
+  { top: 6, connectorX: 50, align: "center" as const },
+  { top: 24, connectorX: 68, align: "left" as const },
+  { top: 42, connectorX: 32, align: "right" as const },
+  { top: 60, connectorX: 68, align: "left" as const },
+  { top: 77, connectorX: 32, align: "right" as const },
 ];
+
+/** SVG path Y anchors matching snakeNodes (25, 100, 175, 250, 325 in viewBox 420). */
+const SNAKE_PATH_D =
+  "M 50 25 C 78 48, 22 72, 50 100 C 78 124, 22 148, 50 175 C 76 199, 24 223, 50 250 C 72 274, 28 298, 50 325";
 
 function CareerDetailPanel({
   activeIndex,
   reducedMotion,
   compact,
   staticEnter,
+  bulletsRef,
 }: {
   activeIndex: number;
   reducedMotion: boolean | null;
   compact?: boolean;
   staticEnter?: boolean;
+  bulletsRef?: React.RefObject<HTMLDivElement | null>;
 }) {
-  const active = experience[activeIndex];
+  const active = experience[activeIndex] ?? experience[0];
+
+  if (!active) return null;
 
   return (
     <motion.div
@@ -95,7 +104,11 @@ function CareerDetailPanel({
           <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-accent-cyan">Responsibilities</p>
         </div>
 
-        <div className="career-detail-bullets mt-3 min-h-0">
+        <div
+          ref={bulletsRef}
+          className="career-detail-bullets mt-3 min-h-0"
+          data-lenis-prevent
+        >
           <ul className="space-y-2">
             {active.bullets.map((bullet) => (
               <li
@@ -127,7 +140,7 @@ function CareerMobileAccordion({
       {experience.map((item, index) => {
         const isActive = activeIndex === index;
         return (
-          <div key={`${item.company}-${item.period}`} className="career-mobile-entry min-w-0">
+          <div key={`${item.company}-${item.period}`} className="career-journey-step career-mobile-entry min-w-0">
             <button
               type="button"
               onClick={() => onSelect(index)}
@@ -162,7 +175,25 @@ function CareerMobileAccordion({
 export function Experience() {
   const reducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeNode = snakeNodes[activeIndex] ?? snakeNodes[0];
+  const bulletsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onScrollStep = (event: Event) => {
+      const index = (event as CustomEvent<number>).detail;
+      if (typeof index === "number") {
+        setActiveIndex(Math.min(experience.length - 1, Math.max(0, index)));
+      }
+    };
+
+    window.addEventListener("career-scroll-step", onScrollStep);
+    return () => window.removeEventListener("career-scroll-step", onScrollStep);
+  }, []);
+
+  useEffect(() => {
+    if (bulletsRef.current) {
+      bulletsRef.current.scrollTop = 0;
+    }
+  }, [activeIndex]);
 
   return (
     <section id="experience" className="site-section relative overflow-x-clip">
@@ -170,19 +201,20 @@ export function Experience() {
         <SectionHeading
           label="Experience"
           title="Work experience"
-          description="Select a role to view responsibilities and stack."
+          description="Scroll each role on desktop; on mobile, tap a role or scroll and the matching card opens."
         />
 
-        <div className="section-reveal mt-8 min-w-0">
-          <div className="lg:hidden">
-            <CareerMobileAccordion
-              activeIndex={activeIndex}
-              onSelect={setActiveIndex}
-              reducedMotion={reducedMotion}
-            />
-          </div>
+        <div className="section-reveal mt-8 min-w-0 lg:hidden">
+          <CareerMobileAccordion
+            activeIndex={activeIndex}
+            onSelect={setActiveIndex}
+            reducedMotion={reducedMotion}
+          />
+        </div>
 
-          <div className="career-track hidden min-w-0 lg:grid">
+        <div className="career-journey-pin mt-8 hidden min-w-0 lg:block">
+          <div className="career-journey-stage">
+            <div className="career-track min-w-0 lg:grid">
             <div className="career-snake">
               <svg className="career-snake-path" viewBox="0 0 100 420" preserveAspectRatio="none" aria-hidden="true">
                 <defs>
@@ -193,7 +225,8 @@ export function Experience() {
                   </linearGradient>
                 </defs>
                 <path
-                  d="M 50 12 C 78 48, 22 88, 50 118 C 78 158, 22 198, 50 238 C 76 278, 24 318, 50 358 C 72 388, 28 408, 50 412"
+                  className="career-snake-path-draw"
+                  d={SNAKE_PATH_D}
                   fill="none"
                   stroke="url(#careerSnakeGrad)"
                   strokeWidth="2"
@@ -214,10 +247,11 @@ export function Experience() {
                   </linearGradient>
                 </defs>
                 <line
-                  x1={activeNode.x}
-                  y1={activeNode.top}
+                  className="career-snake-connector-line"
+                  x1={50}
+                  y1={snakeNodes[0]?.top ?? 3}
                   x2={100}
-                  y2={activeNode.top}
+                  y2={snakeNodes[0]?.top ?? 3}
                   stroke="url(#careerConnectorGrad)"
                   strokeWidth="0.35"
                   strokeDasharray="1.2 1"
@@ -237,15 +271,20 @@ export function Experience() {
                       aria-pressed={activeIndex === index}
                       aria-label={`${item.role} at ${item.company}`}
                       className={cn(
-                        "career-snake-node group",
+                        "career-journey-step career-snake-node group",
                         activeIndex === index && "is-active",
-                        pos.align === "left" && "career-snake-node--left",
-                        pos.align === "right" && "career-snake-node--right",
                       )}
-                      style={{ top: `${pos.top}%`, left: `${pos.x}%` }}
+                      style={{ top: `${pos.top}%` }}
                     >
                       <span className="career-snake-node-dot" aria-hidden="true" />
-                      <span className="career-snake-node-card">
+                      <span
+                        className={cn(
+                          "career-snake-node-card",
+                          pos.align === "left" && "career-snake-node-card--left",
+                          pos.align === "right" && "career-snake-node-card--right",
+                          pos.align === "center" && "career-snake-node-card--center",
+                        )}
+                      >
                         <span className="line-clamp-2 font-display text-[0.62rem] font-bold leading-snug text-ink sm:text-[0.68rem]">
                           {item.role}
                         </span>
@@ -270,9 +309,11 @@ export function Experience() {
                   key={activeIndex}
                   activeIndex={activeIndex}
                   reducedMotion={reducedMotion}
+                  bulletsRef={bulletsRef}
                 />
               </AnimatePresence>
             </div>
+          </div>
           </div>
         </div>
       </div>

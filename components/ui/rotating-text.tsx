@@ -8,19 +8,20 @@ interface RotatingTextProps {
   items: string[];
   className?: string;
   intervalMs?: number;
+  paused?: boolean;
 }
 
-export function RotatingText({ items, className, intervalMs = 2600 }: RotatingTextProps) {
+export function RotatingText({ items, className, intervalMs = 2600, paused = false }: RotatingTextProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (reduced || items.length < 2) return;
+    if (reduced || paused || items.length < 2) return;
     const id = window.setInterval(() => {
       setIndex((current) => (current + 1) % items.length);
     }, intervalMs);
     return () => window.clearInterval(id);
-  }, [items.length, intervalMs, reduced]);
+  }, [items.length, intervalMs, reduced, paused]);
 
   const current = items[index] ?? items[0];
 

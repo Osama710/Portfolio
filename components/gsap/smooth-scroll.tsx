@@ -16,12 +16,19 @@ export function SmoothScroll() {
       touchMultiplier: 1.2,
     });
 
+    lenis.scrollTo(0, { immediate: true });
+
     lenis.on("scroll", ScrollTrigger.update);
 
     ScrollTrigger.scrollerProxy(document.documentElement, {
       scrollTop(value) {
         if (value !== undefined) {
-          lenis.scrollTo(value, { immediate: true });
+          const current = lenis.scroll;
+          const delta = Math.abs(value - current);
+          lenis.scrollTo(value, {
+            immediate: delta < window.innerHeight * 0.85,
+            force: true,
+          });
         }
         return lenis.scroll;
       },
