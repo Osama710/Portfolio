@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/footer";
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen">
+    <div className="page-enter-shell relative min-h-screen">
       <GsapRoot />
       <SmoothScroll />
       <AmbientBackground />

@@ -25,45 +25,17 @@ const statIcons = [Zap, Rocket, Target];
 
 const heroProof = ["75k+ users on Raptr Wallet", "Payments, KYC & admin systems", "Full-stack · Next.js to FastAPI"];
 
-function finishHeroIntro() {
-  document.documentElement.classList.add("hero-intro-complete");
-  document.querySelector(".scroll-shell")?.classList.add("hero-intro-done");
-  window.dispatchEvent(new CustomEvent("hero-intro-complete"));
-}
-
 export function Hero() {
   const reduced = useReducedMotion();
-  const [introReady, setIntroReady] = useState(reduced ?? false);
+  const [motionReady, setMotionReady] = useState(Boolean(reduced));
 
   useEffect(() => {
-    if (reduced) {
-      finishHeroIntro();
-      setIntroReady(true);
-      return;
-    }
-
-    const banner = document.querySelector<HTMLElement>(".hero-enter");
-    let done = false;
-
-    const complete = () => {
-      if (done) return;
-      done = true;
-      finishHeroIntro();
-      setIntroReady(true);
-    };
-
-    banner?.addEventListener("animationend", complete, { once: true });
-    const fallback = window.setTimeout(complete, 750);
-
-    return () => {
-      banner?.removeEventListener("animationend", complete);
-      window.clearTimeout(fallback);
-    };
-  }, [reduced]);
+    setMotionReady(true);
+  }, []);
 
   return (
     <section id="hero" className="hero-stage relative w-full overflow-x-clip">
-      <div className="hero-banner hero-enter site-container relative flex min-h-[100svh] flex-col justify-center pb-16 pt-[5.25rem] sm:pb-10">
+      <div className="hero-banner site-container relative flex min-h-[100svh] flex-col justify-center pb-16 pt-[5.25rem] sm:pb-10">
         <div className="grid items-center gap-6 overflow-visible lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
           <div className="hero-copy min-w-0">
             <span className="tag-pill border-accent-violet/35 bg-accent-violet/10 text-accent-violet">
@@ -88,7 +60,7 @@ export function Hero() {
 
             <p className="hero-rotator mt-4 flex min-h-[2.75rem] flex-wrap items-baseline gap-x-2 text-lg font-medium leading-snug sm:min-h-[3rem] sm:text-xl">
               <span className="text-ink-muted">I ship</span>
-              <RotatingText items={profile.heroRotations} intervalMs={3000} paused={!introReady} />
+              <RotatingText items={profile.heroRotations} intervalMs={3000} paused={!motionReady} />
             </p>
 
             <p className="hero-lead mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-base sm:leading-relaxed">
@@ -145,7 +117,7 @@ export function Hero() {
                     <StatIcon className="h-3.5 w-3.5 shrink-0 text-accent-cyan/80" aria-hidden="true" />
                     <div>
                       <p className="font-display text-sm font-bold leading-none text-ink sm:text-base">
-                        <AnimatedCounter value={stat.value} suffix={stat.suffix} start={introReady} />
+                        <AnimatedCounter value={stat.value} suffix={stat.suffix} start={motionReady} />
                       </p>
                       <p className="mt-0.5 text-[0.6rem] uppercase tracking-wider text-ink-faint">{stat.label}</p>
                     </div>

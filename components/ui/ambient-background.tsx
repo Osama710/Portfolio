@@ -122,15 +122,6 @@ export function AmbientBackground() {
         scrollTrigger: { ...scrollCfg, scrub: 0.65 },
       });
 
-      gsap.from(".ambient-cluster", {
-        scale: 0.82,
-        autoAlpha: 0,
-        stagger: 0.12,
-        duration: 0.85,
-        ease: "back.out(1.4)",
-        delay: 0.35,
-      });
-
       gsap.to(".ambient-aurora-b", {
         x: "5%",
         y: "-3%",

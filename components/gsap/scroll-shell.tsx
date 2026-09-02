@@ -361,9 +361,6 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
-        document.documentElement.classList.add("hero-intro-complete");
-        root.classList.add("hero-intro-done");
-        window.dispatchEvent(new CustomEvent("hero-intro-complete"));
         gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner, .career-journey-step, .career-track-detail, .project-journey-item, .project-reveal-media, .project-reveal-content, .project-github-item"), {
           clearProps: "all",
           opacity: 1,

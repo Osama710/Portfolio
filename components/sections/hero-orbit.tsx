@@ -54,9 +54,6 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         "hero-orbit relative mx-auto aspect-square w-full max-w-[240px] overflow-visible sm:max-w-[280px] lg:max-w-[340px] xl:max-w-[380px]",
         className,
       )}
-      initial={reduced ? false : { opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.75, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
     >

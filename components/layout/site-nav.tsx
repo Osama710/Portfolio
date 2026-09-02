@@ -47,7 +47,7 @@ export function SiteNav() {
 
   return (
     <>
-      <header className="site-nav-enter fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+      <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
         <nav
           className={cn(
             "site-container flex h-14 min-w-0 max-w-full items-center justify-between rounded-2xl border px-3 transition-all duration-300 sm:px-6",

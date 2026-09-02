@@ -1099,25 +1099,19 @@
     will-change: opacity, transform;
   }
 
-  @keyframes page-enter {
+  @keyframes page-fade-in {
     from {
       opacity: 0;
-      transform: translate3d(0, 14px, 0);
     }
 
     to {
       opacity: 1;
-      transform: translate3d(0, 0, 0);
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .site-nav-enter {
-      animation: page-enter 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    .hero-enter {
-      animation: page-enter 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+    .page-enter-shell {
+      animation: page-fade-in 0.55s ease-out both;
     }
   }
 
@@ -1147,16 +1141,6 @@
   .hero-stats {
     position: relative;
     z-index: 20;
-  }
-
-  .scroll-shell.hero-intro-done .hero-actions,
-  .scroll-shell.hero-intro-done .hero-actions > *,
-  .scroll-shell.hero-intro-done .hero-stat,
-  html.hero-intro-complete .hero-actions,
-  html.hero-intro-complete .hero-actions > *,
-  html.hero-intro-complete .hero-stat {
-    opacity: 1;
-    visibility: visible;
   }
 
   .hero-stage::before {
