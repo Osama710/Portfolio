@@ -1027,31 +1027,24 @@
   }
 
   .hero-banner {
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .scroll-shell:not(.hero-intro-done) .hero-copy .tag-pill,
-    .scroll-shell:not(.hero-intro-done) .hero-name-line,
-    .scroll-shell:not(.hero-intro-done) .hero-rotator,
-    .scroll-shell:not(.hero-intro-done) .hero-lead,
-    .scroll-shell:not(.hero-intro-done) .hero-actions > *,
-    .scroll-shell:not(.hero-intro-done) .hero-location,
-    .scroll-shell:not(.hero-intro-done) .hero-stat,
-    .scroll-shell:not(.hero-intro-done) .hero-proof-item,
-    .scroll-shell:not(.hero-intro-done) .hero-orbit-wrap,
-    .scroll-shell:not(.hero-intro-done) .hero-scroll-cue {
-      opacity: 0;
+    html.hero-intro-pending:not(.hero-intro-complete) .hero-intro-target {
+      opacity: 0 !important;
       visibility: hidden;
-      transform: translate3d(-28px, 12px, 0);
-      filter: blur(8px);
     }
 
-    .scroll-shell:not(.hero-intro-done) .hero-orbit-wrap {
-      transform: translate3d(36px, 0, 0) scale(0.9);
+    html.hero-intro-pending:not(.hero-intro-complete) .hero-intro-target--left {
+      transform: translate3d(-22px, 8px, 0);
     }
 
-    .scroll-shell:not(.hero-intro-done) .hero-signal {
+    html.hero-intro-pending:not(.hero-intro-complete) .hero-intro-target--right {
+      transform: translate3d(26px, 0, 0) scale(0.97);
+    }
+
+    html.hero-intro-pending:not(.hero-intro-complete) .hero-signal {
       transform: scaleX(0);
     }
   }
@@ -1086,7 +1079,10 @@
 
   .scroll-shell.hero-intro-done .hero-actions,
   .scroll-shell.hero-intro-done .hero-actions > *,
-  .scroll-shell.hero-intro-done .hero-stat {
+  .scroll-shell.hero-intro-done .hero-stat,
+  html.hero-intro-complete .hero-actions,
+  html.hero-intro-complete .hero-actions > *,
+  html.hero-intro-complete .hero-stat {
     opacity: 1;
     visibility: visible;
   }

@@ -60,130 +60,8 @@ function aboutTargets(root: HTMLElement) {
   );
 }
 
-function heroIntroTargets(root: HTMLElement) {
-  return root.querySelectorAll(
-    ".hero-copy .tag-pill, .hero-name-line, .hero-rotator, .hero-lead, .hero-actions, .hero-actions > *, .hero-location, .hero-stats, .hero-stat, .hero-proof-item",
-  );
-}
-
-function finalizeHeroCopy(root: HTMLElement) {
-  gsap.set(heroIntroTargets(root), {
-    autoAlpha: 1,
-    opacity: 1,
-    visibility: "visible",
-    y: 0,
-    x: 0,
-    scale: 1,
-    filter: "none",
-  });
-
-  gsap.set(root.querySelector(".hero-signal"), { scaleX: 1, autoAlpha: 1 });
-
-  gsap.set(root.querySelectorAll(".hero-orbit-wrap, .hero-scroll-cue"), {
-    autoAlpha: 1,
-    visibility: "visible",
-    y: 0,
-    scale: 1,
-    rotate: 0,
-    filter: "none",
-  });
-
-  root.classList.add("hero-intro-done");
-  window.dispatchEvent(new CustomEvent("hero-intro-complete"));
-}
-
-function setupHeroIntro(root: HTMLElement) {
-  const scrollCue = root.querySelector(".hero-scroll-cue");
-  const signal = root.querySelector(".hero-signal");
-  const proof = root.querySelectorAll(".hero-proof-item");
-  const orbit = heroOrbitNodes(root);
-  const copyTargets = heroIntroTargets(root);
-  const nameLines = root.querySelectorAll(".hero-name-line");
-  const rotator = root.querySelectorAll(".hero-rotator");
-  const lead = root.querySelectorAll(".hero-lead");
-  const actions = root.querySelectorAll(".hero-actions > *");
-  const location = root.querySelectorAll(".hero-location");
-  const stats = root.querySelectorAll(".hero-stat");
-  const tagPill = root.querySelectorAll(".hero-copy .tag-pill");
-  let introFinished = false;
-
-  const completeIntro = () => {
-    if (introFinished) return;
-    introFinished = true;
-    finalizeHeroCopy(root);
-  };
-
-  root.classList.remove("hero-intro-done");
-
-  gsap.set(scrollCue, { autoAlpha: 0, y: 16, x: 0 });
+function setupAboutInitialHide(root: HTMLElement) {
   gsap.set(aboutTargets(root), { autoAlpha: 0, y: 32 });
-  gsap.set(copyTargets, { autoAlpha: 0, x: -36, y: 22, filter: "blur(10px)" });
-  gsap.set(nameLines, { autoAlpha: 0, x: -48, y: 32, filter: "blur(12px)" });
-  gsap.set(signal, { scaleX: 0, autoAlpha: 1, transformOrigin: "0% 50%" });
-  gsap.set(proof, { autoAlpha: 0, x: -24, y: 16, filter: "blur(8px)" });
-  gsap.set(stats, { autoAlpha: 0, x: -20, y: 18, scale: 0.94, filter: "blur(6px)" });
-  gsap.set(orbit.wrap, { autoAlpha: 0, x: 52, scale: 0.88, rotate: -8, filter: "blur(8px)" });
-  gsap.set(orbit.chips, { autoAlpha: 0, scale: 0, filter: "blur(4px)" });
-  gsap.set(orbit.ring, { autoAlpha: 0, scale: 0.72, filter: "blur(6px)" });
-
-  gsap
-    .timeline({
-      defaults: { ease: "power3.out" },
-      onComplete: completeIntro,
-    })
-    .fromTo(
-      root.querySelector(".hero-stage"),
-      { opacity: 0.88 },
-      { opacity: 1, duration: 0.7, ease: "power2.out" },
-      0,
-    )
-    .to(
-      tagPill,
-      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.62, ease: "back.out(1.4)" },
-      0.1,
-    )
-    .to(
-      nameLines,
-      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.12, duration: 0.9, ease: "power4.out" },
-      0.22,
-    )
-    .to(signal, { scaleX: 1, duration: 0.65, ease: "power2.inOut" }, 0.46)
-    .to(
-      proof,
-      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "power3.out" },
-      0.52,
-    )
-    .to(rotator, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.55 }, 0.62)
-    .to(lead, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.52 }, 0.7)
-    .to(
-      actions,
-      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "back.out(1.35)" },
-      0.78,
-    )
-    .to(location, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.45 }, 0.92)
-    .to(
-      stats,
-      { autoAlpha: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)", stagger: 0.08, duration: 0.55, ease: "back.out(1.5)" },
-      1,
-    )
-    .to(
-      orbit.wrap,
-      { autoAlpha: 1, x: 0, scale: 1, rotate: 0, filter: "blur(0px)", duration: 1.15, ease: "back.out(1.55)" },
-      0.14,
-    )
-    .to(
-      orbit.ring,
-      { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "power2.out" },
-      0.28,
-    )
-    .to(
-      orbit.chips,
-      { autoAlpha: 1, scale: 1, filter: "blur(0px)", stagger: 0.06, duration: 0.52, ease: "back.out(2)" },
-      0.72,
-    )
-    .to(scrollCue, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power2.out" }, 1.18);
-
-  gsap.delayedCall(2.4, () => completeIntro());
 }
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
@@ -461,7 +339,7 @@ function unlockInteractivePanels(root: HTMLElement) {
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
-  setupHeroIntro(root);
+  setupAboutInitialHide(root);
   mediaStores.push(setupHeroToAboutTransition(root));
   setupAboutGate(root, mediaStores);
   setupSectionGates(root, mediaStores);
@@ -483,6 +361,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
+        document.documentElement.classList.add("hero-intro-complete");
         root.classList.add("hero-intro-done");
         window.dispatchEvent(new CustomEvent("hero-intro-complete"));
         gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner, .career-journey-step, .career-track-detail, .project-journey-item, .project-reveal-media, .project-reveal-content, .project-github-item"), {
