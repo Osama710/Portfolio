@@ -14,21 +14,23 @@ function dispatchCareerStep(index: number) {
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
 }
 
+function buildStepScrollPx() {
+  return experience.map((item, index) => {
+    const base = 480;
+    const perBullet = 28;
+    const leadBonus = index === 0 ? 160 : 0;
+    return base + item.bullets.length * perBullet + leadBonus;
+  });
+}
+
 function journeyScrollPx() {
-  return experience.reduce((sum, item, index) => {
-    const base = index === 0 ? 560 : 400;
-    const perBullet = index === 0 ? 90 : 42;
-    return sum + base + item.bullets.length * perBullet;
-  }, 0);
+  return buildStepScrollPx().reduce((sum, px) => sum + px, 0);
 }
 
 function buildStepWeights() {
-  const raw = experience.map((item, index) => {
-    if (index === 0) return 18 + item.bullets.length * 4.5;
-    return 9 + item.bullets.length * 1.85;
-  });
-  const sum = raw.reduce((acc, value) => acc + value, 0);
-  return raw.map((value) => value / sum);
+  const stepPx = buildStepScrollPx();
+  const total = stepPx.reduce((sum, px) => sum + px, 0);
+  return stepPx.map((px) => px / total);
 }
 
 function stepThreshold(weights: number[], index: number) {
@@ -335,14 +337,6 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
         invalidateOnRefresh: true,
       });
 
-      ScrollTrigger.create({
-        trigger: step,
-        start: "top 62%",
-        end: "bottom 38%",
-        onEnter: () => dispatchCareerStep(i),
-        onEnterBack: () => dispatchCareerStep(i),
-        invalidateOnRefresh: true,
-      });
     });
   });
 

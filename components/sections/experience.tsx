@@ -126,45 +126,63 @@ function CareerDetailPanel({
   );
 }
 
-function CareerMobileAccordion({
+function CareerMobileTimeline({
   activeIndex,
   onSelect,
   reducedMotion,
 }: {
-  activeIndex: number;
+  activeIndex: number | null;
   onSelect: (index: number) => void;
   reducedMotion: boolean | null;
 }) {
   return (
-    <div className="career-mobile-shell min-w-0 space-y-2">
+    <div className="career-mobile-shell career-mobile-timeline min-w-0">
+      <div className="career-mobile-timeline-rail" aria-hidden="true" />
       {experience.map((item, index) => {
-        const isActive = activeIndex === index;
+        const isOpen = activeIndex === index;
         return (
           <div key={`${item.company}-${item.period}`} className="career-journey-step career-mobile-entry min-w-0">
             <button
               type="button"
               onClick={() => onSelect(index)}
-              aria-expanded={isActive}
-              aria-pressed={isActive}
-              className={cn("career-mobile-item w-full text-left", isActive && "is-active")}
+              aria-expanded={isOpen}
+              className={cn("career-mobile-item career-mobile-card w-full text-left", isOpen && "is-active")}
             >
+              <span
+                className={cn("career-mobile-dot", isOpen && "is-active")}
+                aria-hidden="true"
+              />
               <span className="font-mono text-[0.6rem] uppercase tracking-widest text-accent-cyan">{item.period}</span>
               <span className="mt-1 block break-words font-display text-sm font-bold leading-snug text-ink">
                 {item.role}
               </span>
               <span className="mt-0.5 block break-words text-xs leading-snug text-accent-violet">{item.company}</span>
+              <span className="mt-2 block text-[0.65rem] leading-snug text-ink-muted line-clamp-2">
+                {item.bullets[0]}
+              </span>
               {item.current ? (
                 <span className="mt-2 inline-block rounded-full bg-accent-coral/15 px-2 py-0.5 text-[0.58rem] font-semibold uppercase text-accent-coral">
                   Present
                 </span>
               ) : null}
+              <span className="career-mobile-chevron" aria-hidden="true">
+                {isOpen ? "−" : "+"}
+              </span>
             </button>
 
-            {isActive ? (
-              <div className="career-mobile-detail mt-2 min-w-0">
-                <CareerDetailPanel activeIndex={index} reducedMotion={reducedMotion} compact staticEnter />
-              </div>
-            ) : null}
+            <AnimatePresence initial={false}>
+              {isOpen ? (
+                <motion.div
+                  initial={reducedMotion ? false : { height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={reducedMotion ? undefined : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                  className="career-mobile-detail mt-2 min-w-0 overflow-hidden"
+                >
+                  <CareerDetailPanel activeIndex={index} reducedMotion={reducedMotion} compact staticEnter />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         );
       })}
@@ -174,10 +192,14 @@ function CareerMobileAccordion({
 
 export function Experience() {
   const reducedMotion = useReducedMotion();
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [mobileOpenIndex, setMobileOpenIndex] = useState<number | null>(null);
   const bulletsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    if (!mq.matches) return;
+
     const onScrollStep = (event: Event) => {
       const index = (event as CustomEvent<number>).detail;
       if (typeof index === "number") {
@@ -195,19 +217,23 @@ export function Experience() {
     }
   }, [activeIndex]);
 
+  const handleMobileSelect = (index: number) => {
+    setMobileOpenIndex((prev) => (prev === index ? null : index));
+  };
+
   return (
     <section id="experience" className="site-section relative overflow-x-clip">
       <div className="site-container min-w-0">
         <SectionHeading
           label="Experience"
           title="Work experience"
-          description="Scroll each role on desktop; on mobile, tap a role or scroll and the matching card opens."
+          description="Scroll through each role on desktop. On mobile, tap a role to expand the details."
         />
 
         <div className="section-reveal mt-8 min-w-0 lg:hidden">
-          <CareerMobileAccordion
-            activeIndex={activeIndex}
-            onSelect={setActiveIndex}
+          <CareerMobileTimeline
+            activeIndex={mobileOpenIndex}
+            onSelect={handleMobileSelect}
             reducedMotion={reducedMotion}
           />
         </div>

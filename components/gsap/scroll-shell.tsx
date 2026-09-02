@@ -99,25 +99,37 @@ function setupHeroIntro(root: HTMLElement) {
   const orbit = heroOrbitNodes(root);
   const copyTargets = heroIntroTargets(root);
   const nameLines = root.querySelectorAll(".hero-name-line");
+  const rotator = root.querySelectorAll(".hero-rotator");
+  const lead = root.querySelectorAll(".hero-lead");
+  const actions = root.querySelectorAll(".hero-actions > *");
+  const location = root.querySelectorAll(".hero-location");
+  const stats = root.querySelectorAll(".hero-stat");
+  const tagPill = root.querySelectorAll(".hero-copy .tag-pill");
+  let introFinished = false;
+
+  const completeIntro = () => {
+    if (introFinished) return;
+    introFinished = true;
+    finalizeHeroCopy(root);
+  };
 
   root.classList.remove("hero-intro-done");
 
-  gsap.set(scrollCue, { autoAlpha: 0, y: 12 });
+  gsap.set(scrollCue, { autoAlpha: 0, y: 16, x: 0 });
   gsap.set(aboutTargets(root), { autoAlpha: 0, y: 32 });
-  gsap.set(copyTargets, { autoAlpha: 0, y: 26, filter: "blur(10px)" });
-  gsap.set(nameLines, { autoAlpha: 0, y: 36, filter: "blur(12px)" });
+  gsap.set(copyTargets, { autoAlpha: 0, x: -36, y: 22, filter: "blur(10px)" });
+  gsap.set(nameLines, { autoAlpha: 0, x: -48, y: 32, filter: "blur(12px)" });
   gsap.set(signal, { scaleX: 0, autoAlpha: 1, transformOrigin: "0% 50%" });
-  gsap.set(proof, { autoAlpha: 0, y: 18, filter: "blur(8px)" });
-  gsap.set(root.querySelectorAll(".hero-stat"), { scale: 0.94 });
-  gsap.set(orbit.wrap, { autoAlpha: 0, scale: 0.42, rotate: -14, filter: "blur(8px)" });
+  gsap.set(proof, { autoAlpha: 0, x: -24, y: 16, filter: "blur(8px)" });
+  gsap.set(stats, { autoAlpha: 0, x: -20, y: 18, scale: 0.94, filter: "blur(6px)" });
+  gsap.set(orbit.wrap, { autoAlpha: 0, x: 52, scale: 0.88, rotate: -8, filter: "blur(8px)" });
   gsap.set(orbit.chips, { autoAlpha: 0, scale: 0, filter: "blur(4px)" });
-  gsap.set(orbit.ring, { autoAlpha: 0, scale: 0.65, filter: "blur(6px)" });
+  gsap.set(orbit.ring, { autoAlpha: 0, scale: 0.72, filter: "blur(6px)" });
 
   gsap
     .timeline({
       defaults: { ease: "power3.out" },
-      onComplete: () => finalizeHeroCopy(root),
-      onInterrupt: () => finalizeHeroCopy(root),
+      onComplete: completeIntro,
     })
     .fromTo(
       root.querySelector(".hero-stage"),
@@ -126,49 +138,37 @@ function setupHeroIntro(root: HTMLElement) {
       0,
     )
     .to(
-      root.querySelectorAll(".hero-copy .tag-pill"),
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.62, ease: "back.out(1.4)" },
+      tagPill,
+      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.62, ease: "back.out(1.4)" },
       0.1,
     )
     .to(
       nameLines,
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.12, duration: 0.9, ease: "power4.out" },
+      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.12, duration: 0.9, ease: "power4.out" },
       0.22,
     )
     .to(signal, { scaleX: 1, duration: 0.65, ease: "power2.inOut" }, 0.46)
     .to(
       proof,
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "power3.out" },
+      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "power3.out" },
       0.52,
     )
+    .to(rotator, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.55 }, 0.62)
+    .to(lead, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.52 }, 0.7)
     .to(
-      root.querySelectorAll(".hero-rotator"),
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.55 },
-      0.62,
-    )
-    .to(
-      root.querySelectorAll(".hero-lead"),
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.52 },
-      0.7,
-    )
-    .to(
-      root.querySelectorAll(".hero-actions > *"),
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "back.out(1.35)" },
+      actions,
+      { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", stagger: 0.07, duration: 0.48, ease: "back.out(1.35)" },
       0.78,
     )
+    .to(location, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.45 }, 0.92)
     .to(
-      root.querySelectorAll(".hero-location"),
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.45 },
-      0.92,
-    )
-    .to(
-      root.querySelectorAll(".hero-stat"),
-      { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", stagger: 0.08, duration: 0.55, ease: "back.out(1.5)" },
+      stats,
+      { autoAlpha: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)", stagger: 0.08, duration: 0.55, ease: "back.out(1.5)" },
       1,
     )
     .to(
       orbit.wrap,
-      { autoAlpha: 1, scale: 1, rotate: 0, filter: "blur(0px)", duration: 1.15, ease: "back.out(1.55)" },
+      { autoAlpha: 1, x: 0, scale: 1, rotate: 0, filter: "blur(0px)", duration: 1.15, ease: "back.out(1.55)" },
       0.14,
     )
     .to(
@@ -183,7 +183,7 @@ function setupHeroIntro(root: HTMLElement) {
     )
     .to(scrollCue, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power2.out" }, 1.18);
 
-  gsap.delayedCall(2.1, () => finalizeHeroCopy(root));
+  gsap.delayedCall(2.4, () => completeIntro());
 }
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
@@ -285,11 +285,8 @@ function gateSection(root: HTMLElement, sectionId: string, nextSectionId?: strin
     ScrollTrigger.create({
       trigger: `#${sectionId}`,
       start: "top 86%",
-      end: "bottom 14%",
+      once: true,
       onEnter: () => showTargets(targets),
-      onLeave: () => hideTargets(targets),
-      onEnterBack: () => showTargets(targets),
-      onLeaveBack: () => hideTargets(targets),
       invalidateOnRefresh: true,
     });
   });
@@ -398,11 +395,8 @@ function batchSectionElements(
     ScrollTrigger.create({
       trigger: `#${sectionId}`,
       start: "top 86%",
-      end: "bottom 14%",
+      once: true,
       onEnter: show,
-      onLeave: hide,
-      onEnterBack: show,
-      onLeaveBack: hide,
       invalidateOnRefresh: true,
     });
   });
@@ -519,7 +513,6 @@ export function ScrollShell({ children }: { children: ReactNode }) {
         window.removeEventListener("orientationchange", refresh);
         window.removeEventListener("hashchange", refresh);
         window.visualViewport?.removeEventListener("resize", refresh);
-        if (root) finalizeHeroCopy(root);
         mediaStores.forEach((mm) => mm.revert());
         delete document.documentElement.dataset.section;
       };
