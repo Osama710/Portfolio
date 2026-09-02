@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import {
-  Cloud,
   Code2,
   CreditCard,
   Database,
@@ -39,7 +38,6 @@ const clusters: Cluster[] = [
     tone: "violet",
     hub: Code2,
     ring: 118,
-    mobile: true,
     icons: [
       { Icon: Layers, start: 0, duration: 16 },
       { Icon: GitBranch, start: 120, duration: 18 },
@@ -54,10 +52,7 @@ const clusters: Cluster[] = [
     hub: Server,
     ring: 108,
     mobile: true,
-    icons: [
-      { Icon: Database, start: 40, duration: 17 },
-      { Icon: Cloud, start: 200, duration: 19 },
-    ],
+    icons: [{ Icon: Database, start: 40, duration: 17 }],
   },
   {
     id: "fintech",
@@ -66,7 +61,6 @@ const clusters: Cluster[] = [
     tone: "coral",
     hub: CreditCard,
     ring: 112,
-    mobile: true,
     icons: [
       { Icon: Shield, start: 80, duration: 18 },
       { Icon: Database, start: 260, duration: 21 },
