@@ -89,7 +89,7 @@ export const heroHighlights = [
   },
 ] as const;
 
-export const heroTraits = ["Full-time & contract", "Frontend → backend", "Open to relocation"] as const;
+export const heroTraits = ["Full-time & contract", "Frontend → backend"] as const;
 
 export const heroServiceLinks = [
   { label: "Frontend UI", href: "#capabilities" },

@@ -67,7 +67,7 @@ function setupAboutInitialHide(root: HTMLElement) {
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const heroFadeTargets = root.querySelectorAll(
-    ".hero-copy .hero-live-pill, .hero-copy .hero-trait-pill, .hero-copy .hero-name-line, .hero-copy .hero-signal, .hero-copy .hero-stack-pill, .hero-copy .hero-rotator-live, .hero-copy .hero-lead, .hero-copy .hero-bento, .hero-copy .hero-services, .hero-copy .hero-actions, .hero-copy .hero-location, .hero-copy .hero-orbit-wrap-mobile",
+    ".hero-copy .hero-live-pill, .hero-copy .hero-trait-pill, .hero-copy .hero-name-line, .hero-copy .hero-signal, .hero-copy .hero-rotator-line, .hero-copy .hero-lead, .hero-copy .hero-bento, .hero-copy .hero-services, .hero-copy .hero-actions, .hero-copy .hero-location, .hero-copy .hero-orbit-wrap-mobile",
   );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);

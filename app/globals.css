@@ -1099,6 +1099,21 @@
     will-change: opacity, transform;
   }
 
+  .hero-typewriter-cursor {
+    animation: hero-cursor-blink 1s step-end infinite;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-bento-card {
+      padding: 0.65rem 0.72rem;
+    }
+
+    .hero-service-link {
+      padding: 0.32rem 0.55rem;
+      font-size: 0.62rem;
+    }
+  }
+
   @keyframes page-fade-in {
     from {
       opacity: 0;
@@ -2314,6 +2329,17 @@
   50% {
     opacity: 0.55;
     transform: scale(0.88);
+  }
+}
+
+@keyframes hero-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
   }
 }
 

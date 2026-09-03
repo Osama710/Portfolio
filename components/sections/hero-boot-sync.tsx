@@ -2,7 +2,7 @@
 
 import { useLayoutEffect } from "react";
 
-/** Re-sync hero counters + rotator the instant React hydrates (no 4s wait). */
+/** Re-sync hero counters only if hydration reset them to empty/zero. */
 export function HeroBootSync() {
   useLayoutEffect(() => {
     window.dispatchEvent(new Event("hero:resync"));
