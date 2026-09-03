@@ -61,7 +61,7 @@ export function Hero() {
               </div>
 
               <p
-                className="hero-reveal hero-lead text-sm text-ink-muted sm:text-[0.94rem]"
+                className="hero-reveal hero-lead text-md text-ink-muted sm:text-[1rem]"
                 style={{ animationDelay: "0.28s" }}
               >
                 {profile.heroLead}
@@ -78,9 +78,9 @@ export function Hero() {
                     <p className="hero-stat-value text-ink">
                       {"counter" in item && item.counter ? (
                         <HeroAnimatedCounter
+                          counterId={`hero-stat-${item.label}`}
                           value={item.counter.value}
                           suffix={item.counter.suffix}
-                          duration={1800}
                         />
                       ) : (
                         item.value

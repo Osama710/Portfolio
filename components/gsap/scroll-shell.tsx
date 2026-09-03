@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, motionAllowed, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap/register";
+import { getScrollY, onScrollReady, restoreScrollY } from "@/lib/gsap/scroll-preserve";
 import { setupExperienceJourney, setupProjectJourney } from "@/components/gsap/journey-reveals";
 
 const SECTIONS = [
@@ -42,6 +43,20 @@ function setActiveSection(root: HTMLElement, sectionId: string) {
   });
 }
 
+function syncActiveSectionFromScroll(root: HTMLElement) {
+  let active: (typeof SECTIONS)[number]["id"] = "hero";
+  const marker = window.innerHeight * 0.45;
+
+  for (const section of SECTIONS) {
+    const el = root.querySelector(`#${section.id}`);
+    if (!el) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= marker) active = section.id;
+  }
+
+  setActiveSection(root, active);
+}
+
 function setupSectionTracking(root: HTMLElement) {
   SECTIONS.forEach((s) => {
     ScrollTrigger.create({
@@ -60,8 +75,46 @@ function aboutTargets(root: HTMLElement) {
   );
 }
 
-function setupAboutInitialHide(root: HTMLElement) {
-  gsap.set(aboutTargets(root), { autoAlpha: 0, y: 32 });
+function unlockInteractivePanels(root: HTMLElement) {
+  gsap.utils.toArray<HTMLElement>(
+    root.querySelectorAll(".career-mobile-shell, .career-detail-panel, .career-track-detail"),
+  ).forEach((el) => {
+    gsap.set(el, { clearProps: "opacity,visibility,transform,filter" });
+  });
+}
+
+function stabilizeSectionContent(root: HTMLElement) {
+  const general = [
+    ".section-reveal",
+    ".section-label",
+    ".section-heading-block",
+    ".skills-loadout-strip",
+    ".skill-orbit-shell",
+    ".skill-module-panel",
+    ".capability-slot",
+    ".capability-briefing",
+    ".edu-degree-panel",
+    ".edu-cert-panel",
+    ".edu-cert-card",
+    ".contact-methods",
+    ".contact-form",
+    ".project-journey-item",
+    ".project-github-item",
+    ".project-reveal-media",
+    ".project-reveal-content",
+    ".career-journey-step",
+    ".career-mobile-shell",
+    ".career-detail-panel",
+  ].join(", ");
+
+  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(general)).forEach((el) => {
+    if (el.closest("#about")) return;
+    gsap.set(el, { clearProps: "opacity,visibility,transform,filter" });
+  });
+
+  gsap.utils.toArray<HTMLElement>(aboutTargets(root)).forEach((el) => {
+    gsap.set(el, { clearProps: "opacity,visibility,filter" });
+  });
 }
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
@@ -83,7 +136,6 @@ function setupHeroToAboutTransition(root: HTMLElement) {
           start: "top top",
           end: "80% top",
           scrub: 0.55,
-          invalidateOnRefresh: true,
         },
       })
       .fromTo(
@@ -108,8 +160,8 @@ function setupHeroToAboutTransition(root: HTMLElement) {
       )
       .fromTo(
         about,
-        { y: 32, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, stagger: 0.05, ease: "power3.out" },
+        { y: 32 },
+        { y: 0, stagger: 0.05, ease: "power3.out" },
         fadeStart + 0.08,
       );
   };
@@ -120,232 +172,29 @@ function setupHeroToAboutTransition(root: HTMLElement) {
   return mm;
 }
 
-function sectionBlock(root: HTMLElement, sectionId: string) {
-  if (sectionId === "experience") {
-    return root.querySelectorAll(`#${sectionId} .section-label, #${sectionId} .section-heading-block`);
-  }
-
-  return root.querySelectorAll(
-    `#${sectionId} .section-label, #${sectionId} .section-heading-block, #${sectionId} .section-reveal`,
-  );
-}
-
-function showTargets(targets: gsap.TweenTarget, stagger = 0.07) {
-  gsap.to(targets, {
-    autoAlpha: 1,
-    y: 0,
-    duration: 0.65,
-    ease: "power3.out",
-    stagger,
-    overwrite: "auto",
-  });
-}
-
-function hideTargets(targets: gsap.TweenTarget, stagger = 0.04) {
-  gsap.to(targets, {
-    autoAlpha: 0,
-    y: 36,
-    duration: 0.42,
-    ease: "power2.in",
-    stagger,
-    overwrite: "auto",
-  });
-}
-
-function gateSection(root: HTMLElement, sectionId: string, nextSectionId?: string) {
-  const targets = sectionBlock(root, sectionId);
-  if (!targets.length) return;
-
-  gsap.set(targets, { autoAlpha: 0, y: 40 });
-
-  const mm = gsap.matchMedia();
-
-  mm.add("(min-width: 1024px)", () => {
-    ScrollTrigger.create({
-      trigger: `#${sectionId}`,
-      start: "top 86%",
-      once: true,
-      onEnter: () => showTargets(targets),
-      invalidateOnRefresh: true,
-    });
-  });
-
-  mm.add("(max-width: 1023px)", () => {
-    ScrollTrigger.create({
-      trigger: `#${sectionId}`,
-      start: "top 92%",
-      onEnter: () => showTargets(targets),
-      onEnterBack: () => showTargets(targets),
-      invalidateOnRefresh: true,
-    });
-
-    if (nextSectionId) {
-      ScrollTrigger.create({
-        trigger: `#${nextSectionId}`,
-        start: MOBILE_NEXT_VISIBLE,
-        onEnter: () => hideTargets(targets),
-        onLeaveBack: () => showTargets(targets),
-        invalidateOnRefresh: true,
-      });
-    } else {
-      ScrollTrigger.create({
-        trigger: `#${sectionId}`,
-        start: "bottom top+=12%",
-        onEnter: () => hideTargets(targets),
-        onLeaveBack: () => showTargets(targets),
-        invalidateOnRefresh: true,
-      });
-    }
-  });
-
-  return mm;
-}
-
-function setupSectionGates(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
-  const gated = SECTIONS.slice(2);
-  gated.forEach((s, index) => {
-    const mm = gateSection(root, s.id, gated[index + 1]?.id);
-    if (mm) mediaStores.push(mm);
-  });
-}
-
-function setupAboutGate(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
-  const targets = aboutTargets(root);
-  const mm = gsap.matchMedia();
-
-  mm.add("(min-width: 1024px)", () => {
-    ScrollTrigger.create({
-      trigger: "#about",
-      start: "bottom 14%",
-      end: "bottom top",
-      onEnter: () => hideTargets(targets, 0.03),
-      onLeaveBack: () => showTargets(targets, 0.05),
-      invalidateOnRefresh: true,
-    });
-  });
-
-  mm.add("(max-width: 1023px)", () => {
-    ScrollTrigger.create({
-      trigger: "#skills",
-      start: MOBILE_NEXT_VISIBLE,
-      onEnter: () => hideTargets(targets, 0.03),
-      onLeaveBack: () => showTargets(targets, 0.05),
-      invalidateOnRefresh: true,
-    });
-  });
-
-  mediaStores.push(mm);
-}
-
-function batchSectionElements(
-  root: HTMLElement,
-  selector: string,
-  sectionId: string,
-  nextSectionId?: string,
-) {
-  const elements = root.querySelectorAll(selector);
-  if (!elements.length) return;
-
-  gsap.set(elements, { autoAlpha: 0, y: 28 });
-
-  const show = () =>
-    gsap.to(elements, {
-      autoAlpha: 1,
-      y: 0,
-      duration: 0.58,
-      ease: "power3.out",
-      stagger: 0.07,
-      overwrite: "auto",
-    });
-
-  const hide = () =>
-    gsap.to(elements, {
-      autoAlpha: 0,
-      y: 24,
-      duration: 0.38,
-      ease: "power2.in",
-      stagger: 0.04,
-      overwrite: "auto",
-    });
-
-  const mm = gsap.matchMedia();
-
-  mm.add("(min-width: 1024px)", () => {
-    ScrollTrigger.create({
-      trigger: `#${sectionId}`,
-      start: "top 86%",
-      once: true,
-      onEnter: show,
-      invalidateOnRefresh: true,
-    });
-  });
-
-  mm.add("(max-width: 1023px)", () => {
-    ScrollTrigger.create({
-      trigger: `#${sectionId}`,
-      start: "top 92%",
-      onEnter: show,
-      onEnterBack: show,
-      invalidateOnRefresh: true,
-    });
-
-    if (nextSectionId) {
-      ScrollTrigger.create({
-        trigger: `#${nextSectionId}`,
-        start: MOBILE_NEXT_VISIBLE,
-        onEnter: hide,
-        onLeaveBack: show,
-        invalidateOnRefresh: true,
-      });
-    } else {
-      ScrollTrigger.create({
-        trigger: `#${sectionId}`,
-        start: "bottom top+=12%",
-        onEnter: hide,
-        onLeaveBack: show,
-        invalidateOnRefresh: true,
-      });
-    }
-  });
-
-  return mm;
-}
-
-function setupSectionElementBatches(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
-  const pairs: [string, string, string?][] = [
-    ["#skills .skills-loadout-strip, #skills .skill-orbit-shell, #skills .skill-module-panel", "skills", "experience"],
-    ["#capabilities .capability-slot, #capabilities .capability-briefing", "capabilities", "education"],
-    ["#education .edu-degree-panel, #education .edu-cert-panel, #education .edu-cert-card", "education", "contact"],
-    ["#contact .contact-methods, #contact .contact-form", "contact", undefined],
-  ];
-
-  pairs.forEach(([selector, id, next]) => {
-    const mm = batchSectionElements(root, selector, id, next);
-    if (mm) mediaStores.push(mm);
-  });
-
-  setupExperienceJourney(root, mediaStores);
-  setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
-}
-
-function unlockInteractivePanels(root: HTMLElement) {
-  gsap.set(root.querySelectorAll(".career-mobile-shell, .career-detail-panel, .career-track-detail"), {
-    autoAlpha: 1,
-    visibility: "visible",
-    x: 0,
-    y: 0,
-    clearProps: "transform",
-  });
-}
-
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
-  setupAboutInitialHide(root);
   mediaStores.push(setupHeroToAboutTransition(root));
-  setupAboutGate(root, mediaStores);
-  setupSectionGates(root, mediaStores);
-  setupSectionElementBatches(root, mediaStores);
+  setupExperienceJourney(root, mediaStores);
+  setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
   unlockInteractivePanels(root);
+}
+
+let scrollEngineStores: ReturnType<typeof gsap.matchMedia>[] = [];
+let scrollEngineReady = false;
+
+function ensureScrollEngine(root: HTMLElement) {
+  if (scrollEngineReady) return;
+
+  const scrollY = getScrollY();
+  setupScrollExperience(root, scrollEngineStores);
+  ScrollTrigger.sort();
+  ScrollTrigger.update();
+  stabilizeSectionContent(root);
+  syncActiveSectionFromScroll(root);
+  restoreScrollY(scrollY);
+  document.documentElement.dataset.scrollReady = "1";
+  scrollEngineReady = true;
 }
 
 export function ScrollShell({ children }: { children: ReactNode }) {
@@ -358,8 +207,6 @@ export function ScrollShell({ children }: { children: ReactNode }) {
 
       const root = wrapRef.current;
       if (!root) return;
-
-      const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
 
       if (!motionAllowed()) {
         gsap.set(root.querySelectorAll(".section-reveal, .section-heading-block, .section-label, .hero-copy, .hero-orbit-wrap, .hero-scroll-cue, .hero-banner, .career-journey-step, .career-track-detail, .project-journey-item, .project-reveal-media, .project-reveal-content, .project-github-item"), {
@@ -375,29 +222,16 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       }
 
       let cancelled = false;
+
       const bootScroll = () => {
         if (cancelled || !root) return;
-        setupScrollExperience(root, mediaStores);
-        setActiveSection(root, "hero");
+        ensureScrollEngine(root);
       };
 
-      const bootId = window.setTimeout(bootScroll, 50);
-
-      const refresh = () => ScrollTrigger.refresh();
-      window.addEventListener("resize", refresh, { passive: true });
-      window.addEventListener("orientationchange", refresh);
-      window.addEventListener("hashchange", refresh);
-      window.visualViewport?.addEventListener("resize", refresh);
-      window.setTimeout(refresh, 320);
+      onScrollReady(bootScroll);
 
       return () => {
         cancelled = true;
-        window.clearTimeout(bootId);
-        window.removeEventListener("resize", refresh);
-        window.removeEventListener("orientationchange", refresh);
-        window.removeEventListener("hashchange", refresh);
-        window.visualViewport?.removeEventListener("resize", refresh);
-        mediaStores.forEach((mm) => mm.revert());
         delete document.documentElement.dataset.section;
       };
     },

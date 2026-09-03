@@ -154,8 +154,8 @@ function playProjectReveal(item: HTMLElement, index: number) {
   if (media) {
     tl.fromTo(
       media,
-      { autoAlpha: 0, scale: 1.1, y: 28, filter: "blur(8px)", rotateX: 6 },
-      { autoAlpha: 1, scale: 1, y: 0, filter: "blur(0px)", rotateX: 0, duration: 0.82 },
+      { scale: 1.06, y: 18, filter: "blur(4px)" },
+      { scale: 1, y: 0, filter: "blur(0px)", autoAlpha: 1, duration: 0.82 },
       0,
     );
   }
@@ -163,14 +163,14 @@ function playProjectReveal(item: HTMLElement, index: number) {
   if (content) {
     tl.fromTo(
       content,
-      { autoAlpha: 0, y: 36, x: index % 2 === 0 ? -28 : 28 },
-      { autoAlpha: 1, y: 0, x: 0, duration: 0.68 },
+      { y: 24, x: index % 2 === 0 ? -16 : 16, autoAlpha: 1 },
+      { y: 0, x: 0, autoAlpha: 1, duration: 0.68 },
       0.14,
     );
   }
 
   if (!media && !content) {
-    tl.fromTo(item, { autoAlpha: 0, y: 32 }, { autoAlpha: 1, y: 0, duration: 0.65 }, 0);
+    tl.fromTo(item, { y: 20, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: 0.65 }, 0);
   }
 
   return tl;
@@ -315,7 +315,7 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     const steps = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(MOBILE_CAREER_STEP));
 
     steps.forEach((step, i) => {
-      gsap.set(step, { autoAlpha: 0, y: 40, rotateX: 10, transformOrigin: "50% 0%" });
+      gsap.set(step, { autoAlpha: 1, y: 0, rotateX: 0, transformOrigin: "50% 0%" });
 
       ScrollTrigger.create({
         trigger: step,
@@ -352,8 +352,8 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
       const content = item.querySelector(".project-reveal-content");
 
       gsap.set(item, { autoAlpha: 1 });
-      if (media) gsap.set(media, { autoAlpha: 0, scale: 1.12, y: 32, filter: "blur(8px)" });
-      if (content) gsap.set(content, { autoAlpha: 0, y: 40, x: index % 2 === 0 ? -32 : 32 });
+      if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0, filter: "blur(0px)" });
+      if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
 
       ScrollTrigger.create({
         trigger: item,
@@ -361,12 +361,10 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
         end: "bottom 12%",
         onEnter: () => playProjectReveal(item, index),
         onLeave: () => {
-          gsap.to(item, { autoAlpha: 0.35, scale: 0.98, duration: 0.35, ease: "power2.in", overwrite: "auto" });
+          gsap.to(item, { scale: 0.99, duration: 0.35, ease: "power2.in", overwrite: "auto" });
         },
         onEnterBack: () => playProjectReveal(item, index),
         onLeaveBack: () => {
-          if (media) gsap.set(media, { autoAlpha: 0, scale: 1.12, y: 32, filter: "blur(8px)" });
-          if (content) gsap.set(content, { autoAlpha: 0, y: 40, x: index % 2 === 0 ? -32 : 32 });
           gsap.set(item, { autoAlpha: 1, scale: 1 });
         },
         invalidateOnRefresh: true,
@@ -384,10 +382,10 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
         gsap.set(item, { autoAlpha: 1 });
         const media = item.querySelector(".project-reveal-media");
         const content = item.querySelector(".project-reveal-content");
-        if (media) gsap.set(media, { autoAlpha: 0, scale: 1.1, y: 28, filter: "blur(8px)" });
-        if (content) gsap.set(content, { autoAlpha: 0, y: 36, x: index % 2 === 0 ? -28 : 28 });
+        if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0, filter: "blur(0px)" });
+        if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
       } else {
-        gsap.set(item, { autoAlpha: 0, y: 36 });
+        gsap.set(item, { autoAlpha: 1, y: 0 });
       }
 
       ScrollTrigger.create({
@@ -415,14 +413,7 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
       trigger: "#capabilities",
       start: mobileHideStart,
       onEnter: () => {
-        gsap.to(items, {
-          autoAlpha: 0,
-          y: 24,
-          duration: 0.38,
-          stagger: 0.03,
-          ease: "power2.in",
-          overwrite: "auto",
-        });
+        // keep projects visible — hiding caused blank-screen flicker
       },
       onLeaveBack: () => {
         gsap.to(items, {

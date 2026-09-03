@@ -80,6 +80,15 @@
     @apply bg-gradient-text bg-clip-text text-transparent;
     background-size: 220% auto;
     animation: gradient-flow 5s ease infinite;
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+  }
+
+  html[data-scroll-ready] .section-reveal,
+  html[data-scroll-ready] .section-label,
+  html[data-scroll-ready] .section-heading-block {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .gradient-border {
@@ -1104,7 +1113,7 @@
   .hero-copy-top {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 1rem;
   }
 
   .hero-title-role {
@@ -1123,11 +1132,11 @@
   }
 
   .hero-copy-top .hero-rotator-wrap {
-    margin-top: 0.45rem;
+    margin-top: 0.1rem;
   }
 
   .hero-lead {
-    margin-top: 0.55rem;
+    margin-top: 0.1rem;
     max-width: 34rem;
     line-height: 1.45;
     display: -webkit-box;
@@ -1145,7 +1154,7 @@
 
   .hero-stat-value {
     margin-top: 0.35rem;
-    font-size: 1.15rem;
+    font-size: 1.5rem;
     line-height: 1;
     font-weight: 700;
     font-family: var(--font-display), sans-serif;
@@ -1165,7 +1174,7 @@
     }
 
     .hero-copy-rest {
-      gap: 0.65rem;
+      gap: 1rem;
     }
 
     .hero-bento-card {
@@ -1173,7 +1182,7 @@
     }
 
     .hero-stat-value {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
     }
 
     .hero-lead {
@@ -1229,6 +1238,32 @@
     display: inline-block;
     min-width: 1.4em;
     font-variant-numeric: tabular-nums;
+  }
+
+  .hero-count::after {
+    content: "0+";
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-count[data-value="5"]::after {
+    animation: hero-count-step-5 0.675s linear 0.34s forwards;
+  }
+
+  .hero-count[data-value="10"]::after {
+    animation: hero-count-step-10 1.35s linear 0.34s forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-count[data-value="5"]::after {
+      content: "5+";
+      animation: none;
+    }
+
+    .hero-count[data-value="10"]::after {
+      content: "10+";
+      animation: none;
+    }
   }
 
   .hero-live-pill {
@@ -2408,6 +2443,93 @@
 
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes hero-count-step-5 {
+  0%,
+  19.99% {
+    content: "0+";
+  }
+
+  20%,
+  39.99% {
+    content: "1+";
+  }
+
+  40%,
+  59.99% {
+    content: "2+";
+  }
+
+  60%,
+  79.99% {
+    content: "3+";
+  }
+
+  80%,
+  99.99% {
+    content: "4+";
+  }
+
+  100% {
+    content: "5+";
+  }
+}
+
+@keyframes hero-count-step-10 {
+  0%,
+  9.99% {
+    content: "0+";
+  }
+
+  10%,
+  19.99% {
+    content: "1+";
+  }
+
+  20%,
+  29.99% {
+    content: "2+";
+  }
+
+  30%,
+  39.99% {
+    content: "3+";
+  }
+
+  40%,
+  49.99% {
+    content: "4+";
+  }
+
+  50%,
+  59.99% {
+    content: "5+";
+  }
+
+  60%,
+  69.99% {
+    content: "6+";
+  }
+
+  70%,
+  79.99% {
+    content: "7+";
+  }
+
+  80%,
+  89.99% {
+    content: "8+";
+  }
+
+  90%,
+  99.99% {
+    content: "9+";
+  }
+
+  100% {
+    content: "10+";
   }
 }
 
