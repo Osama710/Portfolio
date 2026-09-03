@@ -83,37 +83,32 @@ function unlockInteractivePanels(root: HTMLElement) {
   });
 }
 
-function stabilizeSectionContent(root: HTMLElement) {
-  const general = [
-    ".section-reveal",
-    ".section-label",
-    ".section-heading-block",
-    ".skills-loadout-strip",
-    ".skill-orbit-shell",
-    ".skill-module-panel",
-    ".capability-slot",
-    ".capability-briefing",
-    ".edu-degree-panel",
-    ".edu-cert-panel",
-    ".edu-cert-card",
-    ".contact-methods",
-    ".contact-form",
-    ".project-journey-item",
-    ".project-github-item",
-    ".project-reveal-media",
-    ".project-reveal-content",
-    ".career-journey-step",
-    ".career-mobile-shell",
-    ".career-detail-panel",
-  ].join(", ");
+const REVEAL_SECTIONS = ["skills", "experience", "projects", "capabilities", "education", "contact"] as const;
 
-  gsap.utils.toArray<HTMLElement>(root.querySelectorAll(general)).forEach((el) => {
-    if (el.closest("#about")) return;
-    gsap.set(el, { clearProps: "opacity,visibility,transform,filter" });
-  });
+/** Lightweight one-shot reveals — transform/opacity only, no pre-hide. */
+function setupSectionReveals(root: HTMLElement) {
+  REVEAL_SECTIONS.forEach((id) => {
+    const section = root.querySelector(`#${id}`);
+    if (!section) return;
 
-  gsap.utils.toArray<HTMLElement>(aboutTargets(root)).forEach((el) => {
-    gsap.set(el, { clearProps: "opacity,visibility,filter" });
+    const targets = section.querySelectorAll(".section-label, .section-heading-block, .section-reveal");
+    if (!targets.length) return;
+
+    gsap.from(targets, {
+      y: 28,
+      opacity: 0,
+      duration: 0.72,
+      stagger: 0.06,
+      ease: "power3.out",
+      immediateRender: false,
+      force3D: true,
+      scrollTrigger: {
+        trigger: section,
+        start: "top 86%",
+        once: true,
+        fastScrollEnd: true,
+      },
+    });
   });
 }
 
@@ -125,7 +120,7 @@ function setupHeroToAboutTransition(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
 
-  const build = (orbitScale: number, orbitBlur: number, copyY: number, fadeStart = 0.78) => {
+  const build = (orbitScale: number, copyY: number, fadeStart = 0.78) => {
     const orbit = heroOrbitNodes(root);
     gsap.set(orbit.wrap, { transformOrigin: "50% 50%", force3D: true });
 
@@ -135,24 +130,24 @@ function setupHeroToAboutTransition(root: HTMLElement) {
           trigger: "#hero",
           start: "top top",
           end: "80% top",
-          scrub: 0.55,
+          scrub: true,
+          fastScrollEnd: true,
         },
       })
       .fromTo(
         heroFadeTargets,
         { y: 0, autoAlpha: 1, scale: 1 },
-        { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in", stagger: 0.02 },
+        { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in", stagger: 0.015 },
         fadeStart,
       )
       .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
       .fromTo(
         orbit.wrap,
-        { scale: 1, rotate: 0, autoAlpha: 1, filter: "blur(0px)" },
+        { scale: 1, rotate: 0, autoAlpha: 1 },
         {
           scale: orbitScale,
           rotate: 6,
           autoAlpha: 0,
-          filter: `blur(${orbitBlur}px)`,
           ease: "power2.inOut",
           transformOrigin: "50% 50%",
         },
@@ -161,19 +156,20 @@ function setupHeroToAboutTransition(root: HTMLElement) {
       .fromTo(
         about,
         { y: 32 },
-        { y: 0, stagger: 0.05, ease: "power3.out" },
+        { y: 0, stagger: 0.04, ease: "power3.out" },
         fadeStart + 0.08,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => build(3.1, 6, -64, 0.78));
-  mm.add("(max-width: 1023px)", () => build(1.5, 2, -20, 0.82));
+  mm.add("(min-width: 1024px)", () => build(3.1, -64, 0.78));
+  mm.add("(max-width: 1023px)", () => build(1.5, -20, 0.82));
   return mm;
 }
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
+  setupSectionReveals(root);
   mediaStores.push(setupHeroToAboutTransition(root));
   setupExperienceJourney(root, mediaStores);
   setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
@@ -190,7 +186,6 @@ function ensureScrollEngine(root: HTMLElement) {
   setupScrollExperience(root, scrollEngineStores);
   ScrollTrigger.sort();
   ScrollTrigger.update();
-  stabilizeSectionContent(root);
   syncActiveSectionFromScroll(root);
   restoreScrollY(scrollY);
   document.documentElement.dataset.scrollReady = "1";
@@ -203,7 +198,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
   useGSAP(
     () => {
       registerGsapPlugins();
-      ScrollTrigger.config({ ignoreMobileResize: true });
+      ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
 
       const root = wrapRef.current;
       if (!root) return;

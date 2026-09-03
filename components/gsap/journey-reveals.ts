@@ -154,8 +154,8 @@ function playProjectReveal(item: HTMLElement, index: number) {
   if (media) {
     tl.fromTo(
       media,
-      { scale: 1.06, y: 18, filter: "blur(4px)" },
-      { scale: 1, y: 0, filter: "blur(0px)", autoAlpha: 1, duration: 0.82 },
+      { scale: 1.05, y: 16 },
+      { scale: 1, y: 0, autoAlpha: 1, duration: 0.75, force3D: true },
       0,
     );
   }
@@ -163,14 +163,14 @@ function playProjectReveal(item: HTMLElement, index: number) {
   if (content) {
     tl.fromTo(
       content,
-      { y: 24, x: index % 2 === 0 ? -16 : 16, autoAlpha: 1 },
-      { y: 0, x: 0, autoAlpha: 1, duration: 0.68 },
-      0.14,
+      { y: 20, x: index % 2 === 0 ? -12 : 12, autoAlpha: 1 },
+      { y: 0, x: 0, autoAlpha: 1, duration: 0.65, force3D: true },
+      0.12,
     );
   }
 
   if (!media && !content) {
-    tl.fromTo(item, { y: 20, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: 0.65 }, 0);
+    tl.fromTo(item, { y: 20, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: 0.6 }, 0);
   }
 
   return tl;
@@ -205,14 +205,11 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     let lastStep = -1;
 
     nodes.forEach((node, i) => {
-      gsap.set(node, {
-        autoAlpha: i === 0 ? 1 : 0,
-        filter: i === 0 ? "blur(0px)" : "blur(6px)",
-      });
+      gsap.set(node, { autoAlpha: i === 0 ? 1 : 0 });
     });
 
     if (detail) {
-      gsap.set(detail, { autoAlpha: 1, x: 0, y: 0, filter: "blur(0px)" });
+      gsap.set(detail, { autoAlpha: 1, x: 0, y: 0 });
     }
 
     const measure = () => {
@@ -226,29 +223,29 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       const drawTo = progressToDrawLength(clamped, weights, pathStops, pathLength);
       const activeStep = activeStepFromDrawLength(drawTo, pathStops);
 
-      nodes.forEach((node, i) => {
-        const visible = i <= activeStep;
-        gsap.set(node, {
-          autoAlpha: visible ? 1 : 0,
-          filter: visible ? "blur(0px)" : "blur(6px)",
-        });
-      });
-
       gsap.set(path, {
         strokeDashoffset: Math.max(0, pathLength - drawTo),
         opacity: 0.45 + clamped * 0.5,
       });
 
-      updateConnectorLine(snake, nodes, activeStep, connectorMeta);
-
       if (activeStep !== lastStep) {
         lastStep = activeStep;
+        nodes.forEach((node, i) => {
+          gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
+        });
+        updateConnectorLine(snake, nodes, activeStep, connectorMeta);
         dispatchCareerStep(activeStep);
       }
     };
 
+    let measureQueued = false;
     const runMeasure = () => {
-      requestAnimationFrame(measure);
+      if (measureQueued) return;
+      measureQueued = true;
+      requestAnimationFrame(() => {
+        measureQueued = false;
+        measure();
+      });
     };
 
     measure();
@@ -261,7 +258,8 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       end: `+=${journeyEndPx}`,
       pin: stage,
       pinSpacing: true,
-      scrub: 0.55,
+      scrub: true,
+      fastScrollEnd: true,
       invalidateOnRefresh: true,
       onRefresh: measure,
       onUpdate: (self) => applyJourney(self.progress),
@@ -277,7 +275,7 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       },
       onLeave: () => {
         nodes.forEach((node) => {
-          gsap.set(node, { autoAlpha: 1, filter: "blur(0px)" });
+          gsap.set(node, { autoAlpha: 1 });
         });
         gsap.set(path, { strokeDashoffset: 0, opacity: 0.95 });
         updateConnectorLine(snake, nodes, stepCount - 1, connectorMeta);
@@ -286,10 +284,7 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       onLeaveBack: () => {
         lastStep = -1;
         nodes.forEach((node, i) => {
-          gsap.set(node, {
-            autoAlpha: i === 0 ? 1 : 0,
-            filter: i === 0 ? "blur(0px)" : "blur(6px)",
-          });
+          gsap.set(node, { autoAlpha: i === 0 ? 1 : 0 });
         });
         gsap.set(path, { strokeDashoffset: pathLength, opacity: 0.45 });
         dispatchCareerStep(0);
@@ -352,7 +347,7 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
       const content = item.querySelector(".project-reveal-content");
 
       gsap.set(item, { autoAlpha: 1 });
-      if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0, filter: "blur(0px)" });
+      if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0 });
       if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
 
       ScrollTrigger.create({
@@ -382,7 +377,7 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
         gsap.set(item, { autoAlpha: 1 });
         const media = item.querySelector(".project-reveal-media");
         const content = item.querySelector(".project-reveal-content");
-        if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0, filter: "blur(0px)" });
+        if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0 });
         if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
       } else {
         gsap.set(item, { autoAlpha: 1, y: 0 });
