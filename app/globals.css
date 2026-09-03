@@ -1103,15 +1103,8 @@
     animation: hero-cursor-blink 1s step-end infinite;
   }
 
-  @media (min-width: 1024px) {
-    .hero-bento-card {
-      padding: 0.65rem 0.72rem;
-    }
-
-    .hero-service-link {
-      padding: 0.32rem 0.55rem;
-      font-size: 0.62rem;
-    }
+  .hero-copy {
+    justify-content: center;
   }
 
   @keyframes page-fade-in {
@@ -1155,12 +1148,8 @@
 
   .hero-count {
     display: inline-block;
-    min-width: 1.1em;
+    min-width: 1.4em;
     font-variant-numeric: tabular-nums;
-  }
-
-  .hero-count:empty::before {
-    content: "0" attr(data-suffix);
   }
 
   .hero-live-pill {

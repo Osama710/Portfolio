@@ -7,65 +7,79 @@ type HeroAnimatedCounterProps = {
   value: string;
   suffix?: string;
   duration?: number;
+  delay?: number;
 };
 
-export function HeroAnimatedCounter({ value, suffix = "", duration = 1400 }: HeroAnimatedCounterProps) {
+export function HeroAnimatedCounter({
+  value,
+  suffix = "",
+  duration = 1800,
+  delay = 450,
+}: HeroAnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
-  const started = useRef(false);
+  const timerRef = useRef<number | null>(null);
+  const delayRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || started.current) return;
+    if (!el) return;
 
-    const target = Number(value) || 0;
+    const target = Math.max(0, Number(value) || 0);
     const finalText = `${target}${suffix}`;
+
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (delayRef.current !== null) {
+      window.clearTimeout(delayRef.current);
+      delayRef.current = null;
+    }
 
     if (reduced) {
       el.textContent = finalText;
-      started.current = true;
       return;
     }
 
-    const current = el.textContent?.trim() ?? "";
-    if (current === finalText || el.dataset.done === "1") {
-      started.current = true;
+    if (target === 0) {
+      el.textContent = finalText;
       return;
     }
 
-    if (el.dataset.animating === "1") {
-      started.current = true;
-      return;
-    }
+    el.textContent = `0${suffix}`;
 
-    started.current = true;
-    let raf = 0;
-    const from = current.endsWith(suffix) ? Number(current.slice(0, -suffix.length)) || 0 : 0;
-    const t0 = performance.now();
+    delayRef.current = window.setTimeout(() => {
+      let step = 0;
+      const stepMs = Math.max(90, Math.floor(duration / target));
 
-    const ease = (p: number) => 1 - Math.pow(1 - p, 4);
+      timerRef.current = window.setInterval(() => {
+        step += 1;
+        const next = Math.min(step, target);
+        el.textContent = `${next}${suffix}`;
 
-    const frame = (now: number) => {
-      const p = Math.min((now - t0) / duration, 1);
-      const next = Math.round(from + (target - from) * ease(p));
-      el.textContent = `${next}${suffix}`;
-      if (p < 1) raf = requestAnimationFrame(frame);
+        if (next >= target && timerRef.current !== null) {
+          window.clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }, stepMs);
+    }, delay);
+
+    return () => {
+      if (delayRef.current !== null) {
+        window.clearTimeout(delayRef.current);
+        delayRef.current = null;
+      }
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-
-    el.textContent = `${from}${suffix}`;
-    raf = requestAnimationFrame(frame);
-
-    return () => cancelAnimationFrame(raf);
-  }, [duration, reduced, suffix, value]);
+  }, [delay, duration, reduced, suffix, value]);
 
   return (
-    <span
-      ref={ref}
-      suppressHydrationWarning
-      className="hero-count"
-      data-value={value}
-      data-suffix={suffix}
-      data-duration={String(duration)}
-    />
+    <span ref={ref} suppressHydrationWarning className="hero-count">
+      0{suffix}
+    </span>
   );
 }
