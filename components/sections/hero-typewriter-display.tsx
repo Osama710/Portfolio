@@ -1,39 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const TYPE_MS = 42;
-const DELETE_MS = 26;
-const HOLD_MS = 2400;
-const GAP_MS = 180;
+import {
+  HERO_DELETE_MS,
+  HERO_GAP_MS,
+  HERO_HOLD_MS,
+  HERO_TYPEWRITER_START_MS,
+  HERO_TYPE_MS,
+} from "@/lib/hero-motion";
 
 type HeroTypewriterDisplayProps = {
   items: readonly string[];
 };
 
-/** Rotates after hydration — SSR shows the first phrase immediately with CSS cursor blink. */
+/** Types the first phrase after hero rotator appears, then rotates. */
 export function HeroTypewriterDisplay({ items }: HeroTypewriterDisplayProps) {
-  const initial = items[0] ?? "";
-  const [display, setDisplay] = useState(initial);
+  const [display, setDisplay] = useState("");
 
   useEffect(() => {
-    if (items.length < 2) return;
+    if (items.length === 0) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduced) {
+      setDisplay(items[0] ?? "");
+      if (items.length < 2) return;
       let i = 0;
       const id = window.setInterval(() => {
         i = (i + 1) % items.length;
         setDisplay(items[i]);
-      }, HOLD_MS);
+      }, HERO_HOLD_MS);
       return () => window.clearInterval(id);
     }
 
     let index = 0;
-    let text = items[0];
-    let charIndex = text.length;
-    let phase: "hold" | "delete" | "type" = "hold";
+    let text = items[0] ?? "";
+    let charIndex = 0;
+    let phase: "hold" | "delete" | "type" = "type";
     let timer = 0;
     let cancelled = false;
 
@@ -46,7 +49,7 @@ export function HeroTypewriterDisplay({ items }: HeroTypewriterDisplayProps) {
 
     const loop = () => {
       if (phase === "hold") {
-        schedule(HOLD_MS, () => {
+        schedule(HERO_HOLD_MS, () => {
           phase = "delete";
           loop();
         });
@@ -57,12 +60,12 @@ export function HeroTypewriterDisplay({ items }: HeroTypewriterDisplayProps) {
         if (charIndex > 0) {
           charIndex -= 1;
           setDisplay(text.slice(0, charIndex));
-          schedule(DELETE_MS, loop);
+          schedule(HERO_DELETE_MS, loop);
         } else {
           index = (index + 1) % items.length;
           text = items[index];
           phase = "type";
-          schedule(GAP_MS, loop);
+          schedule(HERO_GAP_MS, loop);
         }
         return;
       }
@@ -70,14 +73,16 @@ export function HeroTypewriterDisplay({ items }: HeroTypewriterDisplayProps) {
       if (charIndex < text.length) {
         charIndex += 1;
         setDisplay(text.slice(0, charIndex));
-        schedule(TYPE_MS, loop);
+        schedule(HERO_TYPE_MS, loop);
       } else {
         phase = "hold";
         loop();
       }
     };
 
-    loop();
+    timer = window.setTimeout(() => {
+      if (!cancelled) loop();
+    }, HERO_TYPEWRITER_START_MS);
 
     return () => {
       cancelled = true;
@@ -87,7 +92,9 @@ export function HeroTypewriterDisplay({ items }: HeroTypewriterDisplayProps) {
 
   return (
     <span className="inline-flex items-baseline sm:whitespace-nowrap">
-      <span className="gradient-text-shimmer inline-block min-w-[10ch]">{display}</span>
+      <span suppressHydrationWarning className="hero-typewriter-text gradient-text-shimmer inline-block min-w-[12ch]">
+        {display}
+      </span>
       <span className="hero-typewriter-cursor ml-0.5 text-accent-cyan" aria-hidden="true">
         |
       </span>

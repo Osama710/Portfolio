@@ -1247,11 +1247,31 @@
   }
 
   .hero-count[data-value="5"]::after {
-    animation: hero-count-step-5 0.675s linear 0.34s forwards;
+    animation: hero-count-step-5 1.05s linear 0.92s forwards;
   }
 
   .hero-count[data-value="10"]::after {
-    animation: hero-count-step-10 1.35s linear 0.34s forwards;
+    animation: hero-count-step-10 2.1s linear 0.92s forwards;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-bento-card {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: hero-reveal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .hero-bento-card--0 {
+      animation-delay: 0.72s;
+    }
+
+    .hero-bento-card--1 {
+      animation-delay: 0.84s;
+    }
+
+    .hero-bento-card--2 {
+      animation-delay: 0.96s;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -25,7 +25,7 @@ export function Hero() {
         <div className="hero-grid grid items-center gap-6 overflow-visible lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 xl:gap-10">
           <div className="hero-copy min-w-0">
             <div className="hero-copy-top">
-              <div className="hero-reveal hero-meta flex flex-wrap items-center gap-2.5" style={{ animationDelay: "0.05s" }}>
+              <div className="hero-reveal hero-meta flex flex-wrap items-center gap-2.5" style={{ animationDelay: "0.08s" }}>
                 <span className="hero-live-pill">
                   <span className="hero-live-dot" aria-hidden="true" />
                   Open to opportunities
@@ -39,14 +39,14 @@ export function Hero() {
 
               <p
                 className="hero-reveal hero-title-role font-mono text-xs uppercase tracking-[0.22em] text-accent-cyan sm:text-sm lg:text-[0.95rem]"
-                style={{ animationDelay: "0.1s" }}
+                style={{ animationDelay: "0.16s" }}
               >
                 {profile.title}
               </p>
 
               <h1
                 className="hero-reveal hero-name-block font-display text-[clamp(2.5rem,7vw,4.75rem)] font-bold tracking-[-0.04em] lg:text-[clamp(2.85rem,4.5vw,4.35rem)]"
-                style={{ animationDelay: "0.14s" }}
+                style={{ animationDelay: "0.24s" }}
               >
                 <span className="hero-name-line whitespace-nowrap text-ink">{profile.name.split(" ")[0]} </span>
                 <span className="hero-name-line gradient-text-shimmer whitespace-nowrap">
@@ -54,22 +54,22 @@ export function Hero() {
                 </span>
               </h1>
 
-              <div className="hero-reveal hero-signal" style={{ animationDelay: "0.18s" }} aria-hidden="true" />
+              <div className="hero-reveal hero-signal" style={{ animationDelay: "0.32s" }} aria-hidden="true" />
 
-              <div className="hero-reveal hero-rotator-wrap" style={{ animationDelay: "0.22s" }}>
+              <div className="hero-reveal hero-rotator-wrap" style={{ animationDelay: "0.4s" }}>
                 <HeroTypewriterRotator items={profile.heroRotations} />
               </div>
 
               <p
                 className="hero-reveal hero-lead text-md text-ink-muted sm:text-[1rem]"
-                style={{ animationDelay: "0.28s" }}
+                style={{ animationDelay: "0.48s" }}
               >
                 {profile.heroLead}
               </p>
             </div>
 
             <div className="hero-copy-rest">
-              <div className="hero-reveal hero-bento grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5" style={{ animationDelay: "0.34s" }}>
+              <div className="hero-bento grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
                 {heroHighlights.map((item, index) => (
                   <div key={item.label} className={`hero-bento-card hero-bento-card--${index}`}>
                     <p className="font-mono text-[0.58rem] uppercase tracking-widest text-ink-faint sm:text-[0.6rem]">
@@ -91,7 +91,7 @@ export function Hero() {
                 ))}
               </div>
 
-              <div className="hero-reveal hero-services" style={{ animationDelay: "0.4s" }}>
+              <div className="hero-reveal hero-services" style={{ animationDelay: "1.08s" }}>
                 <p className="mb-2 flex items-center gap-1.5 text-[0.62rem] font-semibold uppercase tracking-widest text-accent-violet sm:text-xs">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   What I deliver
@@ -106,7 +106,7 @@ export function Hero() {
                 </div>
               </div>
 
-              <div className="hero-reveal hero-actions flex flex-wrap items-center gap-2 sm:gap-2.5" style={{ animationDelay: "0.46s" }}>
+              <div className="hero-reveal hero-actions flex flex-wrap items-center gap-2 sm:gap-2.5" style={{ animationDelay: "1.2s" }}>
                 <a href="#projects" className="btn-primary px-4 py-2 text-sm">
                   <Rocket className="h-4 w-4" aria-hidden="true" />
                   View projects
@@ -139,7 +139,7 @@ export function Hero() {
 
               <div
                 className="hero-reveal hero-location flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted sm:text-sm"
-                style={{ animationDelay: "0.5s" }}
+                style={{ animationDelay: "1.32s" }}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 shrink-0 text-accent-coral" aria-hidden="true" />
@@ -151,7 +151,7 @@ export function Hero() {
                 <span className="text-accent-cyan">{profile.relocation}</span>
               </div>
 
-              <div className="hero-reveal lg:hidden" style={{ animationDelay: "0.54s" }}>
+              <div className="hero-reveal lg:hidden" style={{ animationDelay: "1.36s" }}>
                 <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto w-full max-w-[250px] origin-center overflow-visible sm:max-w-[270px]">
                   <div className="hero-orbit-zoom">
                     <HeroOrbit className="max-w-[250px] sm:max-w-[270px]" />
@@ -161,7 +161,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="hero-reveal hidden lg:block" style={{ animationDelay: "0.16s" }}>
+          <div className="hero-reveal hidden lg:block" style={{ animationDelay: "0.28s" }}>
             <div className="hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto w-full max-w-[min(360px,34vw)] origin-center overflow-visible">
               <div className="hero-orbit-zoom">
                 <HeroOrbit className="max-w-[min(360px,34vw)]" />
@@ -173,7 +173,7 @@ export function Hero() {
         <a
           href="#about"
           className="hero-reveal hero-scroll-cue absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-0.5 text-ink-faint transition-colors hover:text-accent-cyan lg:bottom-3.5"
-          style={{ animationDelay: "0.58s" }}
+          style={{ animationDelay: "1.48s" }}
           aria-label="Scroll to about"
         >
           <span className="text-[0.58rem] uppercase tracking-widest">Scroll down</span>
