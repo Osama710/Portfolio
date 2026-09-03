@@ -1111,8 +1111,18 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .page-enter-shell {
-      animation: page-fade-in 0.7s ease-out both;
+      animation: page-fade-in 0.65s ease-out both;
     }
+  }
+
+  .hero-count {
+    display: inline-block;
+    min-width: 1.1em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-count:empty::before {
+    content: "0" attr(data-suffix);
   }
 
   .hero-live-pill {

@@ -373,17 +373,25 @@ export function ScrollShell({ children }: { children: ReactNode }) {
         return;
       }
 
-      setupScrollExperience(root, mediaStores);
-      setActiveSection(root, "hero");
+      let cancelled = false;
+      const bootScroll = () => {
+        if (cancelled || !root) return;
+        setupScrollExperience(root, mediaStores);
+        setActiveSection(root, "hero");
+      };
+
+      const bootId = window.setTimeout(bootScroll, 50);
 
       const refresh = () => ScrollTrigger.refresh();
       window.addEventListener("resize", refresh, { passive: true });
       window.addEventListener("orientationchange", refresh);
       window.addEventListener("hashchange", refresh);
       window.visualViewport?.addEventListener("resize", refresh);
-      window.setTimeout(refresh, 280);
+      window.setTimeout(refresh, 320);
 
       return () => {
+        cancelled = true;
+        window.clearTimeout(bootId);
         window.removeEventListener("resize", refresh);
         window.removeEventListener("orientationchange", refresh);
         window.removeEventListener("hashchange", refresh);

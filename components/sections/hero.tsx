@@ -12,7 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { heroHighlights, heroServiceLinks, heroStack, heroTraits, profile } from "@/lib/data";
-import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { HeroStatCounter } from "@/components/ui/hero-stat-counter";
 import { RotatingText } from "@/components/ui/rotating-text";
 import { HeroOrbit } from "@/components/sections/hero-orbit";
 
@@ -73,12 +73,7 @@ export function Hero() {
                   <p className="font-mono text-[0.58rem] uppercase tracking-widest text-ink-faint">{item.label}</p>
                   <p className="mt-1 font-display text-xl font-bold leading-none text-ink sm:text-2xl">
                     {"counter" in item && item.counter ? (
-                      <AnimatedCounter
-                        value={item.counter.value}
-                        suffix={item.counter.suffix}
-                        start
-                        duration={0.85}
-                      />
+                      <HeroStatCounter value={item.counter.value} suffix={item.counter.suffix} />
                     ) : (
                       item.value
                     )}

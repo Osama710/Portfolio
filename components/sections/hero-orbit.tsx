@@ -140,7 +140,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
                       rotate: [0, i % 2 === 0 ? 2 : -2, 0],
                     }
               }
-              transition={{ duration: 4.5 + i * 0.4, repeat: Infinity, delay: i * 0.25, ease: "easeInOut" }}
+              transition={{ duration: 4.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
               whileHover={reduced ? undefined : { scale: 1.12, y: -4 }}
             >
               {chip.label}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -14,10 +14,12 @@ interface RotatingTextProps {
 export function RotatingText({ items, className, intervalMs = 2600, paused = false }: RotatingTextProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
+  const hasRotated = useRef(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (reduced || paused || items.length < 2) return;
     const id = window.setInterval(() => {
+      hasRotated.current = true;
       setIndex((current) => (current + 1) % items.length);
     }, intervalMs);
     return () => window.clearInterval(id);
@@ -34,10 +36,14 @@ export function RotatingText({ items, className, intervalMs = 2600, paused = fal
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={current}
-          initial={{ y: "110%", opacity: 0, filter: "blur(8px)", scale: 0.96 }}
+          initial={
+            hasRotated.current
+              ? { y: "110%", opacity: 0, filter: "blur(6px)", scale: 0.98 }
+              : false
+          }
           animate={{ y: "0%", opacity: 1, filter: "blur(0px)", scale: 1 }}
-          exit={{ y: "-110%", opacity: 0, filter: "blur(8px)", scale: 0.96 }}
-          transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ y: "-110%", opacity: 0, filter: "blur(6px)", scale: 0.98 }}
+          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
           className="gradient-text-shimmer col-start-1 row-start-1 block sm:whitespace-nowrap"
         >
           {current}

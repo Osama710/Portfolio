@@ -84,75 +84,90 @@ export function AmbientBackground() {
   useGSAP(
     () => {
       if (!motionAllowed() || !wrapRef.current) return;
-      registerGsapPlugins();
 
-      const scrollCfg = { trigger: document.body, start: "top top", end: "bottom bottom", scrub: true };
+      let cancelled = false;
+      let removeMove: (() => void) | undefined;
 
-      gsap.to(".ambient-blob-violet", {
-        y: -100,
-        x: 20,
-        ease: "none",
-        scrollTrigger: { ...scrollCfg, scrub: 0.85 },
-      });
+      const boot = () => {
+        if (cancelled || !wrapRef.current) return;
+        registerGsapPlugins();
 
-      gsap.to(".ambient-blob-cyan", {
-        y: -130,
-        x: -24,
-        ease: "none",
-        scrollTrigger: { ...scrollCfg, scrub: 1.05 },
-      });
+        const scrollCfg = { trigger: document.body, start: "top top", end: "bottom bottom", scrub: true };
 
-      gsap.to(".ambient-blob-coral", {
-        y: -90,
-        x: 18,
-        ease: "none",
-        scrollTrigger: { ...scrollCfg, scrub: 0.9 },
-      });
-
-      gsap.to(".ambient-grid, .ambient-field", {
-        y: 50,
-        ease: "none",
-        scrollTrigger: { ...scrollCfg, scrub: 0.45 },
-      });
-
-      gsap.to(".ambient-cluster-body", {
-        y: (index) => (index % 2 === 0 ? -45 : -70),
-        ease: "none",
-        stagger: 0.06,
-        scrollTrigger: { ...scrollCfg, scrub: 0.65 },
-      });
-
-      gsap.to(".ambient-aurora-b", {
-        x: "5%",
-        y: "-3%",
-        duration: 16,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-      });
-
-      if (window.matchMedia("(min-width: 1024px)").matches) {
-        gsap.to(".ambient-mesh", {
-          rotation: 360,
-          duration: 120,
+        gsap.to(".ambient-blob-violet", {
+          y: -100,
+          x: 20,
           ease: "none",
-          repeat: -1,
+          scrollTrigger: { ...scrollCfg, scrub: 0.85 },
         });
-      }
 
-      const pointerFine = window.matchMedia("(pointer: fine)").matches;
-      if (pointerFine && wrapRef.current) {
-        const parallaxX = gsap.quickTo(wrapRef.current, "x", { duration: 1.4, ease: "power3.out" });
-        const parallaxY = gsap.quickTo(wrapRef.current, "y", { duration: 1.4, ease: "power3.out" });
+        gsap.to(".ambient-blob-cyan", {
+          y: -130,
+          x: -24,
+          ease: "none",
+          scrollTrigger: { ...scrollCfg, scrub: 1.05 },
+        });
 
-        const onMove = (event: MouseEvent) => {
-          parallaxX((event.clientX / window.innerWidth - 0.5) * 14);
-          parallaxY((event.clientY / window.innerHeight - 0.5) * 10);
-        };
+        gsap.to(".ambient-blob-coral", {
+          y: -90,
+          x: 18,
+          ease: "none",
+          scrollTrigger: { ...scrollCfg, scrub: 0.9 },
+        });
 
-        window.addEventListener("mousemove", onMove, { passive: true });
-        return () => window.removeEventListener("mousemove", onMove);
-      }
+        gsap.to(".ambient-grid, .ambient-field", {
+          y: 50,
+          ease: "none",
+          scrollTrigger: { ...scrollCfg, scrub: 0.45 },
+        });
+
+        gsap.to(".ambient-cluster-body", {
+          y: (index) => (index % 2 === 0 ? -45 : -70),
+          ease: "none",
+          stagger: 0.06,
+          scrollTrigger: { ...scrollCfg, scrub: 0.65 },
+        });
+
+        gsap.to(".ambient-aurora-b", {
+          x: "5%",
+          y: "-3%",
+          duration: 16,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        });
+
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+          gsap.to(".ambient-mesh", {
+            rotation: 360,
+            duration: 120,
+            ease: "none",
+            repeat: -1,
+          });
+        }
+
+        const pointerFine = window.matchMedia("(pointer: fine)").matches;
+        if (pointerFine && wrapRef.current) {
+          const parallaxX = gsap.quickTo(wrapRef.current, "x", { duration: 1.4, ease: "power3.out" });
+          const parallaxY = gsap.quickTo(wrapRef.current, "y", { duration: 1.4, ease: "power3.out" });
+
+          const onMove = (event: MouseEvent) => {
+            parallaxX((event.clientX / window.innerWidth - 0.5) * 14);
+            parallaxY((event.clientY / window.innerHeight - 0.5) * 10);
+          };
+
+          window.addEventListener("mousemove", onMove, { passive: true });
+          removeMove = () => window.removeEventListener("mousemove", onMove);
+        }
+      };
+
+      const bootId = window.setTimeout(boot, 80);
+
+      return () => {
+        cancelled = true;
+        window.clearTimeout(bootId);
+        removeMove?.();
+      };
     },
     { scope: wrapRef },
   );
