@@ -218,15 +218,16 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       gsap.set(path, { strokeDasharray: pathLength });
     };
 
+    const setPathDash = gsap.quickSetter(path, "strokeDashoffset", "px");
+    const setPathOpacity = gsap.quickSetter(path, "opacity");
+
     const applyJourney = (progress: number) => {
       const clamped = Math.min(1, Math.max(0, progress));
       const drawTo = progressToDrawLength(clamped, weights, pathStops, pathLength);
       const activeStep = activeStepFromDrawLength(drawTo, pathStops);
 
-      gsap.set(path, {
-        strokeDashoffset: Math.max(0, pathLength - drawTo),
-        opacity: 0.45 + clamped * 0.5,
-      });
+      setPathDash(Math.max(0, pathLength - drawTo));
+      setPathOpacity(0.45 + clamped * 0.5);
 
       if (activeStep !== lastStep) {
         lastStep = activeStep;

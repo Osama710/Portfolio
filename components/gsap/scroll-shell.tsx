@@ -115,7 +115,7 @@ function setupSectionReveals(root: HTMLElement) {
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const heroFadeTargets = root.querySelectorAll(
-    ".hero-copy .hero-live-pill, .hero-copy .hero-trait-pill, .hero-copy .hero-name-line, .hero-copy .hero-signal, .hero-copy .hero-rotator-line, .hero-copy .hero-lead, .hero-copy .hero-bento, .hero-copy .hero-services, .hero-copy .hero-actions, .hero-copy .hero-location, .hero-copy .hero-orbit-wrap-mobile",
+    ".hero-copy-top, .hero-copy-rest, .hero-orbit-wrap-mobile",
   );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
@@ -137,7 +137,7 @@ function setupHeroToAboutTransition(root: HTMLElement) {
       .fromTo(
         heroFadeTargets,
         { y: 0, autoAlpha: 1, scale: 1 },
-        { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in", stagger: 0.015 },
+        { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in" },
         fadeStart,
       )
       .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)

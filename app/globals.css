@@ -1245,12 +1245,22 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .hero-count--js::after {
+    content: none;
+    animation: none;
+  }
+
   .hero-count[data-value="5"]::after {
     animation: hero-count-step-5 1.05s linear 0.92s forwards;
   }
 
   .hero-count[data-value="10"]::after {
     animation: hero-count-step-10 2.1s linear 0.92s forwards;
+  }
+
+  .hero-count--js[data-value="5"]::after,
+  .hero-count--js[data-value="10"]::after {
+    animation: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
