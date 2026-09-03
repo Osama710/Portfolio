@@ -8,14 +8,10 @@ interface AnimatedCounterProps {
   suffix?: string;
   duration?: number;
   className?: string;
-  /** When true, starts count-up immediately instead of waiting for scroll into view. */
+  /** When true, count-up begins on mount instead of waiting for scroll into view. */
   start?: boolean;
 }
 
-/**
- * Parses a string like "75,000" into a numeric target, animates a count-up
- * on scroll into view, then re-renders it with the original comma formatting.
- */
 export function AnimatedCounter({
   value,
   suffix = "",
@@ -28,8 +24,8 @@ export function AnimatedCounter({
   const shouldReduceMotion = useReducedMotion();
   const target = Number(value.replace(/,/g, ""));
   const isNumeric = !Number.isNaN(target);
-  const [display, setDisplay] = useState(isNumeric ? "0" : value);
   const shouldRun = start || isInView;
+  const [display, setDisplay] = useState(() => (isNumeric ? "0" : value));
 
   useEffect(() => {
     if (!shouldRun || !isNumeric) return;
@@ -39,11 +35,13 @@ export function AnimatedCounter({
       return;
     }
 
+    setDisplay("0");
+
     let frame: number;
-    const start = performance.now();
+    const startTime = performance.now();
 
     const tick = (now: number) => {
-      const elapsed = (now - start) / 1000;
+      const elapsed = (now - startTime) / 1000;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(eased * target);

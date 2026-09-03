@@ -67,7 +67,7 @@ function setupAboutInitialHide(root: HTMLElement) {
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const heroFadeTargets = root.querySelectorAll(
-    ".hero-copy .tag-pill, .hero-name-line, .hero-signal, .hero-proof-item, .hero-rotator, .hero-lead, .hero-location, .hero-orbit-wrap-mobile",
+    ".hero-copy .tag-pill, .hero-name-line, .hero-signal, .hero-stack-pill, .hero-rotator, .hero-lead, .hero-location, .hero-orbit-wrap-mobile",
   );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
@@ -381,8 +381,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
       window.addEventListener("orientationchange", refresh);
       window.addEventListener("hashchange", refresh);
       window.visualViewport?.addEventListener("resize", refresh);
-      window.setTimeout(refresh, 450);
-      window.setTimeout(refresh, 1400);
+      window.setTimeout(refresh, 280);
 
       return () => {
         window.removeEventListener("resize", refresh);

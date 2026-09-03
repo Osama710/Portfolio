@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown,
-  Briefcase,
+  ArrowUpRight,
   Download,
   Github,
   Linkedin,
   MapPin,
   Rocket,
-  Target,
-  Zap,
+  Sparkles,
 } from "lucide-react";
-import { heroStats, profile } from "@/lib/data";
+import { heroHighlights, heroServiceLinks, heroStack, heroTraits, profile } from "@/lib/data";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { RotatingText } from "@/components/ui/rotating-text";
 import { HeroOrbit } from "@/components/sections/hero-orbit";
@@ -21,51 +19,89 @@ import { HeroOrbit } from "@/components/sections/hero-orbit";
 const [firstName, ...restName] = profile.name.split(" ");
 const lastName = restName.join(" ") || firstName;
 
-const statIcons = [Zap, Rocket, Target];
-
-const heroProof = ["75k+ users on Raptr Wallet", "Payments, KYC & admin systems", "Full-stack · Next.js to FastAPI"];
-
 export function Hero() {
   const reduced = useReducedMotion();
-  const [motionReady, setMotionReady] = useState(Boolean(reduced));
-
-  useEffect(() => {
-    setMotionReady(true);
-  }, []);
 
   return (
     <section id="hero" className="hero-stage relative w-full overflow-x-clip">
       <div className="hero-banner site-container relative flex min-h-[100svh] flex-col justify-center pb-16 pt-[5.25rem] sm:pb-10">
-        <div className="grid items-center gap-6 overflow-visible lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
+        <div className="grid items-center gap-8 overflow-visible lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div className="hero-copy min-w-0">
-            <span className="tag-pill border-accent-violet/35 bg-accent-violet/10 text-accent-violet">
-              <Briefcase className="h-3 w-3" aria-hidden="true" />
-              {profile.role} · {profile.company}
-            </span>
+            <div className="hero-meta flex flex-wrap items-center gap-2">
+              <span className="hero-live-pill">
+                <span className="hero-live-dot" aria-hidden="true" />
+                Open to opportunities
+              </span>
+              {heroTraits.map((trait) => (
+                <span key={trait} className="hero-trait-pill">
+                  {trait}
+                </span>
+              ))}
+            </div>
 
-            <h1 className="mt-4 font-display text-[clamp(2.25rem,6.5vw,4.25rem)] font-bold leading-[0.98] tracking-[-0.04em] sm:mt-5">
+            <p className="mt-4 font-mono text-[0.62rem] uppercase tracking-[0.22em] text-accent-cyan sm:text-xs">
+              {profile.title}
+            </p>
+
+            <h1 className="mt-2 font-display text-[clamp(2.35rem,6.8vw,4.5rem)] font-bold leading-[0.96] tracking-[-0.045em]">
               <span className="hero-name-line block text-ink">{firstName}</span>
               <span className="hero-name-line gradient-text-shimmer block">{lastName}</span>
             </h1>
 
             <div className="hero-signal mt-4" aria-hidden="true" />
 
-            <div className="hero-proof mt-3 flex flex-wrap gap-2">
-              {heroProof.map((item) => (
-                <span key={item} className="hero-proof-item">
-                  {item}
+            <div className="hero-stack-row mt-4 flex flex-wrap gap-1.5">
+              {heroStack.map((tech) => (
+                <span key={tech} className="hero-stack-pill">
+                  {tech}
                 </span>
               ))}
             </div>
 
-            <p className="hero-rotator mt-4 flex min-h-[2.75rem] flex-wrap items-baseline gap-x-2 text-lg font-medium leading-snug sm:min-h-[3rem] sm:text-xl">
-              <span className="text-ink-muted">I ship</span>
-              <RotatingText items={profile.heroRotations} intervalMs={3000} paused={!motionReady} />
+            <p className="hero-rotator mt-5 flex min-h-[2.75rem] flex-wrap items-baseline gap-x-2 text-lg font-medium leading-snug sm:min-h-[3rem] sm:text-xl">
+              <span className="text-ink-muted">I build</span>
+              <RotatingText items={[...profile.heroRotations]} intervalMs={2800} />
             </p>
 
-            <p className="hero-lead mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-base sm:leading-relaxed">
+            <p className="hero-lead mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-[0.95rem] sm:leading-relaxed">
               {profile.heroLead}
             </p>
+
+            <div className="hero-bento mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
+              {heroHighlights.map((item, index) => (
+                <div key={item.label} className={`hero-bento-card hero-bento-card--${index}`}>
+                  <p className="font-mono text-[0.58rem] uppercase tracking-widest text-ink-faint">{item.label}</p>
+                  <p className="mt-1 font-display text-xl font-bold leading-none text-ink sm:text-2xl">
+                    {"counter" in item && item.counter ? (
+                      <AnimatedCounter
+                        value={item.counter.value}
+                        suffix={item.counter.suffix}
+                        start
+                        duration={0.85}
+                      />
+                    ) : (
+                      item.value
+                    )}
+                  </p>
+                  <p className="mt-1.5 text-[0.68rem] leading-snug text-ink-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="hero-services mt-4">
+              <p className="mb-2 flex items-center gap-1.5 text-[0.62rem] font-semibold uppercase tracking-widest text-accent-violet">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                What I deliver
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {heroServiceLinks.map((link) => (
+                  <a key={link.label} href={link.href} className="hero-service-link group">
+                    {link.label}
+                    <ArrowUpRight className="h-3 w-3 opacity-50 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
+                  </a>
+                ))}
+              </div>
+            </div>
 
             <div className="hero-actions mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6">
               <a href="#projects" className="btn-primary px-5 py-2.5 text-sm">
@@ -107,23 +143,6 @@ export function Hero() {
                 ·
               </span>
               <span className="text-accent-cyan">{profile.relocation}</span>
-            </div>
-
-            <div className="hero-stats relative z-20 mt-2 flex flex-wrap gap-2 sm:mt-4">
-              {heroStats.map((stat, index) => {
-                const StatIcon = statIcons[index] ?? Zap;
-                return (
-                  <div key={stat.label} className="hero-stat stat-chip flex items-center gap-2 px-3 py-2">
-                    <StatIcon className="h-3.5 w-3.5 shrink-0 text-accent-cyan/80" aria-hidden="true" />
-                    <div>
-                      <p className="font-display text-sm font-bold leading-none text-ink sm:text-base">
-                        <AnimatedCounter value={stat.value} suffix={stat.suffix} start={motionReady} />
-                      </p>
-                      <p className="mt-0.5 text-[0.6rem] uppercase tracking-wider text-ink-faint">{stat.label}</p>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
 
             <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-hidden sm:max-w-[300px] lg:hidden">

@@ -110,7 +110,7 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html:
-              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .55s ease-out both}}@keyframes page-fade-in{to{opacity:1}}",
+              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .7s ease-out both}}@keyframes page-fade-in{to{opacity:1}}",
           }}
         />
         <script

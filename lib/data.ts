@@ -33,14 +33,14 @@ export const profile = {
   tagline:
     "Senior Software Engineer building fintech and e-commerce products — KYC, payments, admin tools, and backend APIs.",
   heroLead:
-    "Full-stack engineer with 5+ years shipping production systems — payment integrations, admin dashboards, vendor APIs, and e-commerce platforms serving 75,000+ users at Raptr Games.",
+    "Full-stack engineer with 5+ years shipping production web apps — polished interfaces, secure APIs, admin dashboards, and deployments teams can maintain. Strong in fintech, e-commerce, and SaaS across the entire stack.",
   heroRotations: [
-    "payment systems that scale",
-    "admin tools teams rely on",
-    "FastAPI vendor integrations",
-    "Next.js products end-to-end",
-    "secure KYC & checkout flows",
+    "interfaces people want to use",
     "APIs built for real traffic",
+    "admin tools teams rely on",
+    "Next.js products end-to-end",
+    "payment & auth flows done right",
+    "frontend craft + backend depth",
   ],
   summary:
     "Full stack engineer with 5+ years of experience in Next.js, React, Node.js, and Python (FastAPI). Promoted to Senior Software Engineer at Raptr Games for delivery on production fintech and e-commerce work. Strong across frontend, backend, and API design, including payment integrations, database design, and deployment on Vercel and GCP.",
@@ -57,6 +57,46 @@ export const heroStats: StatItem[] = [
   { label: "Years experience", value: "5", suffix: "+" },
   { label: "Shipped projects", value: "10", suffix: "+" },
 ];
+
+export const heroStack = [
+  "Next.js",
+  "TypeScript",
+  "React",
+  "Node.js",
+  "FastAPI",
+  "MongoDB",
+  "MySQL",
+  "Tailwind CSS",
+] as const;
+
+export const heroHighlights = [
+  {
+    label: "Experience",
+    value: "5+",
+    detail: "Years building production software",
+    counter: { value: "5", suffix: "+" },
+  },
+  {
+    label: "Projects",
+    value: "10+",
+    detail: "Live apps shipped end-to-end",
+    counter: { value: "10", suffix: "+" },
+  },
+  {
+    label: "Stack",
+    value: "Full-stack",
+    detail: "UI, APIs, dashboards & deploy",
+  },
+] as const;
+
+export const heroTraits = ["Full-time & contract", "Frontend → backend", "Open to relocation"] as const;
+
+export const heroServiceLinks = [
+  { label: "Frontend UI", href: "#capabilities" },
+  { label: "Backend APIs", href: "#capabilities" },
+  { label: "Full-stack apps", href: "#capabilities" },
+  { label: "Fintech flows", href: "#capabilities" },
+] as const;
 
 export const experience: ExperienceItem[] = [
   {

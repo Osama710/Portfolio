@@ -5,30 +5,41 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import { gsap, registerGsapPlugins, ScrollTrigger } from "@/lib/gsap/register";
 
+function useNativeScroll() {
+  return (
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    window.matchMedia("(max-width: 1023px)").matches
+  );
+}
+
 export function SmoothScroll() {
   useEffect(() => {
     registerGsapPlugins();
 
+    const refresh = () => ScrollTrigger.refresh();
+
+    if (useNativeScroll()) {
+      window.setTimeout(refresh, 180);
+      window.addEventListener("load", refresh, { passive: true });
+      return () => window.removeEventListener("load", refresh);
+    }
+
     const lenis = new Lenis({
-      duration: 1.12,
+      duration: 0.78,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.2,
+      syncTouch: false,
+      touchMultiplier: 0.9,
+      wheelMultiplier: 0.95,
     });
 
     lenis.scrollTo(0, { immediate: true });
-
     lenis.on("scroll", ScrollTrigger.update);
 
     ScrollTrigger.scrollerProxy(document.documentElement, {
       scrollTop(value) {
         if (value !== undefined) {
-          const current = lenis.scroll;
-          const delta = Math.abs(value - current);
-          lenis.scrollTo(value, {
-            immediate: delta < window.innerHeight * 0.85,
-            force: true,
-          });
+          lenis.scrollTo(value, { immediate: Math.abs(value - lenis.scroll) < window.innerHeight * 0.6, force: true });
         }
         return lenis.scroll;
       },
@@ -43,20 +54,16 @@ export function SmoothScroll() {
       pinType: document.documentElement.style.transform ? "transform" : "fixed",
     });
 
-    const onRefresh = () => {
-      lenis.resize();
-    };
+    const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener("refresh", onRefresh);
 
     const tick = (time: number) => {
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
-    const refresh = () => ScrollTrigger.refresh();
-    window.setTimeout(refresh, 300);
-    window.setTimeout(refresh, 1000);
+    window.setTimeout(refresh, 220);
     window.addEventListener("load", refresh, { passive: true });
 
     return () => {

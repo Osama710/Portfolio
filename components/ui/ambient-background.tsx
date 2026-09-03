@@ -131,12 +131,14 @@ export function AmbientBackground() {
         yoyo: true,
       });
 
-      gsap.to(".ambient-mesh", {
-        rotation: 360,
-        duration: 120,
-        ease: "none",
-        repeat: -1,
-      });
+      if (window.matchMedia("(min-width: 1024px)").matches) {
+        gsap.to(".ambient-mesh", {
+          rotation: 360,
+          duration: 120,
+          ease: "none",
+          repeat: -1,
+        });
+      }
 
       const pointerFine = window.matchMedia("(pointer: fine)").matches;
       if (pointerFine && wrapRef.current) {
