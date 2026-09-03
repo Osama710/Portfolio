@@ -123,16 +123,18 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
             }}
           >
             <span
-              className={cn(
-                "hero-orbit-chip hero-orbit-chip-live inline-block whitespace-nowrap rounded-lg border bg-void/90 px-2 py-1 text-[0.58rem] font-semibold backdrop-blur-sm sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]",
-                chip.color,
-              )}
-              style={{
-                ["--chip-glow" as string]: chip.glow,
-                ["--chip-delay" as string]: `${i * 0.12}s`,
-              }}
+              className="hero-orbit-chip-float inline-block"
+              style={{ ["--chip-delay" as string]: `${i * 0.12}s` }}
             >
-              {chip.label}
+              <span
+                className={cn(
+                  "hero-orbit-chip inline-block whitespace-nowrap rounded-lg border bg-void/90 px-2 py-1 text-[0.58rem] font-semibold backdrop-blur-sm sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]",
+                  chip.color,
+                )}
+                style={{ ["--chip-glow" as string]: chip.glow }}
+              >
+                {chip.label}
+              </span>
             </span>
           </div>
         );

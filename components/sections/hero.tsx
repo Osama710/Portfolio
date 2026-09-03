@@ -8,6 +8,7 @@ import {
   Rocket,
   Sparkles,
 } from "lucide-react";
+import { HeroBootSync } from "@/components/sections/hero-boot-sync";
 import { HeroOrbit } from "@/components/sections/hero-orbit";
 import {
   heroHighlights,
@@ -25,6 +26,7 @@ const rotatorItems = JSON.stringify(profile.heroRotations);
 export function Hero() {
   return (
     <section id="hero" className="hero-stage relative w-full overflow-x-clip">
+      <HeroBootSync />
       <div className="hero-banner site-container relative flex min-h-[100svh] flex-col justify-center pb-16 pt-[5.25rem] sm:pb-10">
         <div className="grid items-center gap-8 overflow-visible lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div className="hero-copy min-w-0">
@@ -166,13 +168,21 @@ export function Hero() {
               <span className="text-accent-cyan">{profile.relocation}</span>
             </div>
 
-            <div className="hero-reveal hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-hidden sm:max-w-[300px] lg:hidden" style={{ animationDelay: "0.62s" }}>
-              <HeroOrbit />
+            <div className="hero-reveal lg:hidden" style={{ animationDelay: "0.62s" }}>
+              <div className="hero-orbit-wrap hero-orbit-wrap-mobile hero-beacon mx-auto my-5 w-full max-w-[280px] origin-center overflow-visible sm:max-w-[300px]">
+                <div className="hero-orbit-zoom">
+                  <HeroOrbit />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="hero-reveal hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto hidden w-full max-w-[420px] origin-center overflow-visible py-4 lg:block" style={{ animationDelay: "0.18s" }}>
-            <HeroOrbit />
+          <div className="hero-reveal hidden lg:block" style={{ animationDelay: "0.18s" }}>
+            <div className="hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto w-full max-w-[420px] origin-center overflow-visible py-4">
+              <div className="hero-orbit-zoom">
+                <HeroOrbit />
+              </div>
+            </div>
           </div>
         </div>
 

@@ -111,7 +111,7 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html:
-              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .55s ease-out both}.hero-reveal{opacity:0;transform:translateY(14px);animation:hero-reveal-in .45s cubic-bezier(.22,1,.36,1) both}.hero-rotator-word.is-visible{opacity:1;transform:translateY(0)}.hero-orbit-chip-live,.hero-orbit-ring,.hero-orbit-icon-spin{animation-play-state:running}}@keyframes page-fade-in{to{opacity:1}}@keyframes hero-reveal-in{to{opacity:1;transform:translateY(0)}}",
+              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .55s ease-out both}.hero-reveal{opacity:0;transform:translateY(14px);animation:hero-reveal-in .45s cubic-bezier(.22,1,.36,1) both}.hero-rotator-word.is-visible{opacity:1;transform:translateY(0)}.hero-orbit-ring{animation:spin-slow 18s linear infinite}.hero-orbit-icon-spin{animation:spin-slow 14s linear infinite}.hero-orbit-chip-float{animation:hero-orbit-chip-float 3.4s ease-in-out infinite;animation-delay:var(--chip-delay,0s)}}@keyframes page-fade-in{to{opacity:1}}@keyframes hero-reveal-in{to{opacity:1;transform:translateY(0)}}@keyframes spin-slow{to{transform:rotate(360deg)}}@keyframes hero-orbit-chip-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}",
           }}
         />
         <script

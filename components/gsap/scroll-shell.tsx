@@ -19,8 +19,8 @@ const SECTIONS = [
 /** Mobile: hide current section once the next one covers ~80% of the viewport. */
 const MOBILE_NEXT_VISIBLE = "top 20%";
 
-const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop";
-const MOBILE_ORBIT = ".hero-orbit-wrap-mobile";
+const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop .hero-orbit-zoom";
+const MOBILE_ORBIT = ".hero-orbit-wrap-mobile .hero-orbit-zoom";
 
 function heroOrbitSelector() {
   return window.matchMedia("(min-width: 1024px)").matches ? DESKTOP_ORBIT : MOBILE_ORBIT;
@@ -67,13 +67,14 @@ function setupAboutInitialHide(root: HTMLElement) {
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const heroFadeTargets = root.querySelectorAll(
-    ".hero-copy .tag-pill, .hero-name-line, .hero-signal, .hero-stack-pill, .hero-rotator, .hero-lead, .hero-location, .hero-orbit-wrap-mobile",
+    ".hero-copy .hero-live-pill, .hero-copy .hero-trait-pill, .hero-copy .hero-name-line, .hero-copy .hero-signal, .hero-copy .hero-stack-pill, .hero-copy .hero-rotator-live, .hero-copy .hero-lead, .hero-copy .hero-bento, .hero-copy .hero-services, .hero-copy .hero-actions, .hero-copy .hero-location, .hero-copy .hero-orbit-wrap-mobile",
   );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
 
   const build = (orbitScale: number, orbitBlur: number, copyY: number, fadeStart = 0.78) => {
     const orbit = heroOrbitNodes(root);
+    gsap.set(orbit.wrap, { transformOrigin: "50% 50%", force3D: true });
 
     gsap
       .timeline({

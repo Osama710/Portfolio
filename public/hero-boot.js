@@ -11,10 +11,15 @@
   }
 
   function animateCount(el) {
-    if (el.dataset.done === "1" || el.dataset.animating === "1") return;
-    el.dataset.animating = "1";
+    if (el.dataset.animating === "1") return;
     var target = Number(el.dataset.value || 0);
     var suffix = el.dataset.suffix || "";
+    var finalText = target + suffix;
+    var cur = el.textContent || "";
+    if (el.dataset.done === "1" && cur === finalText) return;
+
+    el.dataset.animating = "1";
+    delete el.dataset.done;
     var dur = Number(el.dataset.duration || 650);
     var t0 = performance.now();
     el.textContent = "0" + suffix;
@@ -35,19 +40,7 @@
   }
 
   function syncCounts() {
-    document.querySelectorAll(".hero-count").forEach(function (el) {
-      if (el.dataset.done === "1" || el.dataset.animating === "1") return;
-      var suffix = el.dataset.suffix || "";
-      var target = el.dataset.value || "0";
-      var cur = el.textContent || "";
-      if (cur === target + suffix) {
-        el.dataset.done = "1";
-        return;
-      }
-      if (cur === "" || cur === "0" + suffix || cur === "0") {
-        animateCount(el);
-      }
-    });
+    document.querySelectorAll(".hero-count").forEach(animateCount);
   }
 
   function bootRotator(root) {
@@ -79,21 +72,25 @@
     }, interval);
   }
 
-  function boot() {
-    document.querySelectorAll(".hero-count").forEach(animateCount);
+  function syncRotators() {
     document.querySelectorAll(".hero-rotator-live").forEach(bootRotator);
-    document.documentElement.classList.add("hero-booted");
   }
 
-  function init() {
-    boot();
-    window.setTimeout(syncCounts, 2500);
-    window.setTimeout(syncCounts, 4500);
+  function boot() {
+    syncCounts();
+    syncRotators();
   }
+
+  function resync() {
+    syncCounts();
+    syncRotators();
+  }
+
+  window.addEventListener("hero:resync", resync);
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    init();
+    boot();
   }
 })();
