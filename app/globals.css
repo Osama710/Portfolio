@@ -1111,8 +1111,37 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .page-enter-shell {
-      animation: page-fade-in 0.65s ease-out both;
+      opacity: 0;
+      animation: page-fade-in 0.55s ease-out both;
     }
+
+    .hero-reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      animation: hero-reveal-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
+  .hero-rotator-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.35em);
+    transition: opacity 0.32s ease, transform 0.32s ease;
+  }
+
+  .hero-rotator-word.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-orbit-chip-live {
+    animation: hero-orbit-chip-float 3.4s ease-in-out infinite;
+    animation-delay: var(--chip-delay, 0s);
+  }
+
+  .hero-orbit-icon-spin {
+    display: flex;
+    animation: spin-slow 14s linear infinite;
   }
 
   .hero-count {
@@ -2291,6 +2320,29 @@
   50% {
     opacity: 0.55;
     transform: scale(0.88);
+  }
+}
+
+@keyframes hero-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-orbit-chip-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
   }
 }
 

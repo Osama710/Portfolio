@@ -111,7 +111,7 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html:
-              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .65s ease-out both}}@keyframes page-fade-in{to{opacity:1}}",
+              "@media (prefers-reduced-motion:no-preference){.page-enter-shell{opacity:0;animation:page-fade-in .55s ease-out both}.hero-reveal{opacity:0;transform:translateY(14px);animation:hero-reveal-in .45s cubic-bezier(.22,1,.36,1) both}.hero-rotator-word.is-visible{opacity:1;transform:translateY(0)}.hero-orbit-chip-live,.hero-orbit-ring,.hero-orbit-icon-spin{animation-play-state:running}}@keyframes page-fade-in{to{opacity:1}}@keyframes hero-reveal-in{to{opacity:1;transform:translateY(0)}}",
           }}
         />
         <script

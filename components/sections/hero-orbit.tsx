@@ -48,7 +48,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
   }, [pointerX, pointerY]);
 
   return (
-    <motion.div
+    <div
       ref={ref}
       className={cn(
         "hero-orbit relative mx-auto aspect-square w-full max-w-[240px] overflow-visible sm:max-w-[280px] lg:max-w-[340px] xl:max-w-[380px]",
@@ -61,7 +61,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
       <div className="absolute inset-0 rounded-full bg-accent-violet/10 blur-3xl" aria-hidden="true" />
 
       <motion.div
-        className="hero-orbit-ring absolute inset-[4%] rounded-full"
+        className="hero-orbit-ring hero-orbit-ring-live absolute inset-[4%] rounded-full"
         style={reduced ? undefined : { rotate: ringRotate }}
         aria-hidden="true"
       />
@@ -96,16 +96,12 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
       </svg>
 
       <motion.div
-        className="absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-3 text-center shadow-glow-cyan"
+        className="hero-orbit-hub absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-3 text-center shadow-glow-cyan"
         style={reduced ? undefined : { y: hubY }}
-        whileHover={reduced ? undefined : { scale: 1.04 }}
       >
-        <motion.div
-          animate={reduced ? undefined : { rotate: 360 }}
-          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-        >
+        <div className="hero-orbit-icon-spin">
           <Orbit className="h-5 w-5 text-accent-violet sm:h-6 sm:w-6" aria-hidden="true" />
-        </motion.div>
+        </div>
         <p className="mt-2 font-display text-2xl font-bold leading-none text-ink sm:text-3xl">{profile.initials}</p>
         <p className="mt-2 max-w-[7rem] text-[0.55rem] font-medium leading-snug text-ink-muted sm:max-w-[8rem] sm:text-[0.6rem]">
           {profile.title}
@@ -126,28 +122,21 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <motion.span
+            <span
               className={cn(
-                "hero-orbit-chip inline-block whitespace-nowrap rounded-lg border bg-void/90 px-2 py-1 text-[0.58rem] font-semibold backdrop-blur-sm sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]",
+                "hero-orbit-chip hero-orbit-chip-live inline-block whitespace-nowrap rounded-lg border bg-void/90 px-2 py-1 text-[0.58rem] font-semibold backdrop-blur-sm sm:px-2.5 sm:py-1.5 sm:text-[0.65rem]",
                 chip.color,
               )}
-              style={{ ["--chip-glow" as string]: chip.glow }}
-              animate={
-                reduced
-                  ? undefined
-                  : {
-                      y: [0, i % 2 === 0 ? -6 : -4, 0],
-                      rotate: [0, i % 2 === 0 ? 2 : -2, 0],
-                    }
-              }
-              transition={{ duration: 4.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
-              whileHover={reduced ? undefined : { scale: 1.12, y: -4 }}
+              style={{
+                ["--chip-glow" as string]: chip.glow,
+                ["--chip-delay" as string]: `${i * 0.12}s`,
+              }}
             >
               {chip.label}
-            </motion.span>
+            </span>
           </div>
         );
       })}
-    </motion.div>
+    </div>
   );
 }
