@@ -88,7 +88,7 @@ export function HeroTypewriterRotator({ items, className }: HeroTypewriterRotato
   return (
     <p
       className={cn(
-        "hero-rotator-line flex min-h-[1.75rem] flex-wrap items-baseline gap-x-2 text-lg font-medium leading-snug sm:min-h-[2rem] sm:text-xl lg:text-[1.35rem]",
+        "hero-rotator-line flex min-h-[1.5rem] flex-wrap items-baseline gap-x-2 text-base font-medium leading-tight sm:min-h-[1.65rem] sm:text-lg lg:text-[1.2rem]",
         className,
       )}
     >

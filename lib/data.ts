@@ -33,7 +33,7 @@ export const profile = {
   tagline:
     "Senior Software Engineer building fintech and e-commerce products — KYC, payments, admin tools, and backend APIs.",
   heroLead:
-    "Full-stack engineer with 5+ years shipping production web apps — polished interfaces, secure APIs, admin dashboards, and deployments teams can maintain. Strong in fintech, e-commerce, and SaaS across the entire stack.",
+    "Full-stack engineer with 5+ years shipping production apps — polished UIs, secure APIs, admin dashboards, and reliable deployments across fintech, e-commerce, and SaaS.",
   heroRotations: [
     "interfaces people want to use",
     "APIs built for real traffic",
