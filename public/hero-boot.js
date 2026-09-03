@@ -10,8 +10,8 @@
     return 1 - Math.pow(1 - p, 3);
   }
 
-  function animateCount(el, force) {
-    if (!force && el.dataset.done === "1") return;
+  function animateCount(el) {
+    if (el.dataset.done === "1" || el.dataset.animating === "1") return;
     el.dataset.animating = "1";
     var target = Number(el.dataset.value || 0);
     var suffix = el.dataset.suffix || "";
@@ -23,24 +23,31 @@
       var p = Math.min((now - t0) / dur, 1);
       var v = Math.round(easeOut(p) * target);
       el.textContent = v + suffix;
-      if (p < 1) requestAnimationFrame(frame);
-      else el.dataset.done = "1";
+      if (p < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        el.dataset.done = "1";
+        el.dataset.animating = "0";
+      }
     }
 
     requestAnimationFrame(frame);
   }
 
-  function maybeReanimate(el) {
-    var suffix = el.dataset.suffix || "";
-    var target = el.dataset.value || "0";
-    var finalText = target + suffix;
-    var cur = el.textContent || "";
-    if (cur === "0" + suffix || cur === "0" || cur === "") {
-      delete el.dataset.done;
-      animateCount(el, true);
-    } else if (cur === finalText) {
-      el.dataset.done = "1";
-    }
+  function syncCounts() {
+    document.querySelectorAll(".hero-count").forEach(function (el) {
+      if (el.dataset.done === "1" || el.dataset.animating === "1") return;
+      var suffix = el.dataset.suffix || "";
+      var target = el.dataset.value || "0";
+      var cur = el.textContent || "";
+      if (cur === target + suffix) {
+        el.dataset.done = "1";
+        return;
+      }
+      if (cur === "" || cur === "0" + suffix || cur === "0") {
+        animateCount(el);
+      }
+    });
   }
 
   function bootRotator(root) {
@@ -73,35 +80,15 @@
   }
 
   function boot() {
-    document.querySelectorAll(".hero-count").forEach(function (el) {
-      animateCount(el);
-    });
+    document.querySelectorAll(".hero-count").forEach(animateCount);
     document.querySelectorAll(".hero-rotator-live").forEach(bootRotator);
     document.documentElement.classList.add("hero-booted");
   }
 
-  function watchHydration() {
-    var hero = document.getElementById("hero");
-    if (!hero) return;
-
-    var obs = new MutationObserver(function () {
-      document.querySelectorAll(".hero-count").forEach(maybeReanimate);
-    });
-    obs.observe(hero, { childList: true, subtree: true, characterData: true });
-    window.setTimeout(function () {
-      obs.disconnect();
-    }, 10000);
-  }
-
-  [100, 500, 1500, 3000, 5000].forEach(function (ms) {
-    window.setTimeout(function () {
-      document.querySelectorAll(".hero-count").forEach(maybeReanimate);
-    }, ms);
-  });
-
   function init() {
     boot();
-    watchHydration();
+    window.setTimeout(syncCounts, 2500);
+    window.setTimeout(syncCounts, 4500);
   }
 
   if (document.readyState === "loading") {
