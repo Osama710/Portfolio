@@ -6,8 +6,11 @@ type MediaStore = ReturnType<typeof gsap.matchMedia>;
 const CAREER_SCROLL_EVENT = "career-scroll-step";
 const DESKTOP_CAREER_STAGE = "#experience .career-journey-stage";
 const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
-const DESKTOP_CAREER_NODE = "#experience .career-journey-stage .career-snake-node";
+const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
 const MOBILE_CAREER_STEP = "#experience .career-mobile-shell .career-journey-step";
+
+/** SVG path anchor Y values — must match SNAKE_PATH_D in experience.tsx (viewBox height 420). */
+const PATH_STOP_YS = [25, 100, 175, 250, 325];
 
 function dispatchCareerStep(index: number) {
   const clamped = Math.min(experience.length - 1, Math.max(0, index));
@@ -37,29 +40,15 @@ function stepThreshold(weights: number[], index: number) {
   return weights.slice(0, index).reduce((acc, value) => acc + value, 0);
 }
 
-function pathLengthAtDot(
-  path: SVGPathElement,
-  dot: HTMLElement,
-  snake: HTMLElement,
-  minLength = 0,
-) {
-  const snakeRect = snake.getBoundingClientRect();
-  const dotRect = dot.getBoundingClientRect();
-  const targetX = dotRect.left + dotRect.width / 2 - snakeRect.left;
-  const targetY = dotRect.top + dotRect.height / 2 - snakeRect.top;
+function pathLengthAtViewBoxY(path: SVGPathElement, targetY: number, minLength = 0) {
   const total = path.getTotalLength();
-  const viewWidth = snakeRect.width || 1;
-  const viewHeight = snakeRect.height || 1;
-
   let bestLength = minLength;
   let bestScore = Infinity;
 
   for (let i = 0; i <= 240; i++) {
     const length = minLength + (i / 240) * (total - minLength);
     const point = path.getPointAtLength(length);
-    const pixelX = (point.x / 100) * viewWidth;
-    const pixelY = (point.y / 420) * viewHeight;
-    const score = Math.hypot(pixelX - targetX, pixelY - targetY);
+    const score = Math.abs(point.y - targetY);
     if (score < bestScore) {
       bestScore = score;
       bestLength = length;
@@ -69,17 +58,12 @@ function pathLengthAtDot(
   return bestLength;
 }
 
-function buildPathStops(path: SVGPathElement, snake: HTMLElement, nodes: HTMLElement[]) {
+function buildPathStopsFromAnchors(path: SVGPathElement, stopYs: number[]) {
   let minLength = 0;
   const stops: number[] = [];
 
-  nodes.forEach((node) => {
-    const dot = node.querySelector(".career-snake-node-dot") as HTMLElement | null;
-    if (!dot) {
-      stops.push(minLength);
-      return;
-    }
-    const length = pathLengthAtDot(path, dot, snake, minLength);
+  stopYs.forEach((y) => {
+    const length = pathLengthAtViewBoxY(path, y, minLength);
     minLength = length;
     stops.push(length);
   });
@@ -214,9 +198,11 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
     const measure = () => {
       pathLength = path.getTotalLength();
-      pathStops = buildPathStops(path, snake, nodes);
+      pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
       gsap.set(path, { strokeDasharray: pathLength });
     };
+
+    measure();
 
     const setPathDash = gsap.quickSetter(path, "strokeDashoffset", "px");
     const setPathOpacity = gsap.quickSetter(path, "opacity");
@@ -229,27 +215,17 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       setPathDash(Math.max(0, pathLength - drawTo));
       setPathOpacity(0.45 + clamped * 0.5);
 
+      nodes.forEach((node, i) => {
+        gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
+      });
+
+      updateConnectorLine(snake, nodes, activeStep, connectorMeta);
+
       if (activeStep !== lastStep) {
         lastStep = activeStep;
-        nodes.forEach((node, i) => {
-          gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
-        });
-        updateConnectorLine(snake, nodes, activeStep, connectorMeta);
         dispatchCareerStep(activeStep);
       }
     };
-
-    let measureQueued = false;
-    const runMeasure = () => {
-      if (measureQueued) return;
-      measureQueued = true;
-      requestAnimationFrame(() => {
-        measureQueued = false;
-        measure();
-      });
-    };
-
-    measure();
 
     gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength, opacity: 0.45 });
 
@@ -259,19 +235,17 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       end: `+=${journeyEndPx}`,
       pin: stage,
       pinSpacing: true,
-      scrub: true,
-      fastScrollEnd: true,
+      scrub: 0.45,
+      anticipatePin: 1,
       invalidateOnRefresh: true,
       onRefresh: measure,
       onUpdate: (self) => applyJourney(self.progress),
-      onEnter: (self) => {
+      onEnter: () => {
         lastStep = -1;
-        measure();
-        applyJourney(self.progress);
+        applyJourney(0);
       },
       onEnterBack: (self) => {
         lastStep = -1;
-        measure();
         applyJourney(self.progress);
       },
       onLeave: () => {
@@ -288,21 +262,25 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
           gsap.set(node, { autoAlpha: i === 0 ? 1 : 0 });
         });
         gsap.set(path, { strokeDashoffset: pathLength, opacity: 0.45 });
+        updateConnectorLine(snake, nodes, 0, connectorMeta);
         dispatchCareerStep(0);
       },
       onToggle: (self) => {
         pinWrap.classList.toggle("is-pinned", self.isActive);
-        if (self.isActive) runMeasure();
+        if (self.isActive) {
+          measure();
+          applyJourney(self.progress);
+        }
       },
     });
 
     const onRefreshInit = () => measure();
     ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
-    window.addEventListener("resize", runMeasure, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
 
     return () => {
       ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
-      window.removeEventListener("resize", runMeasure);
+      window.removeEventListener("resize", measure);
       pinWrap.classList.remove("is-pinned");
     };
   });

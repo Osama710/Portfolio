@@ -1275,13 +1275,6 @@
 
   .hero-orbit-zoom {
     transform-origin: center center;
-    will-change: transform, opacity;
-  }
-
-  @media (min-width: 1024px) {
-    .hero-orbit-wrap-desktop .hero-orbit-zoom {
-      transform-origin: 50% 50%;
-    }
   }
 
   .hero-orbit-icon-spin {

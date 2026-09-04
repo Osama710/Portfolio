@@ -70,7 +70,7 @@ function unlockInteractivePanels(root: HTMLElement) {
   });
 }
 
-const REVEAL_SECTIONS = ["skills", "experience", "projects", "capabilities", "education", "contact"] as const;
+const REVEAL_SECTIONS = ["skills", "projects", "capabilities", "education", "contact"] as const;
 
 /** Lightweight one-shot reveals — desktop only to keep mobile scroll snappy. */
 function setupSectionReveals(root: HTMLElement) {
@@ -136,7 +136,7 @@ function setupHeroToAboutTransition(root: HTMLElement) {
           trigger: "#hero",
           start: "top top",
           end: scrollEnd,
-          scrub: 0.55,
+          scrub: true,
           invalidateOnRefresh: true,
         },
       })
