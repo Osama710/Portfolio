@@ -23,19 +23,6 @@ const MOBILE_NEXT_VISIBLE = "top 20%";
 const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop .hero-orbit-zoom";
 const MOBILE_ORBIT = ".hero-orbit-wrap-mobile .hero-orbit-zoom";
 
-function heroOrbitSelector() {
-  return window.matchMedia("(min-width: 1024px)").matches ? DESKTOP_ORBIT : MOBILE_ORBIT;
-}
-
-function heroOrbitNodes(root: HTMLElement) {
-  const selector = heroOrbitSelector();
-  return {
-    wrap: root.querySelectorAll(selector),
-    chips: root.querySelectorAll(`${selector} .hero-orbit-chip`),
-    ring: root.querySelectorAll(`${selector} .hero-orbit-ring`),
-  };
-}
-
 function setActiveSection(root: HTMLElement, sectionId: string) {
   document.documentElement.dataset.section = sectionId;
   SECTIONS.forEach((s) => {
@@ -120,49 +107,60 @@ function setupSectionReveals(root: HTMLElement) {
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
 function setupHeroToAboutTransition(root: HTMLElement) {
-  const heroFadeTargets = root.querySelectorAll(
-    ".hero-copy-top, .hero-copy-rest, .hero-orbit-wrap-mobile",
-  );
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
+  const copyFade = root.querySelectorAll(".hero-copy-top, .hero-copy-rest");
 
-  const build = (copyY: number, fadeStart = 0.9) => {
-    const orbit = heroOrbitNodes(root);
-    gsap.set(orbit.wrap, { transformOrigin: "50% 50%", force3D: true });
+  const attachTimeline = (
+    orbitSelector: string,
+    orbitScale: number,
+    orbitRotate: number,
+    copyY: number,
+    fadeStart: number,
+  ) => {
+    const orbitWrap = root.querySelectorAll(orbitSelector);
+    gsap.set(orbitWrap, { transformOrigin: "50% 50%", force3D: true });
 
     gsap
       .timeline({
         scrollTrigger: {
           trigger: "#hero",
           start: "top top",
-          end: "bottom top",
+          end: "80% top",
           scrub: true,
           fastScrollEnd: true,
         },
       })
       .fromTo(
-        heroFadeTargets,
+        copyFade,
         { y: 0, autoAlpha: 1, scale: 1 },
         { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in" },
         fadeStart,
       )
       .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
       .fromTo(
-        orbit.wrap,
-        { autoAlpha: 1 },
-        { autoAlpha: 0, ease: "power2.in" },
+        orbitWrap,
+        { scale: 1, rotate: 0, autoAlpha: 1 },
+        {
+          scale: orbitScale,
+          rotate: orbitRotate,
+          autoAlpha: 0,
+          ease: "power2.inOut",
+          transformOrigin: "50% 50%",
+        },
         fadeStart,
       )
       .fromTo(
         about,
         { y: 32 },
         { y: 0, stagger: 0.04, ease: "power3.out" },
-        fadeStart + 0.06,
+        fadeStart + 0.08,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => build(-64, 0.9));
+  mm.add("(min-width: 1024px)", () => attachTimeline(DESKTOP_ORBIT, 3.1, 6, -64, 0.78));
+  mm.add("(max-width: 1023px)", () => attachTimeline(MOBILE_ORBIT, 1.5, 6, -20, 0.82));
   return mm;
 }
 

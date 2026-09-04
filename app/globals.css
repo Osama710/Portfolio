@@ -1216,6 +1216,11 @@
       overflow: visible;
     }
 
+    .hero-orbit-wrap-mobile,
+    .hero-orbit-wrap-mobile .hero-orbit-zoom {
+      overflow: visible;
+    }
+
     .hero-copy-rest {
       gap: 1rem;
     }
