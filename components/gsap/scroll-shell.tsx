@@ -105,30 +105,39 @@ function setupSectionReveals(root: HTMLElement) {
   return mm;
 }
 
-/** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
+/** Hero → about handoff: zoom orbit + fade copy in the final stretch of hero scroll. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
   const copyFade = root.querySelectorAll(".hero-copy-top, .hero-copy-rest");
 
-  const attachTimeline = (
-    orbitSelector: string,
-    orbitScale: number,
-    orbitRotate: number,
-    copyY: number,
-    fadeStart: number,
-  ) => {
+  const attachTimeline = ({
+    orbitSelector,
+    orbitScale,
+    orbitRotate,
+    copyY,
+    fadeStart,
+    scrollEnd,
+  }: {
+    orbitSelector: string;
+    orbitScale: number;
+    orbitRotate: number;
+    copyY: number;
+    fadeStart: number;
+    scrollEnd: string;
+  }) => {
     const orbitWrap = root.querySelectorAll(orbitSelector);
     gsap.set(orbitWrap, { transformOrigin: "50% 50%", force3D: true });
+    gsap.set(about, { y: 0, autoAlpha: 1 });
 
     gsap
       .timeline({
         scrollTrigger: {
           trigger: "#hero",
           start: "top top",
-          end: "80% top",
-          scrub: true,
-          fastScrollEnd: true,
+          end: scrollEnd,
+          scrub: 0.55,
+          invalidateOnRefresh: true,
         },
       })
       .fromTo(
@@ -137,7 +146,12 @@ function setupHeroToAboutTransition(root: HTMLElement) {
         { y: copyY, autoAlpha: 0, scale: 0.98, ease: "power2.in" },
         fadeStart,
       )
-      .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
+      .fromTo(
+        scrollCue,
+        { autoAlpha: 1, y: 0 },
+        { autoAlpha: 0, y: -12, ease: "power2.in" },
+        fadeStart,
+      )
       .fromTo(
         orbitWrap,
         { scale: 1, rotate: 0, autoAlpha: 1 },
@@ -152,15 +166,38 @@ function setupHeroToAboutTransition(root: HTMLElement) {
       )
       .fromTo(
         about,
-        { y: 32 },
+        { y: 28 },
         { y: 0, stagger: 0.04, ease: "power3.out" },
-        fadeStart + 0.08,
+        fadeStart + 0.04,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => attachTimeline(DESKTOP_ORBIT, 3.1, 6, -64, 0.78));
-  mm.add("(max-width: 1023px)", () => attachTimeline(MOBILE_ORBIT, 1.5, 6, -20, 0.82));
+
+  /* Laptop/desktop: hero fits one screen — 80% scroll span gives room for zoom */
+  mm.add("(min-width: 1024px)", () =>
+    attachTimeline({
+      orbitSelector: DESKTOP_ORBIT,
+      orbitScale: 3.1,
+      orbitRotate: 6,
+      copyY: -64,
+      fadeStart: 0.74,
+      scrollEnd: "80% top",
+    }),
+  );
+
+  /* Mobile: tall hero — tie animation to hero leaving viewport, fade only at the end */
+  mm.add("(max-width: 1023px)", () =>
+    attachTimeline({
+      orbitSelector: MOBILE_ORBIT,
+      orbitScale: 1.55,
+      orbitRotate: 5,
+      copyY: -28,
+      fadeStart: 0.9,
+      scrollEnd: "bottom top",
+    }),
+  );
+
   return mm;
 }
 

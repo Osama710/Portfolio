@@ -161,7 +161,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="hero-orbit-col hero-reveal hidden lg:block" style={{ animationDelay: "0.28s" }}>
+          <div className="hero-orbit-col hero-reveal hidden min-h-0 lg:block" style={{ animationDelay: "0.28s" }}>
             <div className="hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto w-full max-w-[min(360px,34vw)] origin-center overflow-visible">
               <div className="hero-orbit-zoom">
                 <HeroOrbit className="max-w-[min(360px,34vw)]" />
