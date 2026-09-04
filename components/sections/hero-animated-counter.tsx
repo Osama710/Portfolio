@@ -29,30 +29,31 @@ export function HeroAnimatedCounter({
       return;
     }
 
-    let raf = 0;
+    let intervalId = 0;
+    let timeoutId = 0;
     let cancelled = false;
 
-    const start = () => {
+    timeoutId = window.setTimeout(() => {
+      if (cancelled || target <= 0) return;
+
+      let step = 0;
       el.textContent = `0${suffix}`;
-      const stepMs = duration / (target + 1);
-      const t0 = performance.now();
+      const stepMs = Math.max(80, duration / target);
 
-      const tick = (now: number) => {
+      intervalId = window.setInterval(() => {
         if (cancelled) return;
-        const step = Math.min(target, Math.floor((now - t0) / stepMs));
+        step += 1;
         el.textContent = `${step}${suffix}`;
-        if (step < target) raf = requestAnimationFrame(tick);
-      };
-
-      raf = requestAnimationFrame(tick);
-    };
-
-    const timer = window.setTimeout(start, HERO_COUNTER_START_MS);
+        if (step >= target) {
+          window.clearInterval(intervalId);
+        }
+      }, stepMs);
+    }, HERO_COUNTER_START_MS);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
-      cancelAnimationFrame(raf);
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
     };
   }, [target, suffix, duration]);
 
@@ -60,7 +61,7 @@ export function HeroAnimatedCounter({
     <span
       ref={ref}
       suppressHydrationWarning
-      className="hero-count hero-count--js"
+      className="hero-count"
       data-value={value}
       data-suffix={suffix}
       data-counter-id={counterId}

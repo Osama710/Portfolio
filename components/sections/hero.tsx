@@ -20,8 +20,8 @@ import {
 
 export function Hero() {
   return (
-    <section id="hero" className="hero-stage relative w-full overflow-x-clip">
-      <div className="hero-banner site-container relative flex flex-col justify-center overflow-hidden pb-10 pt-[5rem] lg:pb-11 lg:pt-[5.25rem]">
+    <section id="hero" className="hero-stage relative w-full overflow-visible">
+      <div className="hero-banner site-container relative flex flex-col justify-center overflow-visible pb-8 pt-[4.5rem] sm:pb-10 sm:pt-[5rem] lg:pb-11 lg:pt-[5.25rem]">
         <div className="hero-grid grid items-center gap-6 overflow-visible lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 xl:gap-10">
           <div className="hero-copy min-w-0">
             <div className="hero-copy-top">
@@ -45,11 +45,11 @@ export function Hero() {
               </p>
 
               <h1
-                className="hero-reveal hero-name-block font-display text-[clamp(2.5rem,7vw,4.75rem)] font-bold tracking-[-0.04em] lg:text-[clamp(2.85rem,4.5vw,4.35rem)]"
+                className="hero-reveal hero-name-block font-display text-[clamp(1.9rem,8.5vw,4.75rem)] font-bold leading-[1.05] tracking-[-0.04em] sm:text-[clamp(2.35rem,7vw,4.75rem)] lg:text-[clamp(2.85rem,4.5vw,4.35rem)]"
                 style={{ animationDelay: "0.24s" }}
               >
-                <span className="hero-name-line whitespace-nowrap text-ink">{profile.name.split(" ")[0]} </span>
-                <span className="hero-name-line gradient-text-shimmer whitespace-nowrap">
+                <span className="hero-name-line text-ink sm:whitespace-nowrap">{profile.name.split(" ")[0]} </span>
+                <span className="hero-name-line gradient-text-shimmer sm:whitespace-nowrap">
                   {profile.name.split(" ").slice(1).join(" ")}
                 </span>
               </h1>
@@ -69,10 +69,10 @@ export function Hero() {
             </div>
 
             <div className="hero-copy-rest">
-              <div className="hero-bento grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
+              <div className="hero-bento grid grid-cols-3 gap-1.5 sm:gap-2.5">
                 {heroHighlights.map((item, index) => (
                   <div key={item.label} className={`hero-bento-card hero-bento-card--${index}`}>
-                    <p className="font-mono text-[0.58rem] uppercase tracking-widest text-ink-faint sm:text-[0.6rem]">
+                    <p className="font-mono text-[0.5rem] uppercase leading-tight tracking-[0.12em] text-ink-faint sm:text-[0.6rem] sm:tracking-widest">
                       {item.label}
                     </p>
                     <p className="hero-stat-value text-ink">
@@ -86,7 +86,7 @@ export function Hero() {
                         item.value
                       )}
                     </p>
-                    <p className="mt-1.5 text-[0.65rem] leading-snug text-ink-muted sm:text-[0.68rem]">{item.detail}</p>
+                    <p className="mt-1 hidden text-[0.65rem] leading-snug text-ink-muted sm:mt-1.5 sm:block sm:text-[0.68rem]">{item.detail}</p>
                   </div>
                 ))}
               </div>
@@ -161,7 +161,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="hero-reveal hidden lg:block" style={{ animationDelay: "0.28s" }}>
+          <div className="hero-orbit-col hero-reveal hidden lg:block" style={{ animationDelay: "0.28s" }}>
             <div className="hero-orbit-wrap hero-orbit-wrap-desktop hero-beacon relative mx-auto w-full max-w-[min(360px,34vw)] origin-center overflow-visible">
               <div className="hero-orbit-zoom">
                 <HeroOrbit className="max-w-[min(360px,34vw)]" />

@@ -1105,9 +1105,10 @@
   }
 
   .hero-banner {
-    will-change: opacity, transform;
-    height: 100svh;
-    max-height: 100svh;
+    min-height: calc(100svh - var(--site-nav-clearance));
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .hero-copy-top {
@@ -1153,12 +1154,32 @@
   }
 
   .hero-stat-value {
-    margin-top: 0.35rem;
-    font-size: 1.5rem;
+    margin-top: 0.25rem;
+    font-size: clamp(1rem, 4.2vw, 1.35rem);
     line-height: 1;
     font-weight: 700;
     font-family: var(--font-display), sans-serif;
     white-space: nowrap;
+  }
+
+  @media (max-width: 639px) {
+    .hero-bento-card {
+      padding: 0.45rem 0.35rem;
+      backdrop-filter: none;
+    }
+
+    .hero-copy-top {
+      gap: 0.75rem;
+    }
+
+    .hero-meta {
+      gap: 0.35rem;
+    }
+
+    .hero-lead {
+      -webkit-line-clamp: 4;
+      font-size: 0.9rem;
+    }
   }
 
   @media (min-width: 640px) {
@@ -1169,8 +1190,30 @@
 
   @media (min-width: 1024px) {
     .hero-banner {
+      min-height: 100svh;
+      height: auto;
+      max-height: none;
+      overflow: visible;
       padding-top: 5rem;
       padding-bottom: 2.5rem;
+    }
+
+    .hero-grid {
+      overflow: visible;
+    }
+
+    .hero-orbit-col {
+      overflow: visible;
+      padding-block: 1rem;
+      padding-inline-end: 0.25rem;
+    }
+
+    .hero-orbit-wrap-desktop {
+      overflow: visible;
+    }
+
+    .hero-orbit-wrap-desktop .hero-orbit {
+      overflow: visible;
     }
 
     .hero-copy-rest {
@@ -1235,32 +1278,8 @@
 
   .hero-count {
     display: inline-block;
-    min-width: 1.4em;
+    min-width: 1.35em;
     font-variant-numeric: tabular-nums;
-  }
-
-  .hero-count::after {
-    content: "0+";
-    display: inline-block;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .hero-count--js::after {
-    content: none;
-    animation: none;
-  }
-
-  .hero-count[data-value="5"]::after {
-    animation: hero-count-step-5 1.05s linear 0.92s forwards;
-  }
-
-  .hero-count[data-value="10"]::after {
-    animation: hero-count-step-10 2.1s linear 0.92s forwards;
-  }
-
-  .hero-count--js[data-value="5"]::after,
-  .hero-count--js[data-value="10"]::after {
-    animation: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -1280,18 +1299,6 @@
 
     .hero-bento-card--2 {
       animation-delay: 0.96s;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-count[data-value="5"]::after {
-      content: "5+";
-      animation: none;
-    }
-
-    .hero-count[data-value="10"]::after {
-      content: "10+";
-      animation: none;
     }
   }
 
@@ -1546,6 +1553,10 @@
 
   .hero-orbit-wrap {
     transform-origin: center center;
+    overflow: visible;
+  }
+
+  .hero-stage {
     overflow: visible;
   }
 
@@ -2465,93 +2476,6 @@
 
   50% {
     opacity: 0;
-  }
-}
-
-@keyframes hero-count-step-5 {
-  0%,
-  19.99% {
-    content: "0+";
-  }
-
-  20%,
-  39.99% {
-    content: "1+";
-  }
-
-  40%,
-  59.99% {
-    content: "2+";
-  }
-
-  60%,
-  79.99% {
-    content: "3+";
-  }
-
-  80%,
-  99.99% {
-    content: "4+";
-  }
-
-  100% {
-    content: "5+";
-  }
-}
-
-@keyframes hero-count-step-10 {
-  0%,
-  9.99% {
-    content: "0+";
-  }
-
-  10%,
-  19.99% {
-    content: "1+";
-  }
-
-  20%,
-  29.99% {
-    content: "2+";
-  }
-
-  30%,
-  39.99% {
-    content: "3+";
-  }
-
-  40%,
-  49.99% {
-    content: "4+";
-  }
-
-  50%,
-  59.99% {
-    content: "5+";
-  }
-
-  60%,
-  69.99% {
-    content: "6+";
-  }
-
-  70%,
-  79.99% {
-    content: "7+";
-  }
-
-  80%,
-  89.99% {
-    content: "8+";
-  }
-
-  90%,
-  99.99% {
-    content: "9+";
-  }
-
-  100% {
-    content: "10+";
   }
 }
 

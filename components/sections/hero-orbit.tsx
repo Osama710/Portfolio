@@ -77,8 +77,8 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         </defs>
         {orbitChips.map((chip, i) => {
           const angle = (i / orbitChips.length) * Math.PI * 2 - Math.PI / 2;
-          const x = 50 + Math.cos(angle) * 38;
-          const y = 50 + Math.sin(angle) * 38;
+        const x = 50 + Math.cos(angle) * 36;
+        const y = 50 + Math.sin(angle) * 36;
           return (
             <line
               key={chip.label}
@@ -110,8 +110,8 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
 
       {orbitChips.map((chip, i) => {
         const angle = (i / orbitChips.length) * Math.PI * 2 - Math.PI / 2;
-        const x = 50 + Math.cos(angle) * 42;
-        const y = 50 + Math.sin(angle) * 42;
+        const x = 50 + Math.cos(angle) * 39;
+        const y = 50 + Math.sin(angle) * 39;
         return (
           <div
             key={chip.label}

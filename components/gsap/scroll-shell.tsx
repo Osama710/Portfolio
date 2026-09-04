@@ -85,31 +85,37 @@ function unlockInteractivePanels(root: HTMLElement) {
 
 const REVEAL_SECTIONS = ["skills", "experience", "projects", "capabilities", "education", "contact"] as const;
 
-/** Lightweight one-shot reveals — transform/opacity only, no pre-hide. */
+/** Lightweight one-shot reveals — desktop only to keep mobile scroll snappy. */
 function setupSectionReveals(root: HTMLElement) {
-  REVEAL_SECTIONS.forEach((id) => {
-    const section = root.querySelector(`#${id}`);
-    if (!section) return;
+  const mm = gsap.matchMedia();
 
-    const targets = section.querySelectorAll(".section-label, .section-heading-block, .section-reveal");
-    if (!targets.length) return;
+  mm.add("(min-width: 1024px)", () => {
+    REVEAL_SECTIONS.forEach((id) => {
+      const section = root.querySelector(`#${id}`);
+      if (!section) return;
 
-    gsap.from(targets, {
-      y: 28,
-      opacity: 0,
-      duration: 0.72,
-      stagger: 0.06,
-      ease: "power3.out",
-      immediateRender: false,
-      force3D: true,
-      scrollTrigger: {
-        trigger: section,
-        start: "top 86%",
-        once: true,
-        fastScrollEnd: true,
-      },
+      const targets = section.querySelectorAll(".section-label, .section-heading-block, .section-reveal");
+      if (!targets.length) return;
+
+      gsap.from(targets, {
+        y: 28,
+        opacity: 0,
+        duration: 0.72,
+        stagger: 0.06,
+        ease: "power3.out",
+        immediateRender: false,
+        force3D: true,
+        scrollTrigger: {
+          trigger: section,
+          start: "top 86%",
+          once: true,
+          fastScrollEnd: true,
+        },
+      });
     });
   });
+
+  return mm;
 }
 
 /** Hero stays visible until ~80% scrolled; orbit zoom + about reveal in the last 20%. */
@@ -120,7 +126,7 @@ function setupHeroToAboutTransition(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
 
-  const build = (orbitScale: number, copyY: number, fadeStart = 0.78) => {
+  const build = (copyY: number, fadeStart = 0.9) => {
     const orbit = heroOrbitNodes(root);
     gsap.set(orbit.wrap, { transformOrigin: "50% 50%", force3D: true });
 
@@ -129,7 +135,7 @@ function setupHeroToAboutTransition(root: HTMLElement) {
         scrollTrigger: {
           trigger: "#hero",
           start: "top top",
-          end: "80% top",
+          end: "bottom top",
           scrub: true,
           fastScrollEnd: true,
         },
@@ -143,33 +149,26 @@ function setupHeroToAboutTransition(root: HTMLElement) {
       .fromTo(scrollCue, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -12, ease: "power2.in" }, fadeStart)
       .fromTo(
         orbit.wrap,
-        { scale: 1, rotate: 0, autoAlpha: 1 },
-        {
-          scale: orbitScale,
-          rotate: 6,
-          autoAlpha: 0,
-          ease: "power2.inOut",
-          transformOrigin: "50% 50%",
-        },
+        { autoAlpha: 1 },
+        { autoAlpha: 0, ease: "power2.in" },
         fadeStart,
       )
       .fromTo(
         about,
         { y: 32 },
         { y: 0, stagger: 0.04, ease: "power3.out" },
-        fadeStart + 0.08,
+        fadeStart + 0.06,
       );
   };
 
   const mm = gsap.matchMedia();
-  mm.add("(min-width: 1024px)", () => build(3.1, -64, 0.78));
-  mm.add("(max-width: 1023px)", () => build(1.5, -20, 0.82));
+  mm.add("(min-width: 1024px)", () => build(-64, 0.9));
   return mm;
 }
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
-  setupSectionReveals(root);
+  mediaStores.push(setupSectionReveals(root));
   mediaStores.push(setupHeroToAboutTransition(root));
   setupExperienceJourney(root, mediaStores);
   setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
@@ -234,7 +233,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div ref={wrapRef} className="scroll-shell relative min-w-0 overflow-x-clip">
+    <div ref={wrapRef} className="scroll-shell relative min-w-0 overflow-x-clip overflow-y-visible">
       {children}
     </div>
   );
