@@ -311,6 +311,7 @@ export function Experience() {
                       aria-label={`${item.role} at ${item.company}`}
                       className={cn(
                         "career-journey-step career-snake-node group",
+                        index <= activeIndex && "is-revealed",
                         activeIndex === index && "is-active",
                       )}
                       style={{ top: `${pos.top}%` }}

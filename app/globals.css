@@ -1913,8 +1913,13 @@
   @media (min-width: 1024px) {
     .career-snake-path-draw {
       stroke-dasharray: var(--career-path-length, 9999) var(--career-path-length, 9999);
-      stroke-dashoffset: var(--career-path-length, 9999);
-      opacity: 0.45;
+      stroke-dashoffset: calc(var(--career-path-length, 9999) - var(--career-draw-to, 0px));
+      opacity: calc(0.45 + var(--career-scroll-progress, 0) * 0.5);
+      will-change: stroke-dashoffset, opacity;
+    }
+
+    .career-journey-scroll-track.is-scrolling-career .career-snake-path-draw {
+      transition: none;
     }
   }
 
@@ -1941,6 +1946,11 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
+    }
+
+    .career-journey-scroll-track.is-scrolling-career .career-snake-node-dot,
+    .career-journey-scroll-track.is-scrolling-career .career-snake-node-card {
+      transition: none;
     }
   }
 
