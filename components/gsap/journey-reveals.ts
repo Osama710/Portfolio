@@ -5,6 +5,7 @@ type MediaStore = ReturnType<typeof gsap.matchMedia>;
 
 const CAREER_SCROLL_EVENT = "career-scroll-step";
 const DESKTOP_CAREER_TRACK = "#experience .career-journey-scroll-track";
+const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
 const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
 const MOBILE_CAREER_STEP = "#experience .career-mobile-shell .career-journey-step";
 
@@ -15,15 +16,6 @@ const CONNECTOR_XS = [50, 68, 32, 68, 32];
 function dispatchCareerStep(index: number) {
   const clamped = Math.min(experience.length - 1, Math.max(0, index));
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
-}
-
-function stepScrollPx() {
-  if (typeof window === "undefined") return 340;
-  return Math.max(280, Math.round(window.innerHeight * 0.34));
-}
-
-function journeyScrollPx() {
-  return stepScrollPx() * experience.length;
 }
 
 function navClearancePx() {
@@ -39,8 +31,8 @@ function pathLengthAtViewBoxY(path: SVGPathElement, targetY: number, minLength =
   let bestLength = minLength;
   let bestScore = Infinity;
 
-  for (let i = 0; i <= 48; i++) {
-    const length = minLength + (i / 48) * (total - minLength);
+  for (let i = 0; i <= 80; i++) {
+    const length = minLength + (i / 80) * (total - minLength);
     const point = path.getPointAtLength(length);
     const score = Math.abs(point.y - targetY);
     if (score < bestScore) {
@@ -65,6 +57,38 @@ function buildPathStopsFromAnchors(path: SVGPathElement, stopYs: number[]) {
   return stops;
 }
 
+function activeStepFromDrawLength(drawLength: number, stops: number[]) {
+  let active = 0;
+  for (let i = 0; i < stops.length; i++) {
+    if (drawLength >= stops[i] - 0.5) active = i;
+  }
+  return active;
+}
+
+/** Map scroll progress 0–1 to a smooth draw length between path stops. */
+function drawLengthFromProgress(progress: number, stops: number[], pathLength: number, stepCount: number) {
+  const clamped = Math.min(1, Math.max(0, progress));
+  if (clamped <= 0) return 0;
+  if (clamped >= 1) return pathLength;
+
+  const scaled = clamped * stepCount;
+  const stepIndex = Math.min(stepCount - 1, Math.floor(scaled));
+  const local = scaled - stepIndex;
+  const from = stepIndex === 0 ? 0 : (stops[stepIndex - 1] ?? 0);
+  const to = stops[stepIndex] ?? pathLength;
+
+  return from + (to - from) * Math.min(1, Math.max(0, local));
+}
+
+function readTrackProgress(track: HTMLElement, pinWrap: HTMLElement, clearance: number) {
+  const scrollSpan = track.offsetHeight - pinWrap.offsetHeight;
+  if (scrollSpan <= 0) return 0;
+
+  const trackTop = track.getBoundingClientRect().top;
+  const progress = (clearance - trackTop) / scrollSpan;
+  return Math.min(1, Math.max(0, progress));
+}
+
 function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
   const connector = snake.querySelector(".career-snake-connector-line") as SVGLineElement | null;
   if (!connector) return;
@@ -83,12 +107,11 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
   mm.add("(min-width: 1024px)", () => {
     const track = root.querySelector(DESKTOP_CAREER_TRACK) as HTMLElement | null;
-    const pinWrap = root.querySelector("#experience .career-journey-pin") as HTMLElement | null;
+    const pinWrap = root.querySelector(DESKTOP_CAREER_PIN) as HTMLElement | null;
     const snake = root.querySelector("#experience .career-snake") as HTMLElement | null;
     const nodes = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(DESKTOP_CAREER_NODE));
     const path = root.querySelector("#experience .career-snake-path-draw") as SVGPathElement | null;
     const stepCount = Math.min(nodes.length, experience.length);
-    const journeyEndPx = journeyScrollPx();
     const clearance = navClearancePx();
 
     if (!track || !pinWrap || !snake || !stepCount || !path) return;
@@ -99,17 +122,13 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     let ticking = false;
 
     path.style.strokeDasharray = `${pathLength}`;
-    path.classList.add("career-snake-path-draw--scroll");
+    path.style.strokeDashoffset = `${pathLength}`;
+    path.style.opacity = "0.45";
 
-    const applyStep = (step: number) => {
+    const setStep = (step: number) => {
       const clamped = Math.min(stepCount - 1, Math.max(0, step));
       if (clamped === activeStep) return;
-
       activeStep = clamped;
-      const drawTo = pathStops[clamped] ?? 0;
-
-      path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
-      path.style.opacity = `${0.45 + (clamped / Math.max(1, stepCount - 1)) * 0.5}`;
 
       for (let i = 0; i < nodes.length; i++) {
         const visible = i <= clamped;
@@ -121,19 +140,16 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       dispatchCareerStep(clamped);
     };
 
-    const readProgress = () => {
-      const rect = track.getBoundingClientRect();
-      if (rect.top > clearance) return 0;
-      if (rect.bottom <= window.innerHeight) return 1;
-      return Math.min(1, Math.max(0, (clearance - rect.top) / journeyEndPx));
-    };
-
     const syncFromScroll = () => {
       ticking = false;
-      const progress = readProgress();
-      const step = Math.min(stepCount - 1, Math.floor(progress * stepCount + 0.0001));
-      applyStep(step);
-      pinWrap.classList.toggle("is-pinned", progress > 0 && progress < 1);
+      const progress = readTrackProgress(track, pinWrap, clearance);
+      const drawTo = drawLengthFromProgress(progress, pathStops, pathLength, stepCount);
+
+      path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
+      path.style.opacity = `${0.45 + progress * 0.5}`;
+
+      setStep(activeStepFromDrawLength(drawTo, pathStops));
+      pinWrap.classList.toggle("is-pinned", progress > 0.002 && progress < 0.998);
     };
 
     const onScroll = () => {
@@ -142,7 +158,12 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       requestAnimationFrame(syncFromScroll);
     };
 
-    applyStep(0);
+    for (let i = 0; i < nodes.length; i++) {
+      nodes[i].style.opacity = i === 0 ? "1" : "0";
+      nodes[i].style.visibility = i === 0 ? "visible" : "hidden";
+    }
+    updateConnectorLine(snake, 0);
+    dispatchCareerStep(0);
     syncFromScroll();
 
     window.addEventListener("scroll", onScroll, { passive: true });
