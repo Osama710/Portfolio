@@ -45,31 +45,40 @@ function CareerDetailPanel({
 
   if (!active) return null;
 
+  const useMotion = !staticEnter && !compact;
+  const Wrapper = useMotion ? motion.div : "div";
+  const accentClass = cn("h-1 shrink-0 origin-left bg-gradient-to-r", accents[activeIndex % accents.length]);
+
   return (
-    <motion.div
-      key={activeIndex}
-      initial={
-        reducedMotion || staticEnter
-          ? false
-          : { opacity: 0, x: compact ? 0 : 24, y: compact ? 8 : 0 }
-      }
-      animate={{ opacity: 1, x: 0, y: 0 }}
-      exit={reducedMotion || staticEnter ? undefined : { opacity: 0, x: -12, y: compact ? -6 : 0 }}
-      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+    <Wrapper
+      {...(useMotion
+        ? {
+            key: activeIndex,
+            initial: reducedMotion ? false : { opacity: 0, x: 24, y: 0 },
+            animate: { opacity: 1, x: 0, y: 0 },
+            exit: reducedMotion ? undefined : { opacity: 0, x: -12, y: 0 },
+            transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+          }
+        : {})}
       className={cn(
         "career-detail-panel scroll-ui-panel min-w-0 w-full max-w-full",
         compact && "career-detail-panel--compact",
+        !useMotion && "career-detail-panel--scroll",
         compact
           ? "overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-2/90"
           : "overflow-hidden rounded-3xl border border-white/[0.08] bg-surface-2/90 shadow-card",
       )}
     >
-      <motion.div
-        initial={reducedMotion ? false : { scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className={cn("h-1 shrink-0 origin-left bg-gradient-to-r", accents[activeIndex % accents.length])}
-      />
+      {useMotion ? (
+        <motion.div
+          initial={reducedMotion ? false : { scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className={accentClass}
+        />
+      ) : (
+        <div className={accentClass} />
+      )}
       <div
         className={cn(
           "career-detail-panel__body relative min-h-0",
@@ -122,7 +131,7 @@ function CareerDetailPanel({
           </ul>
         </div>
       </div>
-    </motion.div>
+    </Wrapper>
   );
 }
 
@@ -335,7 +344,6 @@ export function Experience() {
 
             <div className="career-track-detail min-w-0">
               <CareerDetailPanel
-                key={activeIndex}
                 activeIndex={activeIndex}
                 reducedMotion={reducedMotion}
                 bulletsRef={bulletsRef}

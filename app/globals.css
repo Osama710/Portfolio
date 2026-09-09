@@ -1363,6 +1363,10 @@
     animation-play-state: paused !important;
   }
 
+  html.is-scrolling .career-snake-node-card {
+    backdrop-filter: none;
+  }
+
   .hero-orbit-icon-spin {
     display: flex;
     animation: spin-slow 14s linear infinite;
@@ -1763,6 +1767,21 @@
     min-width: 0;
   }
 
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 1024px) {
+      .career-journey-scroll-track.career-journey--scroll-css {
+        scroll-timeline: --career-journey block;
+      }
+
+      .career-journey-scroll-track.career-journey--scroll-css .career-snake-path-draw {
+        stroke-dasharray: var(--career-path-length);
+        animation: career-snake-draw linear both;
+        animation-timeline: scroll(--career-journey block);
+        will-change: stroke-dashoffset, opacity;
+      }
+    }
+  }
+
   @media (min-width: 1024px) {
     .career-journey-scroll-track {
       --career-step-scroll: max(320px, 36vh);
@@ -1821,6 +1840,10 @@
       width: 100%;
       min-height: 0;
       max-height: 100%;
+    }
+
+    .career-detail-panel--scroll {
+      contain: layout style paint;
     }
 
     .career-detail-panel:not(.career-detail-panel--compact) .career-detail-panel__body {
@@ -1912,6 +1935,20 @@
     background: transparent;
     padding: 0;
     cursor: pointer;
+  }
+
+  @media (min-width: 1024px) {
+    .career-journey-scroll-track .career-snake-node {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .career-journey-scroll-track .career-snake-node.is-revealed {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
   }
 
   .career-snake-node-dot {

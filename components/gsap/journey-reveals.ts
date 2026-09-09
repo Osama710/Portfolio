@@ -4,6 +4,7 @@ import { experience } from "@/lib/data";
 type MediaStore = ReturnType<typeof gsap.matchMedia>;
 
 const CAREER_SCROLL_EVENT = "career-scroll-step";
+const CAREER_KEYFRAMES_ID = "career-snake-draw-keyframes";
 const DESKTOP_CAREER_TRACK = "#experience .career-journey-scroll-track";
 const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
 const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
@@ -13,9 +14,22 @@ const PATH_STOP_YS = [25, 100, 175, 250, 325];
 const CONNECTOR_YS = [6, 24, 42, 60, 77];
 const CONNECTOR_XS = [50, 68, 32, 68, 32];
 
+type TrackMetrics = {
+  trackTop: number;
+  scrollSpan: number;
+  clearance: number;
+};
+
 function dispatchCareerStep(index: number) {
   const clamped = Math.min(experience.length - 1, Math.max(0, index));
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
+}
+
+function supportsScrollTimeline() {
+  return (
+    typeof CSS !== "undefined" &&
+    (CSS.supports("animation-timeline", "scroll()") || CSS.supports("scroll-timeline", "auto"))
+  );
 }
 
 function navClearancePx() {
@@ -65,7 +79,6 @@ function activeStepFromDrawLength(drawLength: number, stops: number[]) {
   return active;
 }
 
-/** Map scroll progress 0–1 to a smooth draw length between path stops. */
 function drawLengthFromProgress(progress: number, stops: number[], pathLength: number, stepCount: number) {
   const clamped = Math.min(1, Math.max(0, progress));
   if (clamped <= 0) return 0;
@@ -80,13 +93,51 @@ function drawLengthFromProgress(progress: number, stops: number[], pathLength: n
   return from + (to - from) * Math.min(1, Math.max(0, local));
 }
 
-function readTrackProgress(track: HTMLElement, pinWrap: HTMLElement, clearance: number) {
-  const scrollSpan = track.offsetHeight - pinWrap.offsetHeight;
-  if (scrollSpan <= 0) return 0;
+function cacheTrackMetrics(track: HTMLElement, pinWrap: HTMLElement, clearance: number): TrackMetrics {
+  const rect = track.getBoundingClientRect();
+  return {
+    trackTop: rect.top + window.scrollY,
+    scrollSpan: track.offsetHeight - pinWrap.offsetHeight,
+    clearance,
+  };
+}
 
-  const trackTop = track.getBoundingClientRect().top;
-  const progress = (clearance - trackTop) / scrollSpan;
+function progressFromMetrics(metrics: TrackMetrics) {
+  if (metrics.scrollSpan <= 0) return 0;
+  const progress = (window.scrollY + metrics.clearance - metrics.trackTop) / metrics.scrollSpan;
   return Math.min(1, Math.max(0, progress));
+}
+
+function buildDrawKeyframes(pathLength: number, stops: number[], stepCount: number) {
+  const frames: string[] = [];
+  const opacityAt = (progress: number) => 0.45 + progress * 0.5;
+
+  frames.push(`0% { stroke-dashoffset: ${pathLength}px; opacity: ${opacityAt(0)}; }`);
+
+  for (let step = 1; step <= stepCount; step++) {
+    const progress = step / stepCount;
+    const drawTo = stops[step - 1] ?? pathLength;
+    const offset = Math.max(0, pathLength - drawTo);
+    frames.push(
+      `${(progress * 100).toFixed(3)}% { stroke-dashoffset: ${offset}px; opacity: ${opacityAt(progress)}; }`,
+    );
+  }
+
+  return `@keyframes career-snake-draw { ${frames.join(" ")} }`;
+}
+
+function injectCareerDrawKeyframes(css: string) {
+  let style = document.getElementById(CAREER_KEYFRAMES_ID) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement("style");
+    style.id = CAREER_KEYFRAMES_ID;
+    document.head.appendChild(style);
+  }
+  style.textContent = css;
+}
+
+function removeCareerDrawKeyframes() {
+  document.getElementById(CAREER_KEYFRAMES_ID)?.remove();
 }
 
 function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
@@ -118,62 +169,96 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
     const pathLength = path.getTotalLength();
     const pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
+    const cssScrollDraw = supportsScrollTimeline();
+    let metrics = cacheTrackMetrics(track, pinWrap, clearance);
     let activeStep = -1;
+    let pinned = false;
     let ticking = false;
 
-    path.style.strokeDasharray = `${pathLength}`;
-    path.style.strokeDashoffset = `${pathLength}`;
-    path.style.opacity = "0.45";
+    track.style.setProperty("--career-path-length", `${pathLength}`);
+
+    if (cssScrollDraw) {
+      injectCareerDrawKeyframes(buildDrawKeyframes(pathLength, pathStops, stepCount));
+      track.classList.add("career-journey--scroll-css");
+      path.style.removeProperty("stroke-dasharray");
+      path.style.removeProperty("stroke-dashoffset");
+      path.style.removeProperty("opacity");
+    } else {
+      path.style.strokeDasharray = `${pathLength}`;
+      path.style.strokeDashoffset = `${pathLength}`;
+      path.style.opacity = "0.45";
+    }
 
     const setStep = (step: number) => {
       const clamped = Math.min(stepCount - 1, Math.max(0, step));
       if (clamped === activeStep) return;
       activeStep = clamped;
 
+      track.dataset.activeStep = String(clamped);
+
       for (let i = 0; i < nodes.length; i++) {
-        const visible = i <= clamped;
-        nodes[i].style.opacity = visible ? "1" : "0";
-        nodes[i].style.visibility = visible ? "visible" : "hidden";
+        nodes[i].classList.toggle("is-revealed", i <= clamped);
       }
 
       updateConnectorLine(snake, clamped);
       dispatchCareerStep(clamped);
     };
 
-    const syncFromScroll = () => {
+    const syncStepFromScroll = () => {
       ticking = false;
-      const progress = readTrackProgress(track, pinWrap, clearance);
+      const progress = progressFromMetrics(metrics);
       const drawTo = drawLengthFromProgress(progress, pathStops, pathLength, stepCount);
 
-      path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
-      path.style.opacity = `${0.45 + progress * 0.5}`;
+      if (!cssScrollDraw) {
+        path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
+        path.style.opacity = `${0.45 + progress * 0.5}`;
+      }
 
       setStep(activeStepFromDrawLength(drawTo, pathStops));
-      pinWrap.classList.toggle("is-pinned", progress > 0.002 && progress < 0.998);
+
+      const nextPinned = progress > 0.002 && progress < 0.998;
+      if (nextPinned !== pinned) {
+        pinned = nextPinned;
+        pinWrap.classList.toggle("is-pinned", pinned);
+      }
     };
 
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(syncFromScroll);
+      requestAnimationFrame(syncStepFromScroll);
+    };
+
+    const onResize = () => {
+      metrics = cacheTrackMetrics(track, pinWrap, clearance);
+      onScroll();
     };
 
     for (let i = 0; i < nodes.length; i++) {
-      nodes[i].style.opacity = i === 0 ? "1" : "0";
-      nodes[i].style.visibility = i === 0 ? "visible" : "hidden";
+      nodes[i].classList.toggle("is-revealed", i === 0);
+      nodes[i].style.removeProperty("opacity");
+      nodes[i].style.removeProperty("visibility");
     }
+
+    track.dataset.activeStep = "0";
     updateConnectorLine(snake, 0);
     dispatchCareerStep(0);
-    syncFromScroll();
+    syncStepFromScroll();
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
 
     removeDesktopScroll = () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      track.classList.remove("career-journey--scroll-css");
+      track.style.removeProperty("--career-path-length");
+      delete track.dataset.activeStep;
       pinWrap.classList.remove("is-pinned");
+      nodes.forEach((node) => node.classList.remove("is-revealed"));
       activeStep = -1;
+      pinned = false;
+      if (cssScrollDraw) removeCareerDrawKeyframes();
     };
   });
 
