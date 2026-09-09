@@ -4,7 +4,6 @@ import { experience } from "@/lib/data";
 type MediaStore = ReturnType<typeof gsap.matchMedia>;
 
 const CAREER_SCROLL_EVENT = "career-scroll-step";
-const CAREER_KEYFRAMES_ID = "career-snake-draw-keyframes";
 const DESKTOP_CAREER_TRACK = "#experience .career-journey-scroll-track";
 const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
 const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
@@ -23,13 +22,6 @@ type TrackMetrics = {
 function dispatchCareerStep(index: number) {
   const clamped = Math.min(experience.length - 1, Math.max(0, index));
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
-}
-
-function supportsScrollTimeline() {
-  return (
-    typeof CSS !== "undefined" &&
-    (CSS.supports("animation-timeline", "scroll()") || CSS.supports("scroll-timeline", "auto"))
-  );
 }
 
 function navClearancePx() {
@@ -79,6 +71,7 @@ function activeStepFromDrawLength(drawLength: number, stops: number[]) {
   return active;
 }
 
+/** Each scroll segment draws from the previous node stop to the next. */
 function drawLengthFromProgress(progress: number, stops: number[], pathLength: number, stepCount: number) {
   const clamped = Math.min(1, Math.max(0, progress));
   if (clamped <= 0) return 0;
@@ -108,36 +101,15 @@ function progressFromMetrics(metrics: TrackMetrics) {
   return Math.min(1, Math.max(0, progress));
 }
 
-function buildDrawKeyframes(pathLength: number, stops: number[], stepCount: number) {
-  const frames: string[] = [];
-  const opacityAt = (progress: number) => 0.45 + progress * 0.5;
-
-  frames.push(`0% { stroke-dashoffset: ${pathLength}px; opacity: ${opacityAt(0)}; }`);
-
-  for (let step = 1; step <= stepCount; step++) {
-    const progress = step / stepCount;
-    const drawTo = stops[step - 1] ?? pathLength;
-    const offset = Math.max(0, pathLength - drawTo);
-    frames.push(
-      `${(progress * 100).toFixed(3)}% { stroke-dashoffset: ${offset}px; opacity: ${opacityAt(progress)}; }`,
-    );
-  }
-
-  return `@keyframes career-snake-draw { ${frames.join(" ")} }`;
+function setPathDraw(path: SVGPathElement, pathLength: number, drawTo: number, progress: number) {
+  path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
+  path.style.opacity = `${0.45 + progress * 0.5}`;
 }
 
-function injectCareerDrawKeyframes(css: string) {
-  let style = document.getElementById(CAREER_KEYFRAMES_ID) as HTMLStyleElement | null;
-  if (!style) {
-    style = document.createElement("style");
-    style.id = CAREER_KEYFRAMES_ID;
-    document.head.appendChild(style);
-  }
-  style.textContent = css;
-}
-
-function removeCareerDrawKeyframes() {
-  document.getElementById(CAREER_KEYFRAMES_ID)?.remove();
+function hidePath(path: SVGPathElement, pathLength: number) {
+  path.style.strokeDasharray = `${pathLength} ${pathLength}`;
+  path.style.strokeDashoffset = `${pathLength}`;
+  path.style.opacity = "0.45";
 }
 
 function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
@@ -145,7 +117,7 @@ function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
   if (!connector) return;
 
   const y = CONNECTOR_YS[activeIndex] ?? CONNECTOR_YS[0];
-  const x = CONNECTOR_XS[activeIndex] ?? 50;
+  const x = CONNECTOR_XS[activeIndex] ?? CONNECTOR_XS[0];
 
   connector.setAttribute("y1", String(y));
   connector.setAttribute("y2", String(y));
@@ -169,25 +141,14 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
     const pathLength = path.getTotalLength();
     const pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
-    const cssScrollDraw = supportsScrollTimeline();
     let metrics = cacheTrackMetrics(track, pinWrap, clearance);
     let activeStep = -1;
     let pinned = false;
     let ticking = false;
+    let listening = false;
 
     track.style.setProperty("--career-path-length", `${pathLength}`);
-
-    if (cssScrollDraw) {
-      injectCareerDrawKeyframes(buildDrawKeyframes(pathLength, pathStops, stepCount));
-      track.classList.add("career-journey--scroll-css");
-      path.style.removeProperty("stroke-dasharray");
-      path.style.removeProperty("stroke-dashoffset");
-      path.style.removeProperty("opacity");
-    } else {
-      path.style.strokeDasharray = `${pathLength}`;
-      path.style.strokeDashoffset = `${pathLength}`;
-      path.style.opacity = "0.45";
-    }
+    hidePath(path, pathLength);
 
     const setStep = (step: number) => {
       const clamped = Math.min(stepCount - 1, Math.max(0, step));
@@ -204,16 +165,13 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       dispatchCareerStep(clamped);
     };
 
-    const syncStepFromScroll = () => {
+    const syncFromScroll = () => {
       ticking = false;
+
       const progress = progressFromMetrics(metrics);
       const drawTo = drawLengthFromProgress(progress, pathStops, pathLength, stepCount);
 
-      if (!cssScrollDraw) {
-        path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
-        path.style.opacity = `${0.45 + progress * 0.5}`;
-      }
-
+      setPathDraw(path, pathLength, drawTo, progress);
       setStep(activeStepFromDrawLength(drawTo, pathStops));
 
       const nextPinned = progress > 0.002 && progress < 0.998;
@@ -226,12 +184,27 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(syncStepFromScroll);
+      requestAnimationFrame(syncFromScroll);
     };
 
     const onResize = () => {
       metrics = cacheTrackMetrics(track, pinWrap, clearance);
       onScroll();
+    };
+
+    const startListening = () => {
+      if (listening) return;
+      listening = true;
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onResize, { passive: true });
+      syncFromScroll();
+    };
+
+    const stopListening = () => {
+      if (!listening) return;
+      listening = false;
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
     };
 
     for (let i = 0; i < nodes.length; i++) {
@@ -243,22 +216,35 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     track.dataset.activeStep = "0";
     updateConnectorLine(snake, 0);
     dispatchCareerStep(0);
-    syncStepFromScroll();
+    syncFromScroll();
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize, { passive: true });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          startListening();
+        } else {
+          stopListening();
+          hidePath(path, pathLength);
+          pinned = false;
+          pinWrap.classList.remove("is-pinned");
+        }
+      },
+      { root: null, rootMargin: "120px 0px 120px 0px", threshold: 0 },
+    );
+    observer.observe(track);
 
     removeDesktopScroll = () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-      track.classList.remove("career-journey--scroll-css");
+      observer.disconnect();
+      stopListening();
       track.style.removeProperty("--career-path-length");
       delete track.dataset.activeStep;
       pinWrap.classList.remove("is-pinned");
       nodes.forEach((node) => node.classList.remove("is-revealed"));
+      path.style.removeProperty("stroke-dasharray");
+      path.style.removeProperty("stroke-dashoffset");
+      path.style.removeProperty("opacity");
       activeStep = -1;
       pinned = false;
-      if (cssScrollDraw) removeCareerDrawKeyframes();
     };
   });
 
