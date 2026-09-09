@@ -92,42 +92,6 @@ export function AmbientBackground() {
         if (cancelled || !wrapRef.current) return;
         registerGsapPlugins();
 
-        const scrollCfg = { trigger: document.body, start: "top top", end: "bottom bottom", scrub: true };
-
-        gsap.to(".ambient-blob-violet", {
-          y: -100,
-          x: 20,
-          ease: "none",
-          scrollTrigger: { ...scrollCfg, scrub: 0.85 },
-        });
-
-        gsap.to(".ambient-blob-cyan", {
-          y: -130,
-          x: -24,
-          ease: "none",
-          scrollTrigger: { ...scrollCfg, scrub: 1.05 },
-        });
-
-        gsap.to(".ambient-blob-coral", {
-          y: -90,
-          x: 18,
-          ease: "none",
-          scrollTrigger: { ...scrollCfg, scrub: 0.9 },
-        });
-
-        gsap.to(".ambient-grid, .ambient-field", {
-          y: 50,
-          ease: "none",
-          scrollTrigger: { ...scrollCfg, scrub: 0.45 },
-        });
-
-        gsap.to(".ambient-cluster-body", {
-          y: (index) => (index % 2 === 0 ? -45 : -70),
-          ease: "none",
-          stagger: 0.06,
-          scrollTrigger: { ...scrollCfg, scrub: 0.65 },
-        });
-
         gsap.to(".ambient-aurora-b", {
           x: "5%",
           y: "-3%",
@@ -152,6 +116,7 @@ export function AmbientBackground() {
           const parallaxY = gsap.quickTo(wrapRef.current, "y", { duration: 1.4, ease: "power3.out" });
 
           const onMove = (event: MouseEvent) => {
+            if (document.documentElement.classList.contains("is-scrolling")) return;
             parallaxX((event.clientX / window.innerWidth - 0.5) * 14);
             parallaxY((event.clientY / window.innerHeight - 0.5) * 10);
           };
@@ -194,7 +159,7 @@ export function AmbientBackground() {
                 <stop offset="65%" stopColor="#22D3EE" stopOpacity="0.35" />
                 <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
               </linearGradient>
-              <linearGradient id="fieldArcCoral" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="fieldArcCoral" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#FB7185" stopOpacity="0" />
                 <stop offset="50%" stopColor="#FB7185" stopOpacity="0.28" />
                 <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />

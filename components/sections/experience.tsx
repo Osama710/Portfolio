@@ -238,7 +238,11 @@ export function Experience() {
           />
         </div>
 
-        <div className="career-journey-pin mt-8 hidden min-w-0 lg:block">
+        <div
+          className="career-journey-scroll-track mt-8 hidden min-w-0 lg:block"
+          style={{ ["--career-steps" as string]: experience.length }}
+        >
+          <div className="career-journey-pin">
           <div className="career-journey-stage">
             <div className="career-track min-w-0 lg:grid">
             <div className="career-snake">
@@ -330,15 +334,15 @@ export function Experience() {
             </div>
 
             <div className="career-track-detail min-w-0">
-              <AnimatePresence mode="wait">
-                <CareerDetailPanel
-                  key={activeIndex}
-                  activeIndex={activeIndex}
-                  reducedMotion={reducedMotion}
-                  bulletsRef={bulletsRef}
-                />
-              </AnimatePresence>
+              <CareerDetailPanel
+                key={activeIndex}
+                activeIndex={activeIndex}
+                reducedMotion={reducedMotion}
+                bulletsRef={bulletsRef}
+                staticEnter
+              />
             </div>
+          </div>
           </div>
           </div>
         </div>

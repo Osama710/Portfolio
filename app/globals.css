@@ -229,7 +229,6 @@
       radial-gradient(ellipse 70% 50% at 85% 5%, rgba(34, 211, 238, 0.22), transparent 55%),
       radial-gradient(ellipse 75% 45% at 50% 100%, rgba(251, 113, 133, 0.16), transparent 58%);
     animation: aurora-shift 16s ease-in-out infinite alternate;
-    will-change: transform;
   }
 
   .ambient-aurora-b {
@@ -264,7 +263,6 @@
     border-radius: 999px;
     filter: blur(100px);
     opacity: 0.62;
-    will-change: transform, opacity;
     animation: ambient-drift 20s ease-in-out infinite alternate;
     transition: opacity 0.45s ease, transform 0.45s ease;
   }
@@ -453,7 +451,6 @@
     height: var(--cluster-ring, 112px);
     transform: translate(-50%, -50%);
     animation: cluster-breathe 6s ease-in-out infinite;
-    will-change: transform;
   }
 
   .ambient-cluster-ring {
@@ -1275,6 +1272,95 @@
 
   .hero-orbit-zoom {
     transform-origin: center center;
+    backface-visibility: hidden;
+  }
+
+  .hero-bento-card {
+    backdrop-filter: none;
+  }
+
+  /* Hero exit: compositor-driven scroll (no GSAP scrub). */
+  @supports (animation-timeline: view()) {
+    @keyframes hero-orbit-exit-desk {
+      from {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+
+      to {
+        opacity: 0;
+        transform: scale(2.5) rotate(5deg);
+      }
+    }
+
+    @keyframes hero-orbit-exit-mobile {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: scale(1.4);
+      }
+    }
+
+    @keyframes hero-copy-exit {
+      from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translate3d(0, -40px, 0);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-orbit-wrap-desktop .hero-orbit-zoom {
+        animation: hero-orbit-exit-desk linear both;
+        animation-timeline: view();
+        animation-range: exit 72% exit 100%;
+      }
+
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-copy-top,
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-copy-rest,
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-scroll-cue {
+        animation: hero-copy-exit linear both;
+        animation-timeline: view();
+        animation-range: exit 72% exit 100%;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-orbit-wrap-mobile .hero-orbit-zoom {
+        animation: hero-orbit-exit-mobile linear both;
+        animation-timeline: view();
+        animation-range: exit 85% exit 100%;
+      }
+
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-copy-top,
+      html:not([data-hero-scroll="gsap"]):not([data-hero-scroll="off"]) #hero .hero-copy-rest {
+        animation: hero-copy-exit linear both;
+        animation-timeline: view();
+        animation-range: exit 85% exit 100%;
+      }
+    }
+  }
+
+  html.is-scrolling .hero-orbit-chip-float,
+  html.is-scrolling .hero-orbit-ring,
+  html.is-scrolling .hero-orbit-aurora,
+  html.is-scrolling .hero-orbit-icon-spin,
+  html.is-scrolling .gradient-text-shimmer,
+  html.is-scrolling .ambient-blob,
+  html.is-scrolling .ambient-aurora-b,
+  html.is-scrolling .ambient-mesh,
+  html.is-scrolling .ambient-orbit-icon,
+  html.is-scrolling .aurora-layer,
+  html.is-scrolling .ambient-cluster-ring {
+    animation-play-state: paused !important;
   }
 
   .hero-orbit-icon-spin {
@@ -1376,7 +1462,6 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: linear-gradient(155deg, rgba(255, 255, 255, 0.04), rgba(10, 10, 18, 0.82));
     padding: 0.85rem 0.9rem;
-    backdrop-filter: blur(8px);
   }
 
   .hero-bento-card::before {
@@ -1679,8 +1764,27 @@
   }
 
   @media (min-width: 1024px) {
+    .career-journey-scroll-track {
+      --career-step-scroll: max(280px, 34vh);
+      height: calc(
+        var(--career-stage-height) + var(--site-nav-clearance) +
+        var(--career-steps, 5) * var(--career-step-scroll)
+      );
+    }
+
+    .career-journey-pin {
+      position: sticky;
+      top: var(--site-nav-clearance);
+      z-index: 5;
+      contain: layout style;
+    }
+
     .career-journey-pin.is-pinned {
       z-index: 5;
+    }
+
+    .career-journey-pin.is-pinned .career-snake-path-draw--scroll {
+      transition: stroke-dashoffset 0.35s ease, opacity 0.25s ease;
     }
 
     .career-journey-stage {
@@ -1932,11 +2036,6 @@
 
   .career-journey-step {
     transform-origin: 50% 0%;
-    will-change: transform, opacity;
-  }
-
-  .career-snake-path-draw {
-    will-change: stroke-dashoffset, opacity;
   }
 
   @media (min-width: 768px) {

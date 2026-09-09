@@ -1,14 +1,13 @@
-import { gsap, ScrollTrigger } from "@/lib/gsap/register";
+import { gsap } from "@/lib/gsap/register";
 import { experience } from "@/lib/data";
 
 type MediaStore = ReturnType<typeof gsap.matchMedia>;
 
 const CAREER_SCROLL_EVENT = "career-scroll-step";
-const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
+const DESKTOP_CAREER_TRACK = "#experience .career-journey-scroll-track";
 const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
 const MOBILE_CAREER_STEP = "#experience .career-mobile-shell .career-journey-step";
 
-/** SVG path anchor Y + connector Y (viewBox) — matches experience.tsx snakeNodes. */
 const PATH_STOP_YS = [25, 100, 175, 250, 325];
 const CONNECTOR_YS = [6, 24, 42, 60, 77];
 const CONNECTOR_XS = [50, 68, 32, 68, 32];
@@ -18,23 +17,21 @@ function dispatchCareerStep(index: number) {
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
 }
 
-/** Equal scroll distance per role (~38vh each). */
 function stepScrollPx() {
-  if (typeof window === "undefined") return 360;
-  return Math.max(300, Math.round(window.innerHeight * 0.38));
+  if (typeof window === "undefined") return 340;
+  return Math.max(280, Math.round(window.innerHeight * 0.34));
 }
 
 function journeyScrollPx() {
   return stepScrollPx() * experience.length;
 }
 
-function buildStepWeights() {
-  const share = 1 / experience.length;
-  return experience.map(() => share);
-}
-
-function stepThreshold(weights: number[], index: number) {
-  return weights.slice(0, index).reduce((acc, value) => acc + value, 0);
+function navClearancePx() {
+  const root = document.documentElement;
+  const raw = getComputedStyle(root).getPropertyValue("--site-nav-clearance").trim();
+  const value = parseFloat(raw);
+  if (!Number.isFinite(value)) return 84;
+  return raw.endsWith("rem") ? value * parseFloat(getComputedStyle(root).fontSize) : value;
 }
 
 function pathLengthAtViewBoxY(path: SVGPathElement, targetY: number, minLength = 0) {
@@ -42,8 +39,8 @@ function pathLengthAtViewBoxY(path: SVGPathElement, targetY: number, minLength =
   let bestLength = minLength;
   let bestScore = Infinity;
 
-  for (let i = 0; i <= 80; i++) {
-    const length = minLength + (i / 80) * (total - minLength);
+  for (let i = 0; i <= 48; i++) {
+    const length = minLength + (i / 48) * (total - minLength);
     const point = path.getPointAtLength(length);
     const score = Math.abs(point.y - targetY);
     if (score < bestScore) {
@@ -68,41 +65,6 @@ function buildPathStopsFromAnchors(path: SVGPathElement, stopYs: number[]) {
   return stops;
 }
 
-function progressToDrawLength(
-  progress: number,
-  weights: number[],
-  stops: number[],
-  totalLength: number,
-) {
-  const clamped = Math.min(1, Math.max(0, progress));
-  let step = 0;
-  let acc = 0;
-
-  for (let i = 0; i < weights.length; i++) {
-    acc += weights[i];
-    if (clamped <= acc) {
-      step = i;
-      break;
-    }
-    step = i;
-  }
-
-  const start = stepThreshold(weights, step);
-  const local = weights[step] > 0 ? (clamped - start) / weights[step] : 1;
-  const from = step === 0 ? 0 : stops[step - 1] ?? 0;
-  const to = stops[step] ?? totalLength;
-
-  return from + (to - from) * Math.min(1, Math.max(0, local));
-}
-
-function activeStepFromDrawLength(drawLength: number, stops: number[]) {
-  let active = 0;
-  for (let i = 0; i < stops.length; i++) {
-    if (drawLength >= stops[i] - 1.5) active = i;
-  }
-  return active;
-}
-
 function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
   const connector = snake.querySelector(".career-snake-connector-line") as SVGLineElement | null;
   if (!connector) return;
@@ -115,171 +77,98 @@ function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
   connector.setAttribute("x1", String(x));
 }
 
-function playProjectReveal(item: HTMLElement, index: number) {
-  const media = item.querySelector(".project-reveal-media");
-  const content = item.querySelector(".project-reveal-content");
-
-  gsap.fromTo(
-    item,
-    { autoAlpha: 0.85, y: 12 },
-    { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", overwrite: "auto" },
-  );
-
-  if (media) {
-    gsap.fromTo(media, { y: 10 }, { y: 0, duration: 0.45, ease: "power2.out", overwrite: "auto" });
-  }
-
-  if (content) {
-    gsap.fromTo(
-      content,
-      { y: 12, x: index % 2 === 0 ? -8 : 8 },
-      { y: 0, x: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" },
-    );
-  }
-}
-
 export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStore[]) {
   const mm = gsap.matchMedia();
+  let removeDesktopScroll: (() => void) | undefined;
 
   mm.add("(min-width: 1024px)", () => {
-    const pinWrap = root.querySelector(DESKTOP_CAREER_PIN) as HTMLElement | null;
+    const track = root.querySelector(DESKTOP_CAREER_TRACK) as HTMLElement | null;
+    const pinWrap = root.querySelector("#experience .career-journey-pin") as HTMLElement | null;
     const snake = root.querySelector("#experience .career-snake") as HTMLElement | null;
     const nodes = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(DESKTOP_CAREER_NODE));
     const path = root.querySelector("#experience .career-snake-path-draw") as SVGPathElement | null;
     const stepCount = Math.min(nodes.length, experience.length);
     const journeyEndPx = journeyScrollPx();
+    const clearance = navClearancePx();
 
-    if (!pinWrap || !snake || !stepCount || !path) return;
+    if (!track || !pinWrap || !snake || !stepCount || !path) return;
 
-    const weights = buildStepWeights();
     const pathLength = path.getTotalLength();
     const pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
-    let lastStep = -1;
-
-    nodes.forEach((node, i) => {
-      gsap.set(node, { clearProps: "opacity,visibility" });
-      node.style.opacity = i === 0 ? "1" : "0";
-      node.style.visibility = i === 0 ? "visible" : "hidden";
-    });
+    let activeStep = -1;
+    let ticking = false;
 
     path.style.strokeDasharray = `${pathLength}`;
-    path.style.strokeDashoffset = `${pathLength}`;
-    path.style.opacity = "0.45";
+    path.classList.add("career-snake-path-draw--scroll");
 
-    const applyJourney = (progress: number) => {
-      const clamped = Math.min(1, Math.max(0, progress));
-      const drawTo = progressToDrawLength(clamped, weights, pathStops, pathLength);
-      const activeStep = activeStepFromDrawLength(drawTo, pathStops);
+    const applyStep = (step: number) => {
+      const clamped = Math.min(stepCount - 1, Math.max(0, step));
+      if (clamped === activeStep) return;
+
+      activeStep = clamped;
+      const drawTo = pathStops[clamped] ?? 0;
 
       path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
-      path.style.opacity = `${0.45 + clamped * 0.5}`;
+      path.style.opacity = `${0.45 + (clamped / Math.max(1, stepCount - 1)) * 0.5}`;
 
-      if (activeStep !== lastStep) {
-        lastStep = activeStep;
-        for (let i = 0; i < nodes.length; i++) {
-          nodes[i].style.opacity = i <= activeStep ? "1" : "0";
-          nodes[i].style.visibility = i <= activeStep ? "visible" : "hidden";
-        }
-        updateConnectorLine(snake, activeStep);
-        dispatchCareerStep(activeStep);
+      for (let i = 0; i < nodes.length; i++) {
+        const visible = i <= clamped;
+        nodes[i].style.opacity = visible ? "1" : "0";
+        nodes[i].style.visibility = visible ? "visible" : "hidden";
       }
+
+      updateConnectorLine(snake, clamped);
+      dispatchCareerStep(clamped);
     };
 
-    ScrollTrigger.create({
-      trigger: pinWrap,
-      start: "top top+=5.25rem",
-      end: `+=${journeyEndPx}`,
-      pin: pinWrap,
-      pinSpacing: true,
-      scrub: true,
-      anticipatePin: 1,
-      onUpdate: (self) => applyJourney(self.progress),
-      onEnter: () => {
-        lastStep = -1;
-        applyJourney(0);
-      },
-      onEnterBack: (self) => {
-        lastStep = -1;
-        applyJourney(self.progress);
-      },
-      onLeave: () => {
-        nodes.forEach((node) => {
-          node.style.opacity = "1";
-          node.style.visibility = "visible";
-        });
-        path.style.strokeDashoffset = "0";
-        path.style.opacity = "0.95";
-        updateConnectorLine(snake, stepCount - 1);
-        dispatchCareerStep(stepCount - 1);
-      },
-      onLeaveBack: () => {
-        lastStep = -1;
-        nodes.forEach((node, i) => {
-          node.style.opacity = i === 0 ? "1" : "0";
-          node.style.visibility = i === 0 ? "visible" : "hidden";
-        });
-        path.style.strokeDashoffset = `${pathLength}`;
-        path.style.opacity = "0.45";
-        updateConnectorLine(snake, 0);
-        dispatchCareerStep(0);
-      },
-      onToggle: (self) => {
-        pinWrap.classList.toggle("is-pinned", self.isActive);
-      },
-    });
+    const readProgress = () => {
+      const rect = track.getBoundingClientRect();
+      if (rect.top > clearance) return 0;
+      if (rect.bottom <= window.innerHeight) return 1;
+      return Math.min(1, Math.max(0, (clearance - rect.top) / journeyEndPx));
+    };
 
-    updateConnectorLine(snake, 0);
-    dispatchCareerStep(0);
+    const syncFromScroll = () => {
+      ticking = false;
+      const progress = readProgress();
+      const step = Math.min(stepCount - 1, Math.floor(progress * stepCount + 0.0001));
+      applyStep(step);
+      pinWrap.classList.toggle("is-pinned", progress > 0 && progress < 1);
+    };
 
-    return () => {
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(syncFromScroll);
+    };
+
+    applyStep(0);
+    syncFromScroll();
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    removeDesktopScroll = () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       pinWrap.classList.remove("is-pinned");
+      activeStep = -1;
     };
   });
 
   mm.add("(max-width: 1023px)", () => {
-    const steps = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(MOBILE_CAREER_STEP));
-    steps.forEach((step) => {
+    gsap.utils.toArray<HTMLElement>(root.querySelectorAll(MOBILE_CAREER_STEP)).forEach((step) => {
       gsap.set(step, { autoAlpha: 1, y: 0 });
     });
   });
 
   mediaStores.push(mm);
+
+  return () => {
+    removeDesktopScroll?.();
+    mm.revert();
+  };
 }
 
-export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[], mobileHideStart: string) {
-  const mm = gsap.matchMedia();
-
-  mm.add("(min-width: 1024px)", () => {
-    gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-journey-item")).forEach((item, index) => {
-      gsap.set(item, { autoAlpha: 1 });
-
-      ScrollTrigger.create({
-        trigger: item,
-        start: "top 85%",
-        once: true,
-        onEnter: () => playProjectReveal(item, index),
-      });
-    });
-  });
-
-  mm.add("(max-width: 1023px)", () => {
-    gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-journey-item, .project-github-item")).forEach(
-      (item, index) => {
-        gsap.set(item, { autoAlpha: 1 });
-
-        if (item.classList.contains("project-journey-item")) {
-          ScrollTrigger.create({
-            trigger: item,
-            start: "top 92%",
-            once: true,
-            onEnter: () => playProjectReveal(item, index),
-          });
-        }
-      },
-    );
-
-    void mobileHideStart;
-  });
-
-  mediaStores.push(mm);
-}
+/** Projects — no scroll-linked GSAP (CSS handles entry). */
+export function setupProjectJourney(_root: HTMLElement, _mediaStores: MediaStore[], _mobileHideStart: string) {}
