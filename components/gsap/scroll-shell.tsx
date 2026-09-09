@@ -17,7 +17,6 @@ const SECTIONS = [
   { id: "contact" },
 ] as const;
 
-/** Mobile: hide current section once the next one covers ~80% of the viewport. */
 const MOBILE_NEXT_VISIBLE = "top 20%";
 
 const DESKTOP_ORBIT = ".hero-orbit-wrap-desktop .hero-orbit-zoom";
@@ -70,42 +69,7 @@ function unlockInteractivePanels(root: HTMLElement) {
   });
 }
 
-const REVEAL_SECTIONS = ["skills", "projects", "capabilities", "education", "contact"] as const;
-
-/** Lightweight one-shot reveals — desktop only to keep mobile scroll snappy. */
-function setupSectionReveals(root: HTMLElement) {
-  const mm = gsap.matchMedia();
-
-  mm.add("(min-width: 1024px)", () => {
-    REVEAL_SECTIONS.forEach((id) => {
-      const section = root.querySelector(`#${id}`);
-      if (!section) return;
-
-      const targets = section.querySelectorAll(".section-label, .section-heading-block, .section-reveal");
-      if (!targets.length) return;
-
-      gsap.from(targets, {
-        y: 28,
-        opacity: 0,
-        duration: 0.72,
-        stagger: 0.06,
-        ease: "power3.out",
-        immediateRender: false,
-        force3D: true,
-        scrollTrigger: {
-          trigger: section,
-          start: "top 86%",
-          once: true,
-          fastScrollEnd: true,
-        },
-      });
-    });
-  });
-
-  return mm;
-}
-
-/** Hero → about handoff: zoom orbit + fade copy in the final stretch of hero scroll. */
+/** Hero → about handoff: orbit zoom + copy fade in the last stretch of hero scroll. */
 function setupHeroToAboutTransition(root: HTMLElement) {
   const scrollCue = root.querySelector(".hero-scroll-cue");
   const about = aboutTargets(root);
@@ -127,6 +91,8 @@ function setupHeroToAboutTransition(root: HTMLElement) {
     scrollEnd: string;
   }) => {
     const orbitWrap = root.querySelectorAll(orbitSelector);
+    if (!orbitWrap.length) return;
+
     gsap.set(orbitWrap, { transformOrigin: "50% 50%", force3D: true });
     gsap.set(about, { y: 0, autoAlpha: 1 });
 
@@ -137,7 +103,6 @@ function setupHeroToAboutTransition(root: HTMLElement) {
           start: "top top",
           end: scrollEnd,
           scrub: true,
-          invalidateOnRefresh: true,
         },
       })
       .fromTo(
@@ -174,19 +139,17 @@ function setupHeroToAboutTransition(root: HTMLElement) {
 
   const mm = gsap.matchMedia();
 
-  /* Laptop/desktop: hero fits one screen — 80% scroll span gives room for zoom */
   mm.add("(min-width: 1024px)", () =>
     attachTimeline({
       orbitSelector: DESKTOP_ORBIT,
       orbitScale: 3.1,
       orbitRotate: 6,
       copyY: -64,
-      fadeStart: 0.74,
+      fadeStart: 0.76,
       scrollEnd: "80% top",
     }),
   );
 
-  /* Mobile: tall hero — tie animation to hero leaving viewport, fade only at the end */
   mm.add("(max-width: 1023px)", () =>
     attachTimeline({
       orbitSelector: MOBILE_ORBIT,
@@ -203,23 +166,21 @@ function setupHeroToAboutTransition(root: HTMLElement) {
 
 function setupScrollExperience(root: HTMLElement, mediaStores: ReturnType<typeof gsap.matchMedia>[]) {
   setupSectionTracking(root);
-  mediaStores.push(setupSectionReveals(root));
   mediaStores.push(setupHeroToAboutTransition(root));
   setupExperienceJourney(root, mediaStores);
   setupProjectJourney(root, mediaStores, MOBILE_NEXT_VISIBLE);
   unlockInteractivePanels(root);
 }
 
-let scrollEngineStores: ReturnType<typeof gsap.matchMedia>[] = [];
 let scrollEngineReady = false;
 
 function ensureScrollEngine(root: HTMLElement) {
   if (scrollEngineReady) return;
 
   const scrollY = getScrollY();
-  setupScrollExperience(root, scrollEngineStores);
+  const mediaStores: ReturnType<typeof gsap.matchMedia>[] = [];
+  setupScrollExperience(root, mediaStores);
   ScrollTrigger.sort();
-  ScrollTrigger.update();
   syncActiveSectionFromScroll(root);
   restoreScrollY(scrollY);
   document.documentElement.dataset.scrollReady = "1";
@@ -232,7 +193,7 @@ export function ScrollShell({ children }: { children: ReactNode }) {
   useGSAP(
     () => {
       registerGsapPlugins();
-      ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
+      ScrollTrigger.config({ ignoreMobileResize: true });
 
       const root = wrapRef.current;
       if (!root) return;
@@ -254,7 +215,15 @@ export function ScrollShell({ children }: { children: ReactNode }) {
 
       const bootScroll = () => {
         if (cancelled || !root) return;
-        ensureScrollEngine(root);
+        requestAnimationFrame(() => {
+          if (cancelled || !root) return;
+          ensureScrollEngine(root);
+          requestAnimationFrame(() => {
+            if (cancelled) return;
+            ScrollTrigger.refresh();
+            restoreScrollY(getScrollY());
+          });
+        });
       };
 
       onScrollReady(bootScroll);

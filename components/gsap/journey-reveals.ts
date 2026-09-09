@@ -19,9 +19,9 @@ function dispatchCareerStep(index: number) {
 
 function buildStepScrollPx() {
   return experience.map((item, index) => {
-    const base = 480;
-    const perBullet = 28;
-    const leadBonus = index === 0 ? 160 : 0;
+    const base = 560;
+    const perBullet = 34;
+    const leadBonus = index === 0 ? 220 : 0;
     return base + item.bullets.length * perBullet + leadBonus;
   });
 }
@@ -215,14 +215,12 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       setPathDash(Math.max(0, pathLength - drawTo));
       setPathOpacity(0.45 + clamped * 0.5);
 
-      nodes.forEach((node, i) => {
-        gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
-      });
-
-      updateConnectorLine(snake, nodes, activeStep, connectorMeta);
-
       if (activeStep !== lastStep) {
         lastStep = activeStep;
+        nodes.forEach((node, i) => {
+          gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
+        });
+        updateConnectorLine(snake, nodes, activeStep, connectorMeta);
         dispatchCareerStep(activeStep);
       }
     };
@@ -230,14 +228,13 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength, opacity: 0.45 });
 
     ScrollTrigger.create({
-      trigger: stage,
-      start: "top top",
+      trigger: pinWrap,
+      start: "top top+=5.25rem",
       end: `+=${journeyEndPx}`,
-      pin: stage,
+      pin: pinWrap,
       pinSpacing: true,
-      scrub: 0.45,
+      scrub: true,
       anticipatePin: 1,
-      invalidateOnRefresh: true,
       onRefresh: measure,
       onUpdate: (self) => applyJourney(self.progress),
       onEnter: () => {
@@ -267,20 +264,19 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       },
       onToggle: (self) => {
         pinWrap.classList.toggle("is-pinned", self.isActive);
-        if (self.isActive) {
-          measure();
-          applyJourney(self.progress);
-        }
       },
     });
 
-    const onRefreshInit = () => measure();
-    ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
-    window.addEventListener("resize", measure, { passive: true });
+    let resizeTimer = 0;
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(measure, 150);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
-      ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
-      window.removeEventListener("resize", measure);
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
       pinWrap.classList.remove("is-pinned");
     };
   });
@@ -308,7 +304,6 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
         onEnterBack: () => {
           gsap.to(step, { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.5, overwrite: "auto" });
         },
-        invalidateOnRefresh: true,
       });
 
     });
@@ -334,14 +329,7 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
         start: "top 88%",
         end: "bottom 12%",
         onEnter: () => playProjectReveal(item, index),
-        onLeave: () => {
-          gsap.to(item, { scale: 0.99, duration: 0.35, ease: "power2.in", overwrite: "auto" });
-        },
         onEnterBack: () => playProjectReveal(item, index),
-        onLeaveBack: () => {
-          gsap.set(item, { autoAlpha: 1, scale: 1 });
-        },
-        invalidateOnRefresh: true,
       });
     });
   });
@@ -379,7 +367,6 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
             gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" });
           }
         },
-        invalidateOnRefresh: true,
       });
     });
 
@@ -399,7 +386,6 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
           overwrite: "auto",
         });
       },
-      invalidateOnRefresh: true,
     });
   });
 

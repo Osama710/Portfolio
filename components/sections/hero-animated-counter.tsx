@@ -29,31 +29,33 @@ export function HeroAnimatedCounter({
       return;
     }
 
-    let intervalId = 0;
+    let raf = 0;
     let timeoutId = 0;
     let cancelled = false;
 
     timeoutId = window.setTimeout(() => {
       if (cancelled || target <= 0) return;
 
-      let step = 0;
       el.textContent = `0${suffix}`;
-      const stepMs = Math.max(80, duration / target);
+      const stepMs = duration / target;
+      const t0 = performance.now();
 
-      intervalId = window.setInterval(() => {
+      const tick = (now: number) => {
         if (cancelled) return;
-        step += 1;
+        const step = Math.min(target, Math.floor((now - t0) / stepMs));
         el.textContent = `${step}${suffix}`;
-        if (step >= target) {
-          window.clearInterval(intervalId);
+        if (step < target) {
+          raf = requestAnimationFrame(tick);
         }
-      }, stepMs);
+      };
+
+      raf = requestAnimationFrame(tick);
     }, HERO_COUNTER_START_MS);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
-      window.clearInterval(intervalId);
+      cancelAnimationFrame(raf);
     };
   }, [target, suffix, duration]);
 
