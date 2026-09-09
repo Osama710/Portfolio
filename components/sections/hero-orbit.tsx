@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { Orbit } from "lucide-react";
-import { useCallback, useId, useRef } from "react";
+import { useId } from "react";
 import { profile } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -19,52 +18,21 @@ type HeroOrbitProps = {
   className?: string;
 };
 
+/** CSS-only orbit — no Framer Motion so GSAP scroll scale stays smooth. */
 export function HeroOrbit({ className }: HeroOrbitProps) {
-  const reduced = useReducedMotion();
   const gradientId = useId();
-  const ref = useRef<HTMLDivElement>(null);
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
-  const springX = useSpring(pointerX, { stiffness: 120, damping: 22 });
-  const springY = useSpring(pointerY, { stiffness: 120, damping: 22 });
-  const ringRotate = useTransform(springX, [-1, 1], [-8, 8]);
-  const hubY = useTransform(springY, [-1, 1], [-6, 6]);
-
-  const onMove = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      if (reduced || !ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      pointerX.set(x * 2);
-      pointerY.set(y * 2);
-    },
-    [pointerX, pointerY, reduced],
-  );
-
-  const onLeave = useCallback(() => {
-    pointerX.set(0);
-    pointerY.set(0);
-  }, [pointerX, pointerY]);
 
   return (
     <div
-      ref={ref}
       className={cn(
         "hero-orbit relative mx-auto aspect-square w-full max-w-[240px] overflow-visible sm:max-w-[280px] lg:max-w-[340px] xl:max-w-[380px]",
         className,
       )}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
     >
       <div className="hero-orbit-aurora absolute inset-0 rounded-full" aria-hidden="true" />
       <div className="absolute inset-0 rounded-full bg-accent-violet/10 blur-3xl" aria-hidden="true" />
 
-      <motion.div
-        className="hero-orbit-ring hero-orbit-ring-live absolute inset-[4%] rounded-full"
-        style={reduced ? undefined : { rotate: ringRotate }}
-        aria-hidden="true"
-      />
+      <div className="hero-orbit-ring hero-orbit-ring-live absolute inset-[4%] rounded-full" aria-hidden="true" />
 
       <div className="absolute inset-[12%] rounded-full border border-white/[0.08] bg-surface-2/40 backdrop-blur-sm" aria-hidden="true" />
 
@@ -77,8 +45,8 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         </defs>
         {orbitChips.map((chip, i) => {
           const angle = (i / orbitChips.length) * Math.PI * 2 - Math.PI / 2;
-        const x = 50 + Math.cos(angle) * 36;
-        const y = 50 + Math.sin(angle) * 36;
+          const x = 50 + Math.cos(angle) * 36;
+          const y = 50 + Math.sin(angle) * 36;
           return (
             <line
               key={chip.label}
@@ -95,10 +63,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         })}
       </svg>
 
-      <motion.div
-        className="hero-orbit-hub absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-3 text-center shadow-glow-cyan"
-        style={reduced ? undefined : { y: hubY }}
-      >
+      <div className="hero-orbit-hub absolute inset-[24%] flex flex-col items-center justify-center rounded-full border border-accent-cyan/30 bg-gradient-brand-soft px-3 text-center shadow-glow-cyan">
         <div className="hero-orbit-icon-spin">
           <Orbit className="h-5 w-5 text-accent-violet sm:h-6 sm:w-6" aria-hidden="true" />
         </div>
@@ -106,7 +71,7 @@ export function HeroOrbit({ className }: HeroOrbitProps) {
         <p className="mt-2 max-w-[7rem] text-[0.55rem] font-medium leading-snug text-ink-muted sm:max-w-[8rem] sm:text-[0.6rem]">
           {profile.title}
         </p>
-      </motion.div>
+      </div>
 
       {orbitChips.map((chip, i) => {
         const angle = (i / orbitChips.length) * Math.PI * 2 - Math.PI / 2;

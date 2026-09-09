@@ -4,36 +4,33 @@ import { experience } from "@/lib/data";
 type MediaStore = ReturnType<typeof gsap.matchMedia>;
 
 const CAREER_SCROLL_EVENT = "career-scroll-step";
-const DESKTOP_CAREER_STAGE = "#experience .career-journey-stage";
 const DESKTOP_CAREER_PIN = "#experience .career-journey-pin";
 const DESKTOP_CAREER_NODE = "#experience .career-journey-pin .career-snake-node";
 const MOBILE_CAREER_STEP = "#experience .career-mobile-shell .career-journey-step";
 
-/** SVG path anchor Y values — must match SNAKE_PATH_D in experience.tsx (viewBox height 420). */
+/** SVG path anchor Y + connector Y (viewBox) — matches experience.tsx snakeNodes. */
 const PATH_STOP_YS = [25, 100, 175, 250, 325];
+const CONNECTOR_YS = [6, 24, 42, 60, 77];
+const CONNECTOR_XS = [50, 68, 32, 68, 32];
 
 function dispatchCareerStep(index: number) {
   const clamped = Math.min(experience.length - 1, Math.max(0, index));
   window.dispatchEvent(new CustomEvent<number>(CAREER_SCROLL_EVENT, { detail: clamped }));
 }
 
-function buildStepScrollPx() {
-  return experience.map((item, index) => {
-    const base = 560;
-    const perBullet = 34;
-    const leadBonus = index === 0 ? 220 : 0;
-    return base + item.bullets.length * perBullet + leadBonus;
-  });
+/** Equal scroll distance per role (~38vh each). */
+function stepScrollPx() {
+  if (typeof window === "undefined") return 360;
+  return Math.max(300, Math.round(window.innerHeight * 0.38));
 }
 
 function journeyScrollPx() {
-  return buildStepScrollPx().reduce((sum, px) => sum + px, 0);
+  return stepScrollPx() * experience.length;
 }
 
 function buildStepWeights() {
-  const stepPx = buildStepScrollPx();
-  const total = stepPx.reduce((sum, px) => sum + px, 0);
-  return stepPx.map((px) => px / total);
+  const share = 1 / experience.length;
+  return experience.map(() => share);
 }
 
 function stepThreshold(weights: number[], index: number) {
@@ -45,8 +42,8 @@ function pathLengthAtViewBoxY(path: SVGPathElement, targetY: number, minLength =
   let bestLength = minLength;
   let bestScore = Infinity;
 
-  for (let i = 0; i <= 240; i++) {
-    const length = minLength + (i / 240) * (total - minLength);
+  for (let i = 0; i <= 80; i++) {
+    const length = minLength + (i / 80) * (total - minLength);
     const point = path.getPointAtLength(length);
     const score = Math.abs(point.y - targetY);
     if (score < bestScore) {
@@ -106,58 +103,39 @@ function activeStepFromDrawLength(drawLength: number, stops: number[]) {
   return active;
 }
 
-function updateConnectorLine(
-  snake: HTMLElement,
-  nodes: HTMLElement[],
-  activeIndex: number,
-  snakeNodesMeta: { connectorX: number }[],
-) {
+function updateConnectorLine(snake: HTMLElement, activeIndex: number) {
   const connector = snake.querySelector(".career-snake-connector-line") as SVGLineElement | null;
-  const node = nodes[activeIndex];
-  const dot = node?.querySelector(".career-snake-node-dot") as HTMLElement | null;
-  if (!connector || !dot) return;
+  if (!connector) return;
 
-  const snakeRect = snake.getBoundingClientRect();
-  const dotRect = dot.getBoundingClientRect();
-  const yPercent = ((dotRect.top + dotRect.height / 2 - snakeRect.top) / snakeRect.height) * 100;
-  const xPercent = snakeNodesMeta[activeIndex]?.connectorX ?? 50;
+  const y = CONNECTOR_YS[activeIndex] ?? CONNECTOR_YS[0];
+  const x = CONNECTOR_XS[activeIndex] ?? 50;
 
-  connector.setAttribute("y1", String(yPercent));
-  connector.setAttribute("y2", String(yPercent));
-  connector.setAttribute("x1", String(xPercent));
+  connector.setAttribute("y1", String(y));
+  connector.setAttribute("y2", String(y));
+  connector.setAttribute("x1", String(x));
 }
 
 function playProjectReveal(item: HTMLElement, index: number) {
   const media = item.querySelector(".project-reveal-media");
   const content = item.querySelector(".project-reveal-content");
 
-  const tl = gsap.timeline({ defaults: { ease: "power3.out", overwrite: "auto" } });
-
-  tl.set(item, { autoAlpha: 1 }, 0);
+  gsap.fromTo(
+    item,
+    { autoAlpha: 0.85, y: 12 },
+    { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", overwrite: "auto" },
+  );
 
   if (media) {
-    tl.fromTo(
-      media,
-      { scale: 1.05, y: 16 },
-      { scale: 1, y: 0, autoAlpha: 1, duration: 0.75, force3D: true },
-      0,
-    );
+    gsap.fromTo(media, { y: 10 }, { y: 0, duration: 0.45, ease: "power2.out", overwrite: "auto" });
   }
 
   if (content) {
-    tl.fromTo(
+    gsap.fromTo(
       content,
-      { y: 20, x: index % 2 === 0 ? -12 : 12, autoAlpha: 1 },
-      { y: 0, x: 0, autoAlpha: 1, duration: 0.65, force3D: true },
-      0.12,
+      { y: 12, x: index % 2 === 0 ? -8 : 8 },
+      { y: 0, x: 0, duration: 0.4, ease: "power2.out", overwrite: "auto" },
     );
   }
-
-  if (!media && !content) {
-    tl.fromTo(item, { y: 20, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: 0.6 }, 0);
-  }
-
-  return tl;
 }
 
 export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStore[]) {
@@ -165,67 +143,47 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
   mm.add("(min-width: 1024px)", () => {
     const pinWrap = root.querySelector(DESKTOP_CAREER_PIN) as HTMLElement | null;
-    const stage = root.querySelector(DESKTOP_CAREER_STAGE) as HTMLElement | null;
     const snake = root.querySelector("#experience .career-snake") as HTMLElement | null;
     const nodes = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(DESKTOP_CAREER_NODE));
     const path = root.querySelector("#experience .career-snake-path-draw") as SVGPathElement | null;
-    const detail = root.querySelector("#experience .career-track-detail");
     const stepCount = Math.min(nodes.length, experience.length);
     const journeyEndPx = journeyScrollPx();
 
-    if (!pinWrap || !stage || !snake || !stepCount || !path) return;
+    if (!pinWrap || !snake || !stepCount || !path) return;
 
     const weights = buildStepWeights();
-    const connectorMeta = [
-      { connectorX: 50 },
-      { connectorX: 68 },
-      { connectorX: 32 },
-      { connectorX: 68 },
-      { connectorX: 32 },
-    ];
-
-    let pathStops: number[] = [];
-    let pathLength = path.getTotalLength();
+    const pathLength = path.getTotalLength();
+    const pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
     let lastStep = -1;
 
     nodes.forEach((node, i) => {
-      gsap.set(node, { autoAlpha: i === 0 ? 1 : 0 });
+      gsap.set(node, { clearProps: "opacity,visibility" });
+      node.style.opacity = i === 0 ? "1" : "0";
+      node.style.visibility = i === 0 ? "visible" : "hidden";
     });
 
-    if (detail) {
-      gsap.set(detail, { autoAlpha: 1, x: 0, y: 0 });
-    }
-
-    const measure = () => {
-      pathLength = path.getTotalLength();
-      pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
-      gsap.set(path, { strokeDasharray: pathLength });
-    };
-
-    measure();
-
-    const setPathDash = gsap.quickSetter(path, "strokeDashoffset", "px");
-    const setPathOpacity = gsap.quickSetter(path, "opacity");
+    path.style.strokeDasharray = `${pathLength}`;
+    path.style.strokeDashoffset = `${pathLength}`;
+    path.style.opacity = "0.45";
 
     const applyJourney = (progress: number) => {
       const clamped = Math.min(1, Math.max(0, progress));
       const drawTo = progressToDrawLength(clamped, weights, pathStops, pathLength);
       const activeStep = activeStepFromDrawLength(drawTo, pathStops);
 
-      setPathDash(Math.max(0, pathLength - drawTo));
-      setPathOpacity(0.45 + clamped * 0.5);
+      path.style.strokeDashoffset = `${Math.max(0, pathLength - drawTo)}`;
+      path.style.opacity = `${0.45 + clamped * 0.5}`;
 
       if (activeStep !== lastStep) {
         lastStep = activeStep;
-        nodes.forEach((node, i) => {
-          gsap.set(node, { autoAlpha: i <= activeStep ? 1 : 0 });
-        });
-        updateConnectorLine(snake, nodes, activeStep, connectorMeta);
+        for (let i = 0; i < nodes.length; i++) {
+          nodes[i].style.opacity = i <= activeStep ? "1" : "0";
+          nodes[i].style.visibility = i <= activeStep ? "visible" : "hidden";
+        }
+        updateConnectorLine(snake, activeStep);
         dispatchCareerStep(activeStep);
       }
     };
-
-    gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength, opacity: 0.45 });
 
     ScrollTrigger.create({
       trigger: pinWrap,
@@ -235,7 +193,6 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       pinSpacing: true,
       scrub: true,
       anticipatePin: 1,
-      onRefresh: measure,
       onUpdate: (self) => applyJourney(self.progress),
       onEnter: () => {
         lastStep = -1;
@@ -247,19 +204,23 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       },
       onLeave: () => {
         nodes.forEach((node) => {
-          gsap.set(node, { autoAlpha: 1 });
+          node.style.opacity = "1";
+          node.style.visibility = "visible";
         });
-        gsap.set(path, { strokeDashoffset: 0, opacity: 0.95 });
-        updateConnectorLine(snake, nodes, stepCount - 1, connectorMeta);
+        path.style.strokeDashoffset = "0";
+        path.style.opacity = "0.95";
+        updateConnectorLine(snake, stepCount - 1);
         dispatchCareerStep(stepCount - 1);
       },
       onLeaveBack: () => {
         lastStep = -1;
         nodes.forEach((node, i) => {
-          gsap.set(node, { autoAlpha: i === 0 ? 1 : 0 });
+          node.style.opacity = i === 0 ? "1" : "0";
+          node.style.visibility = i === 0 ? "visible" : "hidden";
         });
-        gsap.set(path, { strokeDashoffset: pathLength, opacity: 0.45 });
-        updateConnectorLine(snake, nodes, 0, connectorMeta);
+        path.style.strokeDashoffset = `${pathLength}`;
+        path.style.opacity = "0.45";
+        updateConnectorLine(snake, 0);
         dispatchCareerStep(0);
       },
       onToggle: (self) => {
@@ -267,45 +228,18 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
       },
     });
 
-    let resizeTimer = 0;
-    const onResize = () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(measure, 150);
-    };
-    window.addEventListener("resize", onResize, { passive: true });
+    updateConnectorLine(snake, 0);
+    dispatchCareerStep(0);
 
     return () => {
-      window.clearTimeout(resizeTimer);
-      window.removeEventListener("resize", onResize);
       pinWrap.classList.remove("is-pinned");
     };
   });
 
   mm.add("(max-width: 1023px)", () => {
     const steps = gsap.utils.toArray<HTMLElement>(root.querySelectorAll(MOBILE_CAREER_STEP));
-
-    steps.forEach((step, i) => {
-      gsap.set(step, { autoAlpha: 1, y: 0, rotateX: 0, transformOrigin: "50% 0%" });
-
-      ScrollTrigger.create({
-        trigger: step,
-        start: "top 93%",
-        onEnter: () => {
-          gsap.to(step, {
-            autoAlpha: 1,
-            y: 0,
-            rotateX: 0,
-            duration: 0.75,
-            delay: Math.min(i * 0.04, 0.2),
-            ease: "power3.out",
-            overwrite: "auto",
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(step, { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.5, overwrite: "auto" });
-        },
-      });
-
+    steps.forEach((step) => {
+      gsap.set(step, { autoAlpha: 1, y: 0 });
     });
   });
 
@@ -317,76 +251,34 @@ export function setupProjectJourney(root: HTMLElement, mediaStores: MediaStore[]
 
   mm.add("(min-width: 1024px)", () => {
     gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-journey-item")).forEach((item, index) => {
-      const media = item.querySelector(".project-reveal-media");
-      const content = item.querySelector(".project-reveal-content");
-
       gsap.set(item, { autoAlpha: 1 });
-      if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0 });
-      if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
 
       ScrollTrigger.create({
         trigger: item,
-        start: "top 88%",
-        end: "bottom 12%",
+        start: "top 85%",
+        once: true,
         onEnter: () => playProjectReveal(item, index),
-        onEnterBack: () => playProjectReveal(item, index),
       });
     });
   });
 
   mm.add("(max-width: 1023px)", () => {
-    const items = gsap.utils.toArray<HTMLElement>(
-      root.querySelectorAll(".project-journey-item, .project-github-item"),
+    gsap.utils.toArray<HTMLElement>(root.querySelectorAll(".project-journey-item, .project-github-item")).forEach(
+      (item, index) => {
+        gsap.set(item, { autoAlpha: 1 });
+
+        if (item.classList.contains("project-journey-item")) {
+          ScrollTrigger.create({
+            trigger: item,
+            start: "top 92%",
+            once: true,
+            onEnter: () => playProjectReveal(item, index),
+          });
+        }
+      },
     );
 
-    items.forEach((item, index) => {
-      if (item.classList.contains("project-journey-item")) {
-        gsap.set(item, { autoAlpha: 1 });
-        const media = item.querySelector(".project-reveal-media");
-        const content = item.querySelector(".project-reveal-content");
-        if (media) gsap.set(media, { autoAlpha: 1, scale: 1, y: 0 });
-        if (content) gsap.set(content, { autoAlpha: 1, y: 0, x: 0 });
-      } else {
-        gsap.set(item, { autoAlpha: 1, y: 0 });
-      }
-
-      ScrollTrigger.create({
-        trigger: item,
-        start: "top 94%",
-        onEnter: () => {
-          if (item.classList.contains("project-journey-item")) {
-            playProjectReveal(item, index);
-          } else {
-            gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", overwrite: "auto" });
-          }
-        },
-        onEnterBack: () => {
-          if (item.classList.contains("project-journey-item")) {
-            playProjectReveal(item, index);
-          } else {
-            gsap.to(item, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", overwrite: "auto" });
-          }
-        },
-      });
-    });
-
-    ScrollTrigger.create({
-      trigger: "#capabilities",
-      start: mobileHideStart,
-      onEnter: () => {
-        // keep projects visible — hiding caused blank-screen flicker
-      },
-      onLeaveBack: () => {
-        gsap.to(items, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.04,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
-      },
-    });
+    void mobileHideStart;
   });
 
   mediaStores.push(mm);
