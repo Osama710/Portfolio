@@ -1,4 +1,5 @@
 import { gsap } from "@/lib/gsap/register";
+import { getScrollY } from "@/lib/gsap/scroll-preserve";
 import { experience } from "@/lib/data";
 
 type MediaStore = ReturnType<typeof gsap.matchMedia>;
@@ -11,6 +12,7 @@ const MOBILE_CAREER_STEP = "#experience .career-mobile-shell .career-journey-ste
 const PATH_STOP_YS = [25, 100, 175, 250, 325];
 const CONNECTOR_YS = [6, 24, 42, 60, 77];
 const CONNECTOR_XS = [50, 68, 32, 68, 32];
+const METRICS_JUMP_PX = 64;
 
 type TrackMetrics = {
   trackTop: number;
@@ -84,18 +86,17 @@ function drawLengthFromProgress(progress: number, stops: number[], pathLength: n
   return from + (to - from) * Math.min(1, Math.max(0, local));
 }
 
-function cacheTrackMetrics(track: HTMLElement, pinWrap: HTMLElement, clearance: number): TrackMetrics {
+function measureTrackMetrics(track: HTMLElement, pinWrap: HTMLElement, clearance: number): TrackMetrics {
   const rect = track.getBoundingClientRect();
   return {
-    trackTop: rect.top + window.scrollY,
-    scrollSpan: track.offsetHeight - pinWrap.offsetHeight,
+    trackTop: rect.top + getScrollY(),
+    scrollSpan: Math.max(1, track.offsetHeight - pinWrap.offsetHeight),
     clearance,
   };
 }
 
 function progressFromMetrics(metrics: TrackMetrics) {
-  if (metrics.scrollSpan <= 0) return 0;
-  const progress = (window.scrollY + metrics.clearance - metrics.trackTop) / metrics.scrollSpan;
+  const progress = (getScrollY() + metrics.clearance - metrics.trackTop) / metrics.scrollSpan;
   return Math.min(1, Math.max(0, progress));
 }
 
@@ -127,14 +128,22 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
 
     const pathLength = path.getTotalLength();
     const pathStops = buildPathStopsFromAnchors(path, PATH_STOP_YS);
-    let metrics = cacheTrackMetrics(track, pinWrap, clearance);
+    let metrics = measureTrackMetrics(track, pinWrap, clearance);
     let activeStep = -1;
     let pinned = false;
-    let loopId = 0;
+    let tickerOn = false;
+    let lastScrollY = getScrollY();
 
     track.style.setProperty("--career-path-length", `${pathLength}`);
     track.style.setProperty("--career-draw-to", "0");
     track.style.setProperty("--career-scroll-progress", "0");
+    path.style.strokeDasharray = `${pathLength} ${pathLength}`;
+    path.style.strokeDashoffset = `${pathLength}`;
+    path.style.opacity = "0.45";
+
+    const remeasureMetrics = () => {
+      metrics = measureTrackMetrics(track, pinWrap, clearance);
+    };
 
     const setStep = (step: number) => {
       const clamped = Math.min(stepCount - 1, Math.max(0, step));
@@ -148,9 +157,12 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
     const syncFromScroll = () => {
       const progress = progressFromMetrics(metrics);
       const drawTo = drawLengthFromProgress(progress, pathStops, pathLength, stepCount);
+      const dashOffset = Math.max(0, pathLength - drawTo);
 
       track.style.setProperty("--career-draw-to", `${drawTo}`);
       track.style.setProperty("--career-scroll-progress", `${progress}`);
+      path.style.strokeDashoffset = `${dashOffset}`;
+      path.style.opacity = `${0.45 + progress * 0.5}`;
 
       setStep(activeStepFromDrawLength(drawTo, pathStops));
 
@@ -159,57 +171,74 @@ export function setupExperienceJourney(root: HTMLElement, mediaStores: MediaStor
         pinned = nextPinned;
         pinWrap.classList.toggle("is-pinned", pinned);
         track.classList.toggle("is-scrolling-career", pinned);
-      }
-
-      return progress;
-    };
-
-    const stopLoop = () => {
-      if (loopId) {
-        window.cancelAnimationFrame(loopId);
-        loopId = 0;
+        if (nextPinned) remeasureMetrics();
       }
     };
 
-    const startLoop = () => {
-      if (loopId) return;
-      const tick = () => {
-        const progress = syncFromScroll();
-        if (progress > 0.002 && progress < 0.998) {
-          loopId = window.requestAnimationFrame(tick);
-        } else {
-          loopId = 0;
-        }
-      };
-      loopId = window.requestAnimationFrame(tick);
-    };
-
-    const scheduleSync = () => {
+    const onTick = () => {
       syncFromScroll();
-      startLoop();
+    };
+
+    const enableTicker = () => {
+      if (tickerOn) return;
+      tickerOn = true;
+      remeasureMetrics();
+      gsap.ticker.add(onTick);
+      syncFromScroll();
+    };
+
+    const disableTicker = () => {
+      if (!tickerOn) return;
+      tickerOn = false;
+      gsap.ticker.remove(onTick);
+      track.classList.remove("is-scrolling-career");
+    };
+
+    const onScroll = () => {
+      const scrollY = getScrollY();
+      if (Math.abs(scrollY - lastScrollY) >= METRICS_JUMP_PX) {
+        remeasureMetrics();
+      }
+      lastScrollY = scrollY;
     };
 
     const onResize = () => {
-      metrics = cacheTrackMetrics(track, pinWrap, clearance);
-      scheduleSync();
+      remeasureMetrics();
+      syncFromScroll();
     };
 
     track.dataset.activeStep = "0";
     updateConnectorLine(snake, 0);
     dispatchCareerStep(0);
-    syncFromScroll();
 
-    window.addEventListener("scroll", scheduleSync, { passive: true });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          enableTicker();
+        } else {
+          disableTicker();
+        }
+      },
+      { root: null, rootMargin: "160px 0px 160px 0px", threshold: 0 },
+    );
+
+    observer.observe(track);
+    enableTicker();
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
 
     removeDesktopScroll = () => {
-      window.removeEventListener("scroll", scheduleSync);
+      observer.disconnect();
+      disableTicker();
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      stopLoop();
-      track.classList.remove("is-scrolling-career");
       track.style.removeProperty("--career-path-length");
       track.style.removeProperty("--career-draw-to");
       track.style.removeProperty("--career-scroll-progress");
+      path.style.removeProperty("stroke-dasharray");
+      path.style.removeProperty("stroke-dashoffset");
+      path.style.removeProperty("opacity");
       delete track.dataset.activeStep;
       pinWrap.classList.remove("is-pinned");
       activeStep = -1;
